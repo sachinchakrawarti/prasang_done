@@ -1,0 +1,72 @@
+// src/locales/exploreMonostichTranslations.js
+
+export const exploreMonostichTranslations = {
+  en: {
+    "title": "Monostich: Poetry in a Single Line",
+    "subtitle": "Discover the power of words captured in a single breath",
+    "previous": "Previous monostich",
+    "next": "Next monostich",
+    "showRomanization": "Show Romanization",
+    "hideRomanization": "Hide Romanization",
+    "showTranslation": "Show English Translation",
+    "hideTranslation": "Hide English Translation",
+    "exploreAll": "Explore All Monostich",
+    "pause": "Pause",
+    "play": "Play",
+    "slideshow": "Slideshow",
+    "languages": "Languages",
+    "poets": "Poets",
+    "translations": "Translations",
+    "from": "From",
+    "languagesDesc": "Monostich from English, Hindi, Urdu, Arabic, Persian, and French",
+    "poetsDesc": "From classical masters to modern voices",
+    "translationsDesc": "Read monostich in multiple languages with AI translations",
+  },
+  hi: {
+    "title": "मोनोस्टिच: एक पंक्ति में कविता",
+    "subtitle": "एक सांस में कैद शब्दों की शक्ति को खोजें",
+    "previous": "पिछला मोनोस्टिच",
+    "next": "अगला मोनोस्टिच",
+    "showRomanization": "रोमनाइज़ेशन दिखाएं",
+    "hideRomanization": "रोमनाइज़ेशन छुपाएं",
+    "showTranslation": "हिंदी अनुवाद दिखाएं",
+    "hideTranslation": "हिंदी अनुवाद छुपाएं",
+    "exploreAll": "सभी मोनोस्टिच देखें",
+    "pause": "रोकें",
+    "play": "चलाएं",
+    "slideshow": "स्लाइडशो",
+    "languages": "भाषाएँ",
+    "poets": "कवि",
+    "translations": "अनुवाद",
+    "from": "से",
+    "languagesDesc": "अंग्रेजी, हिंदी, उर्दू, अरबी, फारसी और फ्रेंच में मोनोस्टिच",
+    "poetsDesc": "शास्त्रीय उस्तादों से लेकर आधुनिक आवाज़ों तक",
+    "translationsDesc": "एआई अनुवाद के साथ कई भाषाओं में मोनोस्टिच पढ़ें",
+  },
+  ur: {
+    "title": "مونوسٹچ: ایک سطر میں شاعری",
+    "subtitle": "ایک سانس میں قید الفاظ کی طاقت دریافت کریں",
+    "previous": "پچھلا مونوسٹچ",
+    "next": "اگلا مونوسٹچ",
+    "showRomanization": "رومنائزیشن دکھائیں",
+    "hideRomanization": "رومنائزیشن چھپائیں",
+    "showTranslation": "اردو ترجمہ دکھائیں",
+    "hideTranslation": "اردو ترجمہ چھپائیں",
+    "exploreAll": "تمام مونوسٹچ دیکھیں",
+    "pause": "توقف",
+    "play": "چلائیں",
+    "slideshow": "سلائیڈ شو",
+    "languages": "زبانیں",
+    "poets": "شعرا",
+    "translations": "تراجم",
+    "from": "از",
+    "languagesDesc": "انگریزی، ہندی، اردو، عربی، فارسی اور فرانسیسی میں مونوسٹچ",
+    "poetsDesc": "کلاسیکی اساتذہ سے لے کر جدید آوازوں تک",
+    "translationsDesc": "اے آئی ترجمے کے ساتھ متعدد زبانوں میں مونوسٹچ پڑھیں",
+  }
+};
+
+export const translateExplore = (text, language) => {
+  const lang = language && exploreMonostichTranslations[language] ? language : 'en';
+  return exploreMonostichTranslations[lang]?.[text] || text;
+};
