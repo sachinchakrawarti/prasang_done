@@ -1,4 +1,5 @@
-// src/public_app/layout/navbar/NavbarData.js
+// src/layout/navbar/NavbarData.js
+
 import {
   FaHome,
   FaBook,
@@ -30,89 +31,91 @@ export const themeIcons = {
   dark: { icon: FaMoon, color: "text-indigo-400" },
   forest: { icon: FaTree, color: "text-green-500" },
   lavender: { icon: FaSeedling, color: "text-purple-500" },
-  rose: { icon: FaHeart, color: "text-pink-500" }, // Changed from FaRose to FaHeart
+  rose: { icon: FaHeart, color: "text-pink-500" },
   sepia: { icon: FaScroll, color: "text-amber-700" },
 };
 
+// ✅ Updated navItems with language-aware paths
+// The actual paths will be generated with the language parameter
 export const navItems = [
   {
-    label: "Home",
-    to: "/",
+    labelKey: "home",
+    path: "/",  // Will be used as /{lang}/
     icon: FaHome,
     themeAware: true,
   },
   {
-    label: "Poems",
-    to: "/poems",
+    labelKey: "poems",
+    path: "/poems",
     icon: FaBook,
     themeAware: true,
     dropdown: [
-      { label: "All Poems", to: "/poems", icon: FaBook },
-      { label: "Popular", to: "/poems/popular", icon: FaHeart },
-      { label: "New", to: "/poems/new", icon: FaPenFancy },
-      { label: "Classics", to: "/poems/classics", icon: FaHistory },
-      { label: "Categories", to: "/poems/categories", icon: FaBook },
-      { label: "Poem Types", to: "/poemstypes", icon: FaPenNib },
+      { labelKey: "allPoems", path: "/poems", icon: FaBook },
+      { labelKey: "popular", path: "/poems/popular", icon: FaHeart },
+      { labelKey: "new", path: "/poems/new", icon: FaPenFancy },
+      { labelKey: "classics", path: "/poems/classics", icon: FaHistory },
+      { labelKey: "categories", path: "/poems/categories", icon: FaBook },
+      { labelKey: "poemTypes", path: "/poemstypes", icon: FaPenNib },
     ],
   },
-
   {
-    label: "Prose",
-    to: "/prose",
+    labelKey: "prose",
+    path: "/prose",
     icon: FaPenNib,
     themeAware: true,
     dropdown: [
-      { label: "All Prose", to: "/prose", icon: FaPenNib },
-      { label: "Short Stories", to: "/prose/stories", icon: FaBook },
-      { label: "Essays", to: "/prose/essays", icon: FaPenFancy },
-      { label: "Articles", to: "/prose/articles", icon: FaBlog },
-      { label: "Memoirs", to: "/prose/memoirs", icon: FaHistory },
-      { label: "Literary Criticism", to: "/prose/criticism", icon: FaAward },
+      { labelKey: "allProse", path: "/prose", icon: FaPenNib },
+      { labelKey: "shortStories", path: "/prose/stories", icon: FaBook },
+      { labelKey: "essays", path: "/prose/essays", icon: FaPenFancy },
+      { labelKey: "articles", path: "/prose/articles", icon: FaBlog },
+      { labelKey: "memoirs", path: "/prose/memoirs", icon: FaHistory },
+      { labelKey: "literaryCriticism", path: "/prose/criticism", icon: FaAward },
     ],
   },
-
   {
-    label: "Poets",
-    to: "/poets",
+    labelKey: "poets",
+    path: "/poets",
     icon: FaUser,
     themeAware: true,
     dropdown: [
-      { label: "All Poets", to: "/poets", icon: FaUser },
-      { label: "Featured", to: "/poets/featured", icon: FaAward },
-      { label: "New Poets", to: "/poets/new", icon: FaPenFancy },
-      { label: "Interviews", to: "/poets/interviews", icon: FaQuestionCircle },
+      { labelKey: "allPoets", path: "/poets", icon: FaUser },
+      { labelKey: "featured", path: "/poets/featured", icon: FaAward },
+      { labelKey: "newPoets", path: "/poets/new", icon: FaPenFancy },
+      { labelKey: "interviews", path: "/poets/interviews", icon: FaQuestionCircle },
     ],
   },
-
-  // Contributors Section
   {
-    label: "Contributors",
-    to: "/contributors",
+    labelKey: "contributors",
+    path: "/contributors",
     icon: FaFeatherAlt,
     themeAware: true,
     dropdown: [
-      { label: "All Contributors", to: "/contributors", icon: FaFeatherAlt },
-      { label: "Translators", to: "/translators", icon: FaBook },
-      { label: "Scholars", to: "/scholars", icon: FaAward },
-      { label: "Editors", to: "/editors", icon: FaPenFancy },
-      { label: "Commentators", to: "/commentators", icon: FaHeart },
+      { labelKey: "allContributors", path: "/contributors", icon: FaFeatherAlt },
+      { labelKey: "translators", path: "/translators", icon: FaBook },
+      { labelKey: "scholars", path: "/scholars", icon: FaAward },
+      { labelKey: "editors", path: "/editors", icon: FaPenFancy },
+      { labelKey: "commentators", path: "/commentators", icon: FaHeart },
     ],
   },
-
   {
-    label: "About",
-    to: "/about",
+    labelKey: "about",
+    path: "/about",
     icon: FaInfoCircle,
     themeAware: true,
   },
-
   {
-    label: "Test Page",
-    to: "/testpage",
+    labelKey: "testPage",
+    path: "/testpage",
     icon: FaInfoCircle,
     themeAware: true,
   },
 ];
+
+// Helper function to get language-aware path
+export const getLocalizedPath = (path, lang) => {
+  if (path === '/') return `/${lang}`;
+  return `/${lang}${path}`;
+};
 
 // Helper function to get theme-based icon color
 export const getThemeIconColor = (themeName) => {
@@ -216,6 +219,19 @@ export const getThemeSecondaryText = (themeName) => {
     sepia: "text-amber-800",
   };
   return secondaryText[themeName] || "text-gray-700";
+};
+
+// Helper function to get theme-based active link color
+export const getThemeActiveLink = (themeName) => {
+  const activeColors = {
+    light: "text-amber-600 border-amber-500",
+    dark: "text-amber-400 border-amber-400",
+    forest: "text-green-600 border-green-500",
+    lavender: "text-purple-600 border-purple-500",
+    rose: "text-pink-600 border-pink-500",
+    sepia: "text-amber-700 border-amber-600",
+  };
+  return activeColors[themeName] || "text-amber-600 border-amber-500";
 };
 
 export default navItems;

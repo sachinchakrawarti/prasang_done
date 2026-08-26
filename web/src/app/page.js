@@ -1,6 +1,6 @@
-// src/app/page.js
+// src/app/prose/page.js
 import { redirect } from 'next/navigation';
 
-export default function HomePage() {
-  redirect('/en');
+export default function ProseRedirect() {
+  redirect('/en/prose');
 }

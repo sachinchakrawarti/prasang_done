@@ -1,7 +1,7 @@
 // src/app/(main)/[lang]/(public)/prose/page.jsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -18,9 +18,10 @@ import {
   FaList,
   FaTag,
   FaEye,
+  FaArrowRight,
 } from "react-icons/fa";
 import { useTheme } from "@/themes/ThemeContext";
-import { useTranslation } from "@/hooks/useTranslation";
+import { useTranslation } from "@/hooks/useLoalization";
 
 // Sample prose data (replace with actual data from your API)
 const sampleProse = [
@@ -155,6 +156,21 @@ export default function ProsePage() {
   const [viewMode, setViewMode] = useState("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState("newest");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Get unique types, categories, and languages for filters
+  const types = useMemo(
+    () => ["all", ...new Set(prose.map((p) => p.type))],
+    [prose],
+  );
+  const categories = useMemo(
+    () => ["all", ...new Set(prose.map((p) => p.category))],
+    [prose],
+  );
+  const languages = useMemo(
+    () => ["all", ...new Set(prose.map((p) => p.language))],
+    [prose],
+  );
 
   // Filter prose based on search, type, category, language
   useEffect(() => {
@@ -166,7 +182,10 @@ export default function ProsePage() {
         (item) =>
           item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.excerpt.toLowerCase().includes(searchTerm.toLowerCase()),
+          item.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.tags.some((tag) =>
+            tag.toLowerCase().includes(searchTerm.toLowerCase()),
+          ),
       );
     }
 
@@ -279,13 +298,24 @@ export default function ProsePage() {
   const borderColor = getBorderColor();
   const hoverBg = getHoverBg();
 
-  // Get unique types, categories, and languages for filters
-  const types = ["all", ...new Set(prose.map((p) => p.type))];
-  const categories = ["all", ...new Set(prose.map((p) => p.category))];
-  const languages = ["all", ...new Set(prose.map((p) => p.language))];
+  // Navigation handlers
+  const navigateToProse = useCallback(
+    (id) => {
+      window.location.href = `/${lang}/prose/${id}`;
+    },
+    [lang],
+  );
+
+  const navigateToAuthor = useCallback(
+    (slug, e) => {
+      e.stopPropagation();
+      window.location.href = `/${lang}/authors/${slug}`;
+    },
+    [lang],
+  );
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900/50">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -314,7 +344,8 @@ export default function ProsePage() {
                 placeholder={t("searchProse") || "Search prose, authors..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${borderColor} bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500`}
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${borderColor} bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all`}
+                aria-label="Search prose"
               />
             </div>
 
@@ -322,7 +353,8 @@ export default function ProsePage() {
               {/* Filter Toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`px-4 py-2 rounded-lg border ${borderColor} ${hoverBg} flex items-center gap-2 transition`}
+                className={`px-4 py-2 rounded-lg border ${borderColor} ${hoverBg} flex items-center gap-2 transition whitespace-nowrap`}
+                aria-label="Toggle filters"
               >
                 <FaFilter className={textColor} />
                 <span>{t("filter") || "Filter"}</span>
@@ -337,6 +369,7 @@ export default function ProsePage() {
                   setViewMode(viewMode === "grid" ? "list" : "grid")
                 }
                 className={`px-4 py-2 rounded-lg border ${borderColor} ${hoverBg} transition`}
+                aria-label="Toggle view mode"
               >
                 {viewMode === "grid" ? <FaList /> : <FaTh />}
               </button>
@@ -346,7 +379,7 @@ export default function ProsePage() {
           {/* Filters Panel */}
           {showFilters && (
             <div
-              className={`p-4 rounded-lg border ${borderColor} bg-white dark:bg-gray-800 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4`}
+              className={`p-4 rounded-lg border ${borderColor} bg-white dark:bg-gray-800 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fadeIn`}
             >
               {/* Type Filter */}
               <div>
@@ -431,8 +464,14 @@ export default function ProsePage() {
         </div>
 
         {/* Prose Grid/List */}
-        {filteredProse.length === 0 ? (
-          <div className="text-center py-12">
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+          </div>
+        ) : filteredProse.length === 0 ? (
+          <div
+            className={`text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border ${borderColor}`}
+          >
             <FaBookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <h3 className="text-xl font-medium text-gray-600 dark:text-gray-300">
               {t("noProseFound") || "No prose found"}
@@ -443,7 +482,6 @@ export default function ProsePage() {
             </p>
           </div>
         ) : viewMode === "grid" ? (
-          // Grid View
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProse.map((item) => (
               <ProseCard
@@ -454,11 +492,12 @@ export default function ProsePage() {
                 gradient={gradient}
                 borderColor={borderColor}
                 hoverBg={hoverBg}
+                onNavigate={navigateToProse}
+                onNavigateAuthor={navigateToAuthor}
               />
             ))}
           </div>
         ) : (
-          // List View
           <div className="space-y-4">
             {filteredProse.map((item) => (
               <ProseListItem
@@ -469,29 +508,44 @@ export default function ProsePage() {
                 gradient={gradient}
                 borderColor={borderColor}
                 hoverBg={hoverBg}
+                onNavigate={navigateToProse}
+                onNavigateAuthor={navigateToAuthor}
               />
             ))}
           </div>
         )}
 
         {/* Results Count */}
-        <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-          {t("showing") || "Showing"} {filteredProse.length}{" "}
-          {t("proseItems") || "prose items"}
-        </div>
+        {filteredProse.length > 0 && (
+          <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+            {t("showing") || "Showing"} {filteredProse.length}{" "}
+            {t("proseItems") || "prose items"}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 // Prose Card Component (Grid View)
-function ProseCard({ item, lang, textColor, gradient, borderColor, hoverBg }) {
+function ProseCard({
+  item,
+  lang,
+  textColor,
+  gradient,
+  borderColor,
+  hoverBg,
+  onNavigate,
+  onNavigateAuthor,
+}) {
   const { t } = useTranslation();
 
   return (
-    <Link
-      href={`/${lang}/prose/${item.id}`}
-      className={`group block p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border ${borderColor} hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
+    <div
+      className={`group p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border ${borderColor} hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer`}
+      onClick={() => onNavigate(item.id)}
+      role="article"
+      aria-label={`Prose: ${item.title}`}
     >
       {/* Featured Badge */}
       {item.featured && (
@@ -499,6 +553,7 @@ function ProseCard({ item, lang, textColor, gradient, borderColor, hoverBg }) {
           <span
             className={`px-2 py-1 text-xs font-medium text-white bg-gradient-to-r ${gradient} rounded-full`}
           >
+            <FaStar className="inline mr-1" size={10} />
             {t("featured") || "Featured"}
           </span>
         </div>
@@ -519,19 +574,18 @@ function ProseCard({ item, lang, textColor, gradient, borderColor, hoverBg }) {
       </div>
 
       {/* Title */}
-      <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2">
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2">
         {item.title}
       </h3>
 
       {/* Author */}
-      <Link
-        href={`/${lang}/authors/${item.authorSlug}`}
-        className="flex items-center gap-2 mt-2 text-sm text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-        onClick={(e) => e.stopPropagation()}
+      <span
+        className="flex items-center gap-2 mt-2 text-sm text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer"
+        onClick={(e) => onNavigateAuthor(item.authorSlug, e)}
       >
         <FaUser size={12} />
         <span>{item.author}</span>
-      </Link>
+      </span>
 
       {/* Category */}
       <div className="flex items-center gap-1 mt-1 text-xs text-gray-400 dark:text-gray-500">
@@ -560,7 +614,7 @@ function ProseCard({ item, lang, textColor, gradient, borderColor, hoverBg }) {
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">
-            <FaHeart className={`${textColor}`} size={14} />
+            <FaHeart className={textColor} size={14} />
             {item.likes}
           </span>
           <span className="flex items-center gap-1">
@@ -578,7 +632,7 @@ function ProseCard({ item, lang, textColor, gradient, borderColor, hoverBg }) {
           {t("read") || "Read"} →
         </span>
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -590,13 +644,17 @@ function ProseListItem({
   gradient,
   borderColor,
   hoverBg,
+  onNavigate,
+  onNavigateAuthor,
 }) {
   const { t } = useTranslation();
 
   return (
-    <Link
-      href={`/${lang}/prose/${item.id}`}
-      className={`group block p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border ${borderColor} hover:shadow-xl transition-all duration-300`}
+    <div
+      className={`group p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border ${borderColor} hover:shadow-xl transition-all duration-300 cursor-pointer`}
+      onClick={() => onNavigate(item.id)}
+      role="article"
+      aria-label={`Prose: ${item.title}`}
     >
       <div className="flex flex-col md:flex-row md:items-center gap-4">
         {/* Content */}
@@ -606,6 +664,7 @@ function ProseListItem({
               <span
                 className={`px-2 py-1 text-xs font-medium text-white bg-gradient-to-r ${gradient} rounded-full`}
               >
+                <FaStar className="inline mr-1" size={10} />
                 {t("featured") || "Featured"}
               </span>
             )}
@@ -624,18 +683,17 @@ function ProseListItem({
             )}
           </div>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
             {item.title}
           </h3>
 
-          <Link
-            href={`/${lang}/authors/${item.authorSlug}`}
-            className="flex items-center gap-2 mt-1 text-sm text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-            onClick={(e) => e.stopPropagation()}
+          <span
+            className="flex items-center gap-2 mt-1 text-sm text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer"
+            onClick={(e) => onNavigateAuthor(item.authorSlug, e)}
           >
             <FaUser size={12} />
             <span>{item.author}</span>
-          </Link>
+          </span>
 
           <p className="mt-2 text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2">
             {item.excerpt}
@@ -645,7 +703,7 @@ function ProseListItem({
         {/* Stats */}
         <div className="flex md:flex-col items-center md:items-end gap-4 md:gap-2 text-sm text-gray-500 dark:text-gray-400">
           <span className="flex items-center gap-1">
-            <FaHeart className={`${textColor}`} size={14} />
+            <FaHeart className={textColor} size={14} />
             {item.likes}
           </span>
           <span className="flex items-center gap-1">
@@ -659,6 +717,6 @@ function ProseListItem({
           </span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

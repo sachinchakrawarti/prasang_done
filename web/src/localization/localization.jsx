@@ -1,21 +1,20 @@
-// src/context/LanguageContext.jsx
+// src/localization/localization.jsx
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { englishLocalization } from "./english_localization";
+import { hindiLocalization } from "./hindi_localization";
+import { urduLocalization } from "./urdu_localization";
 
-// ==================== TRANSLATIONS ====================
-// Import translations directly
-import { englishLocalization } from "@/localization/english_localization";
-import { hindiLocalization } from "@/localization/hindi_localization";
-import { urduLocalization } from "@/localization/urdu_localization";
-
-const translations = {
+// ==================== TRANSLATIONS OBJECT ====================
+export const translations = {
   en: englishLocalization,
   hi: hindiLocalization,
   ur: urduLocalization,
 };
 
-const availableLanguages = [
+// ==================== AVAILABLE LANGUAGES ====================
+export const availableLanguages = [
   {
     code: "en",
     name: "English",
@@ -37,61 +36,41 @@ export const LanguageProvider = ({ children }) => {
 
   // Get language from localStorage on mount
   useEffect(() => {
-    try {
-      const savedLanguage = localStorage.getItem("language") || "en";
-      if (translations[savedLanguage]) {
-        setLanguage(savedLanguage);
-      }
-    } catch (error) {
-      console.error("Error reading language from localStorage:", error);
-    }
+    const savedLanguage = localStorage.getItem("language") || "en";
+    setLanguage(savedLanguage);
     setIsLoading(false);
   }, []);
 
   // Update document when language changes
   useEffect(() => {
     if (typeof window !== "undefined") {
-      try {
-        // Save to localStorage
-        localStorage.setItem("language", language);
+      // Save to localStorage
+      localStorage.setItem("language", language);
 
-        // Update document language
-        document.documentElement.lang = language;
+      // Update document language
+      document.documentElement.lang = language;
 
-        // Update RTL/LTR
-        const langInfo = availableLanguages.find((l) => l.code === language);
-        if (langInfo) {
-          setIsRTL(langInfo.dir === "rtl");
-          document.documentElement.dir = langInfo.dir;
-          document.documentElement.setAttribute("dir", langInfo.dir);
-        }
-
-        // Update HTML lang attribute
-        document.documentElement.setAttribute("lang", language);
-      } catch (error) {
-        console.error("Error updating language:", error);
+      // Update RTL/LTR
+      const langInfo = availableLanguages.find((l) => l.code === language);
+      if (langInfo) {
+        setIsRTL(langInfo.dir === "rtl");
+        document.documentElement.dir = langInfo.dir;
+        document.documentElement.setAttribute("dir", langInfo.dir);
       }
     }
   }, [language]);
 
   // Translation function
   const t = (key, params = {}) => {
-    try {
-      const langData = translations[language] || translations.en;
-      let text = langData[key] || key || "";
+    const langData = translations[language] || translations.en;
+    let text = langData[key] || key || "";
 
-      // Replace parameters in string (e.g., "Hello {{name}}" -> "Hello John")
-      if (params && typeof params === "object") {
-        Object.keys(params).forEach((param) => {
-          text = text.replace(new RegExp(`{{${param}}}`, "g"), params[param]);
-        });
-      }
+    // Replace parameters in string (e.g., "Hello {{name}}" -> "Hello John")
+    Object.keys(params).forEach((param) => {
+      text = text.replace(new RegExp(`{{${param}}}`, "g"), params[param]);
+    });
 
-      return text;
-    } catch (error) {
-      console.error("Translation error for key:", key, error);
-      return key;
-    }
+    return text;
   };
 
   // Get current language info
@@ -149,32 +128,21 @@ export const useLanguage = () => {
 // ==================== TRANSLATION HELPERS ====================
 // For use in non-React components
 export const getTranslation = (key, language = "en", params = {}) => {
-  try {
-    const langData = translations[language] || translations.en;
-    let text = langData[key] || key || "";
+  const langData = translations[language] || translations.en;
+  let text = langData[key] || key || "";
 
-    if (params && typeof params === "object") {
-      Object.keys(params).forEach((param) => {
-        text = text.replace(new RegExp(`{{${param}}}`, "g"), params[param]);
-      });
-    }
+  Object.keys(params).forEach((param) => {
+    text = text.replace(new RegExp(`{{${param}}}`, "g"), params[param]);
+  });
 
-    return text;
-  } catch (error) {
-    console.error("Translation error for key:", key, error);
-    return key;
-  }
+  return text;
 };
 
 // Get browser language
 export const getBrowserLanguage = () => {
   if (typeof window === "undefined") return "en";
-  try {
-    const browserLang = navigator.language.split("-")[0];
-    return translations[browserLang] ? browserLang : "en";
-  } catch (error) {
-    return "en";
-  }
+  const browserLang = navigator.language.split("-")[0];
+  return translations[browserLang] ? browserLang : "en";
 };
 
 // Get supported languages
@@ -187,6 +155,42 @@ export const isLanguageSupported = (langCode) => {
   return !!translations[langCode];
 };
 
+// ==================== TRANSLATION COMPONENT ====================
+export const Translation = ({
+  as: Component = "span",
+  tKey,
+  children,
+  params = {},
+  className = "",
+  ...props
+}) => {
+  const { t } = useLanguage();
+  const translatedText = t(tKey, params);
+
+  return (
+    <Component className={className} {...props}>
+      {translatedText || children}
+    </Component>
+  );
+};
+
+// ==================== RTL WRAPPER ====================
+export const RTLWrapper = ({ children, langCode }) => {
+  const { isRTL: contextRTL, currentLanguage } = useLanguage();
+  const isRTL = langCode
+    ? availableLanguages.find((l) => l.code === langCode)?.dir === "rtl"
+    : contextRTL;
+
+  return (
+    <div
+      dir={isRTL ? "rtl" : "ltr"}
+      className={isRTL ? "rtl-support" : "ltr-support"}
+    >
+      {children}
+    </div>
+  );
+};
+
 export default {
   LanguageProvider,
   useLanguage,
@@ -196,4 +200,6 @@ export default {
   getBrowserLanguage,
   getSupportedLanguages,
   isLanguageSupported,
+  Translation,
+  RTLWrapper,
 };

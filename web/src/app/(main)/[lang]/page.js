@@ -2,54 +2,77 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useTheme } from "@/themes/ThemeContext";
+import { useTranslation } from "@/hooks/useLoalization";
 
-export default function LangHomePage() {
+// Import all homepage components
+import HeroSlider from "@/components/homepages/heroslider";
+import ExplorePoems from "@/components/homepages/exploerpoems";
+import ExplorePoets from "@/components/homepages/exploerpoets";
+import FeaturedContributors from "@/components/homepages/featuredcontributors";
+import LiteraryCategories from "@/components/homepages/literarycategories";
+import Testimonials from "@/components/homepages/testimonials";
+import Newsletter from "@/components/homepages/newsletter";
+import CTASection from "@/components/homepages/ctasection";
+
+
+export default function HomePage() {
   const params = useParams();
   const lang = params?.lang || 'en';
-  
+  const { themeName } = useTheme();
+  const { t } = useTranslation();
+
+  // Theme-aware styles for the page wrapper
+  const getGradient = () => {
+    switch (themeName) {
+      case "forest": return "from-green-600 to-emerald-500";
+      case "lavender": return "from-purple-600 to-pink-500";
+      case "rose": return "from-rose-600 to-pink-500";
+      case "sepia": return "from-amber-700 to-yellow-600";
+      default: return "from-amber-600 to-yellow-500";
+    }
+  };
+
+  const gradient = getGradient();
+
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column',
-      alignItems: 'center', 
-      justifyContent: 'center',
-      padding: '2rem',
-      backgroundColor: '#fafafa'
-    }}>
-      <h1 style={{ fontSize: '3rem', color: '#d97706', marginBottom: '0.5rem' }}>
-        🪶 Prasang
-      </h1>
-      <p style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-        Current language: <span style={{ color: '#d97706' }}>{lang.toUpperCase()}</span>
-      </p>
-      <p style={{ fontSize: '1.1rem', color: '#4b5563' }}>
-        {lang === 'en' && 'Welcome to Prasang - A sanctuary for poetry and prose'}
-        {lang === 'hi' && 'प्रसंग में आपका स्वागत है - कविता और गद्य का अभयारण्य'}
-        {lang === 'ur' && 'پراسنگ میں خوش آمدید - شاعری اور نثر کی پناہ گاہ'}
-        {!['en', 'hi', 'ur'].includes(lang) && `Welcome in ${lang}`}
-      </p>
-      <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-        <a href={`/${lang}/poems`} style={{
-          padding: '0.75rem 2rem',
-          backgroundColor: '#d97706',
-          color: 'white',
-          borderRadius: '9999px',
-          textDecoration: 'none',
-          fontWeight: '500'
-        }}>
-          Explore Poems
-        </a>
-        <a href={`/${lang}/about`} style={{
-          padding: '0.75rem 2rem',
-          border: '2px solid #d97706',
-          color: '#d97706',
-          borderRadius: '9999px',
-          textDecoration: 'none',
-          fontWeight: '500'
-        }}>
-          Learn More
-        </a>
+    <div className="min-h-screen">
+      {/* Hero Slider - Full width */}
+      <HeroSlider />
+
+      {/* Explore Poems Section */}
+      <ExplorePoems />
+
+      {/* Literary Categories Section */}
+      <LiteraryCategories />
+
+      {/* Explore Poets Section */}
+      <ExplorePoets />
+
+      {/* Featured Contributors Section */}
+      <FeaturedContributors />
+
+      {/* Testimonials Section */}
+      <Testimonials />
+
+      {/* Newsletter Section */}
+      <Newsletter />
+
+      {/* Call to Action Section */}
+      <CTASection />
+
+      {/* Decorative Footer Note */}
+      <div className="text-center py-6 px-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {t("footerNote") || "Made with ❤️ for poetry and literature lovers around the world"}
+        </p>
+        <div className="flex justify-center gap-2 mt-2">
+          <span className={`w-2 h-2 rounded-full bg-gradient-to-r ${gradient}`}></span>
+          <span className={`w-2 h-2 rounded-full bg-gradient-to-r ${gradient}`}></span>
+          <span className={`w-2 h-2 rounded-full bg-gradient-to-r ${gradient}`}></span>
+          <span className={`w-2 h-2 rounded-full bg-gradient-to-r ${gradient}`}></span>
+          <span className={`w-2 h-2 rounded-full bg-gradient-to-r ${gradient}`}></span>
+        </div>
       </div>
     </div>
   );

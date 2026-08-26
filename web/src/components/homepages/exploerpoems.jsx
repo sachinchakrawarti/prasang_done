@@ -1,27 +1,26 @@
-// src/app/(main)/[lang]/(public)/poems/page.jsx
+// src/components/homepages/exploerpoems.jsx
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import {
-  FaSearch,
-  FaFilter,
+  FaBook,
   FaHeart,
-  FaBookOpen,
   FaUser,
   FaClock,
+  FaArrowRight,
   FaStar,
-  FaFeather,
+  FaFilter,
+  FaSearch,
   FaChevronDown,
   FaTh,
   FaList,
-  FaEye,
 } from "react-icons/fa";
 import { useTheme } from "@/themes/ThemeContext";
 import { useTranslation } from "@/hooks/useLoalization";
 
-// Sample poem data (replace with actual data from your API)
+// Sample poems data (replace with actual data from your API)
 const samplePoems = [
   {
     id: 1,
@@ -30,8 +29,6 @@ const samplePoems = [
     poetSlug: "william-shakespeare",
     excerpt:
       "Shall I compare thee to a summer's day? Thou art more lovely and more temperate...",
-    content:
-      "Shall I compare thee to a summer's day? Thou art more lovely and more temperate: Rough winds do shake the darling buds of May, And summer's lease hath all too short a date...",
     type: "Sonnet",
     language: "en",
     likes: 1243,
@@ -47,8 +44,6 @@ const samplePoems = [
     poetSlug: "robert-frost",
     excerpt:
       "Two roads diverged in a yellow wood, And sorry I could not travel both...",
-    content:
-      "Two roads diverged in a yellow wood, And sorry I could not travel both And be one traveler, long I stood And looked down one as far as I could...",
     type: "Narrative",
     language: "en",
     likes: 987,
@@ -63,8 +58,6 @@ const samplePoems = [
     poet: "महादेवी वर्मा",
     poetSlug: "mahadevi-verma",
     excerpt: "मैंने देखा एक सपना, जिसमें थी बहार...",
-    content:
-      "मैंने देखा एक सपना, जिसमें थी बहार, फूल खिले थे हर किनारे, थी खुशियों की सौगात...",
     type: "गीत",
     language: "hi",
     likes: 567,
@@ -79,7 +72,6 @@ const samplePoems = [
     poet: "فیض احمد فیض",
     poetSlug: "faiz-ahmed-faiz",
     excerpt: "دل کا ہر سوز و گداز اپنا ہے...",
-    content: "دل کا ہر سوز و گداز اپنا ہے، زندگی کا ہر طوفان اپنا ہے...",
     type: "غزل",
     language: "ur",
     likes: 432,
@@ -94,8 +86,6 @@ const samplePoems = [
     poet: "Edgar Allan Poe",
     poetSlug: "edgar-allan-poe",
     excerpt: "Once upon a midnight dreary, while I pondered, weak and weary...",
-    content:
-      "Once upon a midnight dreary, while I pondered, weak and weary, Over many a quaint and curious volume of forgotten lore...",
     type: "Narrative",
     language: "en",
     likes: 876,
@@ -111,8 +101,6 @@ const samplePoems = [
     poetSlug: "rudyard-kipling",
     excerpt:
       "If you can keep your head when all about you Are losing theirs and blaming it on you...",
-    content:
-      "If you can keep your head when all about you Are losing theirs and blaming it on you, If you can trust yourself when all men doubt you, But make allowance for their doubting too...",
     type: "Didactic",
     language: "en",
     likes: 765,
@@ -123,35 +111,30 @@ const samplePoems = [
   },
 ];
 
-export default function PoemsPage() {
+const ExplorePoems = () => {
   const params = useParams();
   const lang = params?.lang || "en";
   const { themeName } = useTheme();
   const { t } = useTranslation();
 
   const [poems, setPoems] = useState(samplePoems);
-  const [filteredPoems, setFilteredPoems] = useState(samplePoems);
+  const [displayedPoems, setDisplayedPoems] = useState(samplePoems);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
-  const [selectedLanguage, setSelectedLanguage] = useState("all");
-  const [viewMode, setViewMode] = useState("grid");
-  const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState("newest");
+  const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState("grid");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get unique types and languages for filters
+  // Get unique types for filter
   const types = useMemo(
     () => ["all", ...new Set(poems.map((p) => p.type))],
     [poems],
   );
-  const languages = useMemo(
-    () => ["all", ...new Set(poems.map((p) => p.language))],
-    [poems],
-  );
 
-  // Filter poems based on search, type, language
+  // Filter and sort poems
   useEffect(() => {
-    let filtered = poems;
+    let filtered = [...poems];
 
     // Search filter
     if (searchTerm) {
@@ -171,18 +154,10 @@ export default function PoemsPage() {
       filtered = filtered.filter((poem) => poem.type === selectedType);
     }
 
-    // Language filter
-    if (selectedLanguage !== "all") {
-      filtered = filtered.filter((poem) => poem.language === selectedLanguage);
-    }
-
     // Sort
     switch (sortBy) {
       case "newest":
         filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        break;
-      case "oldest":
-        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
         break;
       case "popular":
         filtered.sort((a, b) => b.likes - a.likes);
@@ -194,8 +169,8 @@ export default function PoemsPage() {
         break;
     }
 
-    setFilteredPoems(filtered);
-  }, [searchTerm, selectedType, selectedLanguage, sortBy, poems]);
+    setDisplayedPoems(filtered);
+  }, [searchTerm, selectedType, sortBy, poems]);
 
   // Theme-aware styles
   const getTextColor = () => {
@@ -263,7 +238,10 @@ export default function PoemsPage() {
   const borderColor = getBorderColor();
   const hoverBg = getHoverBg();
 
-  // Navigation handlers
+  // Get displayed poems (max 6 for homepage)
+  const displayPoems = displayedPoems.slice(0, 6);
+
+  // Handle navigation
   const navigateToPoem = useCallback(
     (id) => {
       window.location.href = `/${lang}/poems/${id}`;
@@ -280,24 +258,30 @@ export default function PoemsPage() {
   );
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900/50">
+    <div className="py-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3">
-            <FaFeather className={`text-3xl ${textColor}`} />
-            <h1
-              className={`text-4xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+          <div>
+            <h2
+              className={`text-3xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}
             >
-              {t("poems") || "Poems"}
-            </h1>
+              {t("explorePoems") || "Explore Poems"}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">
+              {t("discoverPoemsDesc") || "Discover poems from around the world"}
+            </p>
           </div>
-          <p className="text-gray-600 dark:text-gray-300 mt-2 ml-11">
-            {t("poemsDescription") || "Discover poems from around the world"}
-          </p>
+          <Link
+            href={`/${lang}/poems`}
+            className={`inline-flex items-center gap-2 mt-4 sm:mt-0 ${textColor} font-medium hover:underline group`}
+          >
+            {t("viewAll") || "View All"}
+            <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
 
-        {/* Search and Filters Bar */}
+        {/* Search and Filters */}
         <div className="mb-8 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Search */}
@@ -308,7 +292,7 @@ export default function PoemsPage() {
                 placeholder={t("searchPoems") || "Search poems, poets..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${borderColor} bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all`}
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${borderColor} bg-gray-50 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all`}
                 aria-label="Search poems"
               />
             </div>
@@ -343,7 +327,7 @@ export default function PoemsPage() {
           {/* Filters Panel */}
           {showFilters && (
             <div
-              className={`p-4 rounded-lg border ${borderColor} bg-white dark:bg-gray-800 grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fadeIn`}
+              className={`p-4 rounded-lg border ${borderColor} bg-gray-50 dark:bg-gray-800/50 grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fadeIn`}
             >
               {/* Type Filter */}
               <div>
@@ -363,26 +347,6 @@ export default function PoemsPage() {
                 </select>
               </div>
 
-              {/* Language Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  {t("language") || "Language"}
-                </label>
-                <select
-                  value={selectedLanguage}
-                  onChange={(e) => setSelectedLanguage(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                >
-                  {languages.map((lang) => (
-                    <option key={lang} value={lang}>
-                      {lang === "all"
-                        ? t("allLanguages") || "All Languages"
-                        : lang}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               {/* Sort */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -394,7 +358,6 @@ export default function PoemsPage() {
                   className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
                   <option value="newest">{t("newest") || "Newest"}</option>
-                  <option value="oldest">{t("oldest") || "Oldest"}</option>
                   <option value="popular">
                     {t("mostLiked") || "Most Liked"}
                   </option>
@@ -412,11 +375,11 @@ export default function PoemsPage() {
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
           </div>
-        ) : filteredPoems.length === 0 ? (
+        ) : displayPoems.length === 0 ? (
           <div
-            className={`text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border ${borderColor}`}
+            className={`text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border ${borderColor}`}
           >
-            <FaBookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <FaBook className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <h3 className="text-xl font-medium text-gray-600 dark:text-gray-300">
               {t("noPoemsFound") || "No poems found"}
             </h3>
@@ -426,8 +389,8 @@ export default function PoemsPage() {
             </p>
           </div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPoems.map((poem) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayPoems.map((poem) => (
               <PoemCard
                 key={poem.id}
                 poem={poem}
@@ -443,7 +406,7 @@ export default function PoemsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredPoems.map((poem) => (
+            {displayPoems.map((poem) => (
               <PoemListItem
                 key={poem.id}
                 poem={poem}
@@ -460,16 +423,18 @@ export default function PoemsPage() {
         )}
 
         {/* Results Count */}
-        {filteredPoems.length > 0 && (
-          <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-            {t("showing") || "Showing"} {filteredPoems.length}{" "}
+        {displayedPoems.length > 0 && (
+          <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+            {t("showing") || "Showing"} {displayPoems.length}{" "}
             {t("poems") || "poems"}
+            {displayedPoems.length > 6 &&
+              ` (${t("of") || "of"} ${displayedPoems.length})`}
           </div>
         )}
       </div>
     </div>
   );
-}
+};
 
 // Poem Card Component (Grid View)
 function PoemCard({
@@ -554,10 +519,6 @@ function PoemCard({
             {poem.likes}
           </span>
           <span className="flex items-center gap-1">
-            <FaEye size={14} />
-            {poem.views}
-          </span>
-          <span className="flex items-center gap-1">
             <FaClock size={14} />
             {new Date(poem.createdAt).toLocaleDateString()}
           </span>
@@ -638,8 +599,8 @@ function PoemListItem({
             {poem.likes}
           </span>
           <span className="flex items-center gap-1">
-            <FaEye size={14} />
-            {poem.views}
+            <FaClock size={14} />
+            {new Date(poem.createdAt).toLocaleDateString()}
           </span>
           <span
             className={`${textColor} font-medium group-hover:translate-x-1 transition-transform`}
@@ -651,3 +612,5 @@ function PoemListItem({
     </div>
   );
 }
+
+export default ExplorePoems;
