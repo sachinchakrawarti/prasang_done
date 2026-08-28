@@ -2,7 +2,6 @@
 
 export const hindiLocalization = {
   // ==================== NAVIGATION ====================
-  // Main Navigation
   "home": "होम",
   "poems": "कविताएँ",
   "prose": "गद्य",
@@ -96,20 +95,15 @@ export const hindiLocalization = {
   "read": "पढ़ें",
 
   // ==================== HOMEPAGE ====================
-  // Hero Section
   "heroTitle": "कविता, गद्य और साहित्यिक अभिव्यक्ति का अभयारण्य",
   "heroSubtitle": "विभिन्न भाषाओं और संस्कृतियों से विविध आवाज़ों की खोज करें।",
   "heroCta": "कविताएँ खोजें",
   "heroCta2": "और जानें",
-
-  // Featured Poems
   "featuredPoemsDesc": "प्रसिद्ध और उभरते कवियों की हाथ से चुनी गई कविताओं की खोज करें।",
   "featuredPoetsDesc": "दुनिया भर के कवियों के जीवन और कार्यों का अन्वेषण करें।",
   "literaryCriticismDesc": "क्लासिक कार्यों के विश्लेषण और व्याख्या में गहराई से उतरें।",
   "exploreNow": "अभी खोजें",
   "viewAll": "सभी देखें",
-
-  // Stats
   "readers": "पाठक",
   "works": "रचनाएँ",
   "by": "द्वारा",
@@ -286,3 +280,6 @@ export const hindiLocalization = {
   "explore": "खोजें",
   "footerNote": "दुनिया भर के कविता और साहित्य प्रेमियों के लिए ❤️ के साथ बनाया गया",
 };
+
+// Default export for backwards compatibility
+export default hindiLocalization;

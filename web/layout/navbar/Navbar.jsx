@@ -1,26 +1,15 @@
 // src/layout/navbar/Navbar.jsx
 "use client";
 
-import { useState, useEffect } from "react";
-import NavbarDesktop from "./navbardesktop/Navbar_Desktop";
-import NavbarMobile from "./navbarmobile/Navbar_Mobile";
+import { useState } from "react";
+import NavbarDesktop from "./navbardesktop/Navbar_Desktop"; // ✅ Added underscore
+// import NavbarMobile from "./navbarmobile/NavbarMobile";
 
 const Navbar = () => {
-  const [isMounted, setIsMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const openMobileMenu = () => setIsMobileMenuOpen(true);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
-
-  if (!isMounted) {
-    return (
-      <div className="h-16 bg-gray-100 dark:bg-gray-800 animate-pulse"></div>
-    );
-  }
 
   return (
     <>
@@ -28,11 +17,11 @@ const Navbar = () => {
         <NavbarDesktop />
       </div>
       <div className="lg:hidden">
-        <NavbarMobile
+        {/* <NavbarMobile
           isOpen={isMobileMenuOpen}
           onClose={closeMobileMenu}
           onOpen={openMobileMenu}
-        />
+        /> */}
       </div>
     </>
   );

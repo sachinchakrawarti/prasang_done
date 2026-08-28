@@ -1,7 +1,7 @@
 // src/layout/footer/Footer.jsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -28,7 +28,6 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useTranslation } from "@/hooks/useLoalization";
 
 const Footer = () => {
-  const [isMounted, setIsMounted] = useState(false);
   const currentYear = new Date().getFullYear();
   const { theme, themeName } = useTheme();
   const { language } = useLanguage();
@@ -38,10 +37,6 @@ const Footer = () => {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [emailError, setEmailError] = useState("");
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   // Get current language for paths
   const getLocalizedPath = (path) => {
@@ -184,38 +179,6 @@ const Footer = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Show loading state during SSR
-  if (!isMounted) {
-    return (
-      <div className="bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            </div>
-            <div className="space-y-4">
-              <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            </div>
-            <div className="space-y-4">
-              <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-4 w-36 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            </div>
-            <div className="space-y-4">
-              <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-4 w-36 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <footer

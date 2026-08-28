@@ -3,19 +3,22 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 
-// ==================== TRANSLATIONS ====================
-// Import translations directly
+// Import translations from separate files
 import { englishLocalization } from "@/localization/english_localization";
 import { hindiLocalization } from "@/localization/hindi_localization";
 import { urduLocalization } from "@/localization/urdu_localization";
+import { arabicLocalization } from "@/localization/arabic_localization";
 
-const translations = {
+// ==================== TRANSLATIONS OBJECT ====================
+export const translations = {
   en: englishLocalization,
   hi: hindiLocalization,
   ur: urduLocalization,
+  ar: arabicLocalization,
 };
 
-const availableLanguages = [
+// ==================== AVAILABLE LANGUAGES ====================
+export const availableLanguages = [
   {
     code: "en",
     name: "English",
@@ -25,6 +28,7 @@ const availableLanguages = [
   },
   { code: "hi", name: "Hindi", nativeName: "हिन्दी", flag: "🇮🇳", dir: "ltr" },
   { code: "ur", name: "Urdu", nativeName: "اردو", flag: "🇵🇰", dir: "rtl" },
+  { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇸🇦", dir: "rtl" },
 ];
 
 // ==================== LANGUAGE CONTEXT ====================
@@ -33,9 +37,7 @@ const LanguageContext = createContext();
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState("en");
   const [isRTL, setIsRTL] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Get language from localStorage on mount
   useEffect(() => {
     try {
       const savedLanguage = localStorage.getItem("language") || "en";
@@ -43,63 +45,42 @@ export const LanguageProvider = ({ children }) => {
         setLanguage(savedLanguage);
       }
     } catch (error) {
-      console.error("Error reading language from localStorage:", error);
+      console.error("Error reading language:", error);
     }
-    setIsLoading(false);
   }, []);
 
-  // Update document when language changes
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        // Save to localStorage
         localStorage.setItem("language", language);
-
-        // Update document language
         document.documentElement.lang = language;
-
-        // Update RTL/LTR
         const langInfo = availableLanguages.find((l) => l.code === language);
         if (langInfo) {
           setIsRTL(langInfo.dir === "rtl");
           document.documentElement.dir = langInfo.dir;
           document.documentElement.setAttribute("dir", langInfo.dir);
         }
-
-        // Update HTML lang attribute
-        document.documentElement.setAttribute("lang", language);
       } catch (error) {
         console.error("Error updating language:", error);
       }
     }
   }, [language]);
 
-  // Translation function
   const t = (key, params = {}) => {
     try {
       const langData = translations[language] || translations.en;
       let text = langData[key] || key || "";
-
-      // Replace parameters in string (e.g., "Hello {{name}}" -> "Hello John")
       if (params && typeof params === "object") {
         Object.keys(params).forEach((param) => {
           text = text.replace(new RegExp(`{{${param}}}`, "g"), params[param]);
         });
       }
-
       return text;
     } catch (error) {
-      console.error("Translation error for key:", key, error);
       return key;
     }
   };
 
-  // Get current language info
-  const currentLanguage =
-    availableLanguages.find((l) => l.code === language) ||
-    availableLanguages[0];
-
-  // Change language
   const changeLanguage = (langCode) => {
     if (translations[langCode]) {
       setLanguage(langCode);
@@ -108,26 +89,13 @@ export const LanguageProvider = ({ children }) => {
     return false;
   };
 
-  // Get all available languages
-  const getLanguages = () => availableLanguages;
-
-  // Check if language is RTL
-  const isLanguageRTL = (langCode) => {
-    const lang = availableLanguages.find((l) => l.code === langCode);
-    return lang ? lang.dir === "rtl" : false;
-  };
-
   const value = {
     language,
     setLanguage: changeLanguage,
     changeLanguage,
     t,
     isRTL,
-    currentLanguage,
-    getLanguages,
-    isLanguageRTL,
     availableLanguages,
-    isLoading,
   };
 
   return (
@@ -146,54 +114,7 @@ export const useLanguage = () => {
   return context;
 };
 
-// ==================== TRANSLATION HELPERS ====================
-// For use in non-React components
-export const getTranslation = (key, language = "en", params = {}) => {
-  try {
-    const langData = translations[language] || translations.en;
-    let text = langData[key] || key || "";
-
-    if (params && typeof params === "object") {
-      Object.keys(params).forEach((param) => {
-        text = text.replace(new RegExp(`{{${param}}}`, "g"), params[param]);
-      });
-    }
-
-    return text;
-  } catch (error) {
-    console.error("Translation error for key:", key, error);
-    return key;
-  }
-};
-
-// Get browser language
-export const getBrowserLanguage = () => {
-  if (typeof window === "undefined") return "en";
-  try {
-    const browserLang = navigator.language.split("-")[0];
-    return translations[browserLang] ? browserLang : "en";
-  } catch (error) {
-    return "en";
-  }
-};
-
-// Get supported languages
-export const getSupportedLanguages = () => {
-  return Object.keys(translations);
-};
-
-// Check if language is supported
-export const isLanguageSupported = (langCode) => {
-  return !!translations[langCode];
-};
-
 export default {
   LanguageProvider,
   useLanguage,
-  translations,
-  availableLanguages,
-  getTranslation,
-  getBrowserLanguage,
-  getSupportedLanguages,
-  isLanguageSupported,
 };

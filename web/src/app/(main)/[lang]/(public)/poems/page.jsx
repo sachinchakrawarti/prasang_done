@@ -25,6 +25,7 @@ import { useTranslation } from "@/hooks/useLoalization";
 const samplePoems = [
   {
     id: 1,
+    slug: "sonnet-18",
     title: "Sonnet 18",
     poet: "William Shakespeare",
     poetSlug: "william-shakespeare",
@@ -42,6 +43,7 @@ const samplePoems = [
   },
   {
     id: 2,
+    slug: "the-road-not-taken",
     title: "The Road Not Taken",
     poet: "Robert Frost",
     poetSlug: "robert-frost",
@@ -59,6 +61,7 @@ const samplePoems = [
   },
   {
     id: 3,
+    slug: "kavita-1",
     title: "कविता 1",
     poet: "महादेवी वर्मा",
     poetSlug: "mahadevi-verma",
@@ -75,6 +78,7 @@ const samplePoems = [
   },
   {
     id: 4,
+    slug: "ghazal",
     title: "غزل",
     poet: "فیض احمد فیض",
     poetSlug: "faiz-ahmed-faiz",
@@ -90,6 +94,7 @@ const samplePoems = [
   },
   {
     id: 5,
+    slug: "the-raven",
     title: "The Raven",
     poet: "Edgar Allan Poe",
     poetSlug: "edgar-allan-poe",
@@ -106,6 +111,7 @@ const samplePoems = [
   },
   {
     id: 6,
+    slug: "if",
     title: "If—",
     poet: "Rudyard Kipling",
     poetSlug: "rudyard-kipling",
@@ -265,16 +271,8 @@ export default function PoemsPage() {
 
   // Navigation handlers
   const navigateToPoem = useCallback(
-    (id) => {
-      window.location.href = `/${lang}/poems/${id}`;
-    },
-    [lang],
-  );
-
-  const navigateToPoet = useCallback(
-    (slug, e) => {
-      e.stopPropagation();
-      window.location.href = `/${lang}/poets/${slug}`;
+    (slug) => {
+      window.location.href = `/${lang}/poems/${slug}`;
     },
     [lang],
   );
@@ -437,7 +435,6 @@ export default function PoemsPage() {
                 borderColor={borderColor}
                 hoverBg={hoverBg}
                 onNavigate={navigateToPoem}
-                onNavigatePoet={navigateToPoet}
               />
             ))}
           </div>
@@ -453,7 +450,6 @@ export default function PoemsPage() {
                 borderColor={borderColor}
                 hoverBg={hoverBg}
                 onNavigate={navigateToPoem}
-                onNavigatePoet={navigateToPoet}
               />
             ))}
           </div>
@@ -480,14 +476,13 @@ function PoemCard({
   borderColor,
   hoverBg,
   onNavigate,
-  onNavigatePoet,
 }) {
   const { t } = useTranslation();
 
   return (
     <div
       className={`group p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border ${borderColor} hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer`}
-      onClick={() => onNavigate(poem.id)}
+      onClick={() => onNavigate(poem.slug)}
       role="article"
       aria-label={`Poem: ${poem.title}`}
     >
@@ -523,7 +518,10 @@ function PoemCard({
       {/* Poet */}
       <span
         className="flex items-center gap-2 mt-2 text-sm text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer"
-        onClick={(e) => onNavigatePoet(poem.poetSlug, e)}
+        onClick={(e) => {
+          e.stopPropagation();
+          window.location.href = `/${lang}/poets/${poem.poetSlug}`;
+        }}
       >
         <FaUser size={12} />
         <span>{poem.poet}</span>
@@ -581,14 +579,13 @@ function PoemListItem({
   borderColor,
   hoverBg,
   onNavigate,
-  onNavigatePoet,
 }) {
   const { t } = useTranslation();
 
   return (
     <div
       className={`group p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border ${borderColor} hover:shadow-xl transition-all duration-300 cursor-pointer`}
-      onClick={() => onNavigate(poem.id)}
+      onClick={() => onNavigate(poem.slug)}
       role="article"
       aria-label={`Poem: ${poem.title}`}
     >
@@ -620,7 +617,10 @@ function PoemListItem({
 
           <span
             className="flex items-center gap-2 mt-1 text-sm text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer"
-            onClick={(e) => onNavigatePoet(poem.poetSlug, e)}
+            onClick={(e) => {
+              e.stopPropagation();
+              window.location.href = `/${lang}/poets/${poem.poetSlug}`;
+            }}
           >
             <FaUser size={12} />
             <span>{poem.poet}</span>

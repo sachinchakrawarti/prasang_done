@@ -280,3 +280,6 @@ export const urduLocalization = {
   "explore": "دریافت کریں",
   "footerNote": "دنیا بھر کے شاعری اور ادب کے شوقین کے لیے ❤️ کے ساتھ بنایا گیا",
 };
+
+// Default export for backwards compatibility
+export default urduLocalization;

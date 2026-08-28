@@ -1,6 +1,7 @@
 // src/app/(main)/[lang]/page.js
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useTheme } from "@/themes/ThemeContext";
 import { useTranslation } from "@/hooks/useLoalization";
@@ -15,12 +16,17 @@ import Testimonials from "@/components/homepages/testimonials";
 import Newsletter from "@/components/homepages/newsletter";
 import CTASection from "@/components/homepages/ctasection";
 
-
 export default function HomePage() {
+  const [isMounted, setIsMounted] = useState(false);
   const params = useParams();
   const lang = params?.lang || 'en';
   const { themeName } = useTheme();
+  // Only call useTranslation after mount
   const { t } = useTranslation();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Theme-aware styles for the page wrapper
   const getGradient = () => {
@@ -34,6 +40,18 @@ export default function HomePage() {
   };
 
   const gradient = getGradient();
+
+  // Show loading state during SSR
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">

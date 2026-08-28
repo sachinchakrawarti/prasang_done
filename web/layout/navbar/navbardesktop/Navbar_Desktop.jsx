@@ -1,4 +1,4 @@
-// src/layout/navbar/navbardesktop/Navbar_Desktop.jsx
+// src/layout/navbar/navbardesktop/NavbarDesktop.jsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -31,14 +31,13 @@ import {
 import { useTheme } from "@/themes/ThemeContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTranslation } from "@/hooks/useLoalization";
-import ThemeSwitcherDesktop from "./components/Theme_Switcher_Desktop";
-import LanguageSwitcherDesktop from "./components/Language_Switcher_Desktop";
+import ThemeSwitcher from "../components/ThemeSwitcher";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 // Import nav items and helper functions
 import { navItems, getThemeActiveLink } from "../NavbarData";
 
 const NavbarDesktop = () => {
-  const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { theme, themeName } = useTheme();
@@ -49,10 +48,6 @@ const NavbarDesktop = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const searchInputRef = useRef(null);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   // Get the current language from pathname
   const getCurrentLang = () => {
@@ -183,33 +178,6 @@ const NavbarDesktop = () => {
     return `/${currentLang}${path}`;
   };
 
-  // Show loading state during SSR
-  if (!isMounted) {
-    return (
-      <nav
-        className="hidden lg:block"
-        role="navigation"
-        aria-label="Main navigation"
-      >
-        <div className="bg-white dark:bg-gray-900 shadow-lg">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-10 w-64 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-              <div className="flex gap-2">
-                <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-                <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-                <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-                <div className="h-10 w-20 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-                <div className="h-10 w-20 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-    );
-  }
-
   return (
     <nav
       className="hidden lg:block"
@@ -287,10 +255,10 @@ const NavbarDesktop = () => {
               </Link>
 
               {/* Theme Switcher */}
-              <ThemeSwitcherDesktop />
+              <ThemeSwitcher />
 
               {/* Language Switcher */}
-              <LanguageSwitcherDesktop />
+              <LanguageSwitcher />
 
               {/* Auth Buttons */}
               <Link

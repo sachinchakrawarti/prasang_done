@@ -13,26 +13,34 @@ import {
   FaBlog,
   FaQuestionCircle,
   FaPenNib,
-  FaSearch,
-  FaRobot,
-  FaCog,
-  FaBell,
-  FaSignInAlt,
-  FaUserPlus,
-  FaSignOutAlt,
-  FaChevronDown,
+  FaLeaf,
   FaMoon,
   FaSun,
   FaTree,
   FaSeedling,
+  FaPalette,
   FaScroll,
+  FaPaintBrush,
+  FaFlask,
+  FaCrown,
 } from "react-icons/fa";
 
-// Navigation items with translation keys
+// Theme-based icons mapping - using only valid Fa icons
+export const themeIcons = {
+  light: { icon: FaSun, color: "text-amber-500" },
+  dark: { icon: FaMoon, color: "text-indigo-400" },
+  forest: { icon: FaTree, color: "text-green-500" },
+  lavender: { icon: FaSeedling, color: "text-purple-500" },
+  rose: { icon: FaHeart, color: "text-pink-500" },
+  sepia: { icon: FaScroll, color: "text-amber-700" },
+};
+
+// ✅ Updated navItems with language-aware paths
+// The actual paths will be generated with the language parameter
 export const navItems = [
   {
     labelKey: "home",
-    path: "/",
+    path: "/",  // Will be used as /{lang}/
     icon: FaHome,
     themeAware: true,
   },
@@ -103,17 +111,13 @@ export const navItems = [
   },
 ];
 
-// Theme icons
-export const themeIcons = {
-  light: { icon: FaSun, color: "text-amber-500" },
-  dark: { icon: FaMoon, color: "text-indigo-400" },
-  forest: { icon: FaTree, color: "text-green-500" },
-  lavender: { icon: FaSeedling, color: "text-purple-500" },
-  rose: { icon: FaHeart, color: "text-pink-500" },
-  sepia: { icon: FaScroll, color: "text-amber-700" },
+// Helper function to get language-aware path
+export const getLocalizedPath = (path, lang) => {
+  if (path === '/') return `/${lang}`;
+  return `/${lang}${path}`;
 };
 
-// Theme helper functions
+// Helper function to get theme-based icon color
 export const getThemeIconColor = (themeName) => {
   const themeColors = {
     light: "text-amber-600",
@@ -126,6 +130,7 @@ export const getThemeIconColor = (themeName) => {
   return themeColors[themeName] || "text-amber-600";
 };
 
+// Helper function to get theme-based gradient
 export const getThemeGradient = (themeName) => {
   const gradients = {
     light: "from-amber-500 to-yellow-500",
@@ -138,6 +143,7 @@ export const getThemeGradient = (themeName) => {
   return gradients[themeName] || "from-amber-500 to-yellow-500";
 };
 
+// Helper function to get theme-based hover effects
 export const getThemeHoverClass = (themeName) => {
   const hoverClasses = {
     light: "hover:bg-amber-100 hover:text-amber-700",
@@ -150,6 +156,7 @@ export const getThemeHoverClass = (themeName) => {
   return hoverClasses[themeName] || "hover:bg-amber-100 hover:text-amber-700";
 };
 
+// Helper function to get theme-based border color
 export const getThemeBorderColor = (themeName) => {
   const borderColors = {
     light: "border-amber-200 dark:border-amber-800",
@@ -162,6 +169,7 @@ export const getThemeBorderColor = (themeName) => {
   return borderColors[themeName] || "border-amber-200 dark:border-amber-800";
 };
 
+// Helper function to get theme-based accent background
 export const getThemeAccentBg = (themeName) => {
   const accentBgs = {
     light: "bg-amber-100 dark:bg-amber-900/30",
@@ -174,6 +182,7 @@ export const getThemeAccentBg = (themeName) => {
   return accentBgs[themeName] || "bg-amber-100 dark:bg-amber-900/30";
 };
 
+// Helper function to get theme-based hover background
 export const getThemeHoverBg = (themeName) => {
   const hoverBgs = {
     light: "hover:bg-amber-50 dark:hover:bg-amber-900/20",
@@ -186,6 +195,7 @@ export const getThemeHoverBg = (themeName) => {
   return hoverBgs[themeName] || "hover:bg-amber-50 dark:hover:bg-amber-900/20";
 };
 
+// Helper function to get theme-based text color
 export const getThemeTextColor = (themeName) => {
   const textColors = {
     light: "text-gray-900",
@@ -198,6 +208,7 @@ export const getThemeTextColor = (themeName) => {
   return textColors[themeName] || "text-gray-900";
 };
 
+// Helper function to get theme-based secondary text color
 export const getThemeSecondaryText = (themeName) => {
   const secondaryText = {
     light: "text-gray-700",
@@ -210,6 +221,7 @@ export const getThemeSecondaryText = (themeName) => {
   return secondaryText[themeName] || "text-gray-700";
 };
 
+// Helper function to get theme-based active link color
 export const getThemeActiveLink = (themeName) => {
   const activeColors = {
     light: "text-amber-600 border-amber-500",
@@ -220,12 +232,6 @@ export const getThemeActiveLink = (themeName) => {
     sepia: "text-amber-700 border-amber-600",
   };
   return activeColors[themeName] || "text-amber-600 border-amber-500";
-};
-
-// Helper function to get localized path
-export const getLocalizedPath = (path, lang) => {
-  if (path === "/") return `/${lang}`;
-  return `/${lang}${path}`;
 };
 
 export default navItems;
