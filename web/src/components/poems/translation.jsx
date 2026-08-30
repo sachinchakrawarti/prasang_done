@@ -3,17 +3,21 @@
 
 import { useState } from "react";
 import {
-  FaLanguage,
   FaChevronDown,
   FaChevronUp,
   FaCopy,
   FaCheck,
   FaGlobe,
+  FaRobot,
+  FaDatabase,
 } from "react-icons/fa";
 import { useTheme } from "@/themes/ThemeContext";
 import { useTranslation } from "@/hooks/useLoalization";
 
-const Translation = ({ poem, availableLanguages = ["hi", "ur", "ar"] }) => {
+const Translation = ({
+  poem,
+  availableLanguages = ["hi", "ur", "ar", "fr"],
+}) => {
   const { themeName } = useTheme();
   const { t, language: currentLang } = useTranslation();
   const [selectedLang, setSelectedLang] = useState(null);
@@ -23,13 +27,13 @@ const Translation = ({ poem, availableLanguages = ["hi", "ur", "ar"] }) => {
   // Get available translations from poem data
   const getAvailableTranslations = () => {
     if (!poem || !poem.translations) return [];
-    // Filter out current language and only show available translations
-    return Object.keys(poem.translations).filter(
-      (lang) => lang !== currentLang && availableLanguages.includes(lang),
-    );
+    // Get all available translation languages
+    const available = Object.keys(poem.translations);
+    // Filter out current language
+    return available.filter((lang) => lang !== currentLang);
   };
 
-  // Get translation text
+  // Get translation text for selected language
   const getTranslationText = () => {
     if (!selectedLang || !poem?.translations?.[selectedLang]) return null;
     return poem.translations[selectedLang];
@@ -37,6 +41,15 @@ const Translation = ({ poem, availableLanguages = ["hi", "ur", "ar"] }) => {
 
   const translationText = getTranslationText();
   const availableTranslations = getAvailableTranslations();
+
+  // Handle language selection
+  const handleLanguageSelect = (lang) => {
+    if (selectedLang === lang) {
+      setSelectedLang(null);
+      return;
+    }
+    setSelectedLang(lang);
+  };
 
   // Handle copy
   const handleCopy = async () => {
@@ -119,10 +132,16 @@ const Translation = ({ poem, availableLanguages = ["hi", "ur", "ar"] }) => {
 
   // Language names and flags
   const languageInfo = {
-    hi: { name: "हिन्दी (Hindi)", flag: "🇮🇳", native: "हिन्दी" },
-    ur: { name: "اردو (Urdu)", flag: "🇵🇰", native: "اردو" },
-    ar: { name: "العربية (Arabic)", flag: "🇸🇦", native: "العربية" },
+    hi: { name: "हिन्दी", flag: "🇮🇳", native: "हिन्दी" },
+    ur: { name: "اردو", flag: "🇵🇰", native: "اردو" },
+    ar: { name: "العربية", flag: "🇸🇦", native: "العربية" },
     en: { name: "English", flag: "🇬🇧", native: "English" },
+    fr: { name: "Français", flag: "🇫🇷", native: "Français" },
+    es: { name: "Español", flag: "🇪🇸", native: "Español" },
+    de: { name: "Deutsch", flag: "🇩🇪", native: "Deutsch" },
+    ru: { name: "Русский", flag: "🇷🇺", native: "Русский" },
+    zh: { name: "中文", flag: "🇨🇳", native: "中文" },
+    ja: { name: "日本語", flag: "🇯🇵", native: "日本語" },
   };
 
   // If no translations available
@@ -147,6 +166,10 @@ const Translation = ({ poem, availableLanguages = ["hi", "ur", "ar"] }) => {
           <span className="text-xs text-gray-400 dark:text-gray-500">
             ({availableTranslations.length} {t("available") || "available"})
           </span>
+          <span className="text-xs text-purple-500 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 px-1.5 py-0.5 rounded">
+            <FaRobot className="inline mr-1" size={10} />
+            AI
+          </span>
         </div>
         <div className="flex items-center gap-2">
           {expanded ? (
@@ -165,9 +188,7 @@ const Translation = ({ poem, availableLanguages = ["hi", "ur", "ar"] }) => {
             {availableTranslations.map((lang) => (
               <button
                 key={lang}
-                onClick={() =>
-                  setSelectedLang(selectedLang === lang ? null : lang)
-                }
+                onClick={() => handleLanguageSelect(lang)}
                 className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
                   selectedLang === lang
                     ? `bg-gradient-to-r ${gradient} text-white`
@@ -208,18 +229,14 @@ const Translation = ({ poem, availableLanguages = ["hi", "ur", "ar"] }) => {
               <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                 {translationText.content}
               </p>
+              <div className="mt-2 text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                <FaRobot size={12} />
+                {t("aiTranslated") || "AI Translated"}
+              </div>
             </div>
           )}
 
           {/* No translation selected */}
-          {selectedLang && !translationText && (
-            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-              {t("noTranslationAvailable") ||
-                "Translation not available for this language."}
-            </p>
-          )}
-
-          {/* Select language prompt */}
           {!selectedLang && (
             <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
               {t("selectLanguage") || "Select a language to see translation"}

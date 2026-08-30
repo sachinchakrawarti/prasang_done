@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   FaHeart,
@@ -36,7 +36,6 @@ import Translation from "@/components/poems/translation";
 
 export default function PoemDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const lang = params?.lang || "en";
   const slug = params?.slug;
   const { themeName } = useTheme();
@@ -50,7 +49,7 @@ export default function PoemDetailPage() {
   const [copied, setCopied] = useState(false);
   const [relatedPoems, setRelatedPoems] = useState([]);
   const [showLanguageTools, setShowLanguageTools] = useState(true);
-  const [activeTool, setActiveTool] = useState("romanization");
+  const [activeTool, setActiveTool] = useState("translation");
 
   // Find poem by slug and related poems
   useEffect(() => {
@@ -184,6 +183,7 @@ export default function PoemDetailPage() {
   // Get poem content based on language
   const getPoemContent = () => {
     if (!poem) return "";
+    // If current language is different from poem language and translation exists
     if (
       lang !== poem.language &&
       poem.translations &&
@@ -207,11 +207,28 @@ export default function PoemDetailPage() {
   };
 
   // Check if poem needs language tools
-  const needsLanguageTools = poem && poem.language && poem.language !== "en";
   const hasTranslations =
-    poem && poem.translations && Object.keys(poem.translations).length > 0;
+    poem?.translations && Object.keys(poem.translations).length > 0;
   const isHindiOrUrdu =
     poem && (poem.language === "hi" || poem.language === "ur");
+  const isEnglishPoem = poem?.language === "en";
+
+  // Determine which tabs to show
+  const showRomanization = isHindiOrUrdu;
+  const showTransliteration = isHindiOrUrdu;
+  // Translation is always available via Google Translate
+  const showTranslation = true; // Always show translation option
+
+  // Set default active tab
+  useEffect(() => {
+    if (showTranslation) {
+      setActiveTool("translation");
+    } else if (showRomanization) {
+      setActiveTool("romanization");
+    } else if (showTransliteration) {
+      setActiveTool("transliteration");
+    }
+  }, [showTranslation, showRomanization, showTransliteration]);
 
   // Loading state
   if (isLoading) {
@@ -397,10 +414,10 @@ export default function PoemDetailPage() {
             </div>
 
             {/* ============================================================ */}
-            {/* LANGUAGE TOOLS SECTION - For non-English poems */}
+            {/* LANGUAGE TOOLS SECTION - Shows for all poems */}
             {/* ============================================================ */}
 
-            {needsLanguageTools && (
+            {(showRomanization || showTransliteration || showTranslation) && (
               <div className="mt-8">
                 {/* Language Tools Header */}
                 <button
@@ -412,9 +429,16 @@ export default function PoemDetailPage() {
                     {t("languageTools") || "Language Tools"}
                   </span>
                   <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
-                    {isHindiOrUrdu &&
-                      `(${t("romanization") || "Romanization"}, ${t("transliteration") || "Transliteration"})`}
-                    {hasTranslations && ` ${t("translation") || "Translation"}`}
+                    {showRomanization &&
+                      `(${t("romanization") || "Romanization"}`}
+                    {showRomanization && showTransliteration && `, `}
+                    {showTransliteration &&
+                      `${t("transliteration") || "Transliteration"}`}
+                    {(showRomanization || showTransliteration) &&
+                      showTranslation &&
+                      `, `}
+                    {showTranslation && `${t("translation") || "Translation"}`}
+                    {showTranslation && `)`}
                   </span>
                   <span className="ml-auto">
                     {showLanguageTools ? <FaChevronUp /> : <FaChevronDown />}
@@ -424,33 +448,35 @@ export default function PoemDetailPage() {
                 {showLanguageTools && (
                   <div className="mt-4 space-y-4">
                     {/* Tool Tabs */}
-                    {(isHindiOrUrdu || hasTranslations) && (
+                    {(showRomanization ||
+                      showTransliteration ||
+                      showTranslation) && (
                       <div className="flex flex-wrap gap-2">
-                        {isHindiOrUrdu && (
-                          <>
-                            <button
-                              onClick={() => setActiveTool("romanization")}
-                              className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
-                                activeTool === "romanization"
-                                  ? `bg-gradient-to-r ${gradient} text-white`
-                                  : `${hoverBg} ${textColor} border ${borderColor}`
-                              }`}
-                            >
-                              {t("romanization") || "Romanization"}
-                            </button>
-                            <button
-                              onClick={() => setActiveTool("transliteration")}
-                              className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
-                                activeTool === "transliteration"
-                                  ? `bg-gradient-to-r ${gradient} text-white`
-                                  : `${hoverBg} ${textColor} border ${borderColor}`
-                              }`}
-                            >
-                              {t("transliteration") || "Transliteration"}
-                            </button>
-                          </>
+                        {showRomanization && (
+                          <button
+                            onClick={() => setActiveTool("romanization")}
+                            className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                              activeTool === "romanization"
+                                ? `bg-gradient-to-r ${gradient} text-white`
+                                : `${hoverBg} ${textColor} border ${borderColor}`
+                            }`}
+                          >
+                            {t("romanization") || "Romanization"}
+                          </button>
                         )}
-                        {hasTranslations && (
+                        {showTransliteration && (
+                          <button
+                            onClick={() => setActiveTool("transliteration")}
+                            className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                              activeTool === "transliteration"
+                                ? `bg-gradient-to-r ${gradient} text-white`
+                                : `${hoverBg} ${textColor} border ${borderColor}`
+                            }`}
+                          >
+                            {t("transliteration") || "Transliteration"}
+                          </button>
+                        )}
+                        {showTranslation && (
                           <button
                             onClick={() => setActiveTool("translation")}
                             className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
@@ -467,28 +493,40 @@ export default function PoemDetailPage() {
 
                     {/* Tool Content */}
                     <div className="mt-2">
-                      {/* Romanization */}
-                      {isHindiOrUrdu && activeTool === "romanization" && (
+                      {/* Romanization - Only for Hindi/Urdu poems */}
+                      {showRomanization && activeTool === "romanization" && (
                         <Romanization
                           text={poem.content}
                           language={poem.language}
                         />
                       )}
 
-                      {/* Transliteration */}
-                      {isHindiOrUrdu && activeTool === "transliteration" && (
-                        <Transliteration
-                          text={poem.content}
-                          fromLang={poem.language}
-                          toLang="en"
-                        />
-                      )}
+                      {/* Transliteration - Only for Hindi/Urdu poems */}
+                      {showTransliteration &&
+                        activeTool === "transliteration" && (
+                          <Transliteration
+                            text={poem.content}
+                            fromLang={poem.language}
+                            toLang={lang === poem.language ? "en" : lang}
+                          />
+                        )}
 
-                      {/* Translation */}
-                      {hasTranslations && activeTool === "translation" && (
+                      {/* Translation - For ALL poems using Google Translate */}
+                      {showTranslation && activeTool === "translation" && (
                         <Translation
                           poem={poem}
-                          availableLanguages={["hi", "ur", "ar", "en"]}
+                          availableLanguages={[
+                            "hi",
+                            "ur",
+                            "ar",
+                            "en",
+                            "fr",
+                            "es",
+                            "de",
+                            "ru",
+                            "zh",
+                            "ja",
+                          ]}
                         />
                       )}
                     </div>

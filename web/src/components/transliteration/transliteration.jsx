@@ -1,4 +1,4 @@
-// src/components/poems/transliteration.jsx
+// src/components/transliteration/transliteration.jsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,11 +7,11 @@ import { FaExchangeAlt, FaCopy, FaCheck, FaSpinner } from "react-icons/fa";
 import { useTheme } from "@/themes/ThemeContext";
 import { useTranslation } from "@/hooks/useLoalization";
 
-// Import from modular transliteration files
-import { transliterateHindi } from "@/components/transliteration/transliteration_hindi";
-import { transliterateUrdu } from "@/components/transliteration/transliteration_urdu";
-import { transliterateArabic } from "@/components/transliteration/transliteration_arabic";
-import { transliterateEnglish } from "@/components/transliteration/transliteration_english";
+// Import language-specific transliteration modules
+import { transliterateHindi } from "./transliteration_hindi";
+import { transliterateUrdu } from "./transliteration_urdu";
+import { transliterateArabic } from "./transliteration_arabic";
+import { transliterateEnglish } from "./transliteration_english";
 
 // Import transliteration library for other languages
 import { transliterate as tr } from "transliteration";
