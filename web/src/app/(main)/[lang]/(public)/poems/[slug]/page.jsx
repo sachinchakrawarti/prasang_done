@@ -20,119 +20,19 @@ import {
   FaFacebook,
   FaLink,
   FaCopy,
-  FaStar, // ✅ Added FaStar
+  FaStar,
+  FaLanguage,
+  FaChevronDown,
+  FaChevronUp,
+  FaGlobe,
 } from "react-icons/fa";
 import { useTheme } from "@/themes/ThemeContext";
 import { useTranslation } from "@/hooks/useLoalization";
-
-// Sample poems data (same as above, but we'll fetch by slug)
-const samplePoems = [
-  {
-    id: 1,
-    slug: "sonnet-18",
-    title: "Sonnet 18",
-    poet: "William Shakespeare",
-    poetSlug: "william-shakespeare",
-    excerpt:
-      "Shall I compare thee to a summer's day? Thou art more lovely and more temperate...",
-    content:
-      "Shall I compare thee to a summer's day? Thou art more lovely and more temperate: Rough winds do shake the darling buds of May, And summer's lease hath all too short a date: Sometime too hot the eye of heaven shines, And often is his gold complexion dimm'd; And every fair from fair sometime declines, By chance or nature's changing course untrimm'd; But thy eternal summer shall not fade, Nor lose possession of that fair thou ow'st; Nor shall death brag thou wander'st in his shade, When in eternal lines to time thou grow'st: So long as men can breathe or eyes can see, So long lives this, and this gives life to thee.",
-    type: "Sonnet",
-    language: "en",
-    likes: 1243,
-    views: 5678,
-    createdAt: "2024-01-15",
-    tags: ["classic", "love", "nature"],
-    featured: true,
-  },
-  {
-    id: 2,
-    slug: "the-road-not-taken",
-    title: "The Road Not Taken",
-    poet: "Robert Frost",
-    poetSlug: "robert-frost",
-    excerpt:
-      "Two roads diverged in a yellow wood, And sorry I could not travel both...",
-    content:
-      "Two roads diverged in a yellow wood, And sorry I could not travel both And be one traveler, long I stood And looked down one as far as I could To where it bent in the undergrowth; Then took the other, as just as fair, And having perhaps the better claim, Because it was grassy and wanted wear; Though as for that the passing there Had worn them really about the same, And both that morning equally lay In leaves no step had trodden black. Oh, I kept the first for another day! Yet knowing how way leads on to way, I doubted if I should ever come back. I shall be telling this with a sigh Somewhere ages and ages hence: Two roads diverged in a wood, and I— I took the one less traveled by, And that has made all the difference.",
-    type: "Narrative",
-    language: "en",
-    likes: 987,
-    views: 4321,
-    createdAt: "2024-01-10",
-    tags: ["classic", "nature", "reflection"],
-    featured: true,
-  },
-  {
-    id: 3,
-    slug: "kavita-1",
-    title: "कविता 1",
-    poet: "महादेवी वर्मा",
-    poetSlug: "mahadevi-verma",
-    excerpt: "मैंने देखा एक सपना, जिसमें थी बहार...",
-    content:
-      "मैंने देखा एक सपना, जिसमें थी बहार, फूल खिले थे हर किनारे, थी खुशियों की सौगात, हवा में थी खुशबू, थी रौनक हर जगह, दिल को था सुकून, मन को था आराम।",
-    type: "गीत",
-    language: "hi",
-    likes: 567,
-    views: 2345,
-    createdAt: "2024-01-05",
-    tags: ["हिंदी", "प्रेम", "प्रकृति"],
-    featured: false,
-  },
-  {
-    id: 4,
-    slug: "ghazal",
-    title: "غزل",
-    poet: "فیض احمد فیض",
-    poetSlug: "faiz-ahmed-faiz",
-    excerpt: "دل کا ہر سوز و گداز اپنا ہے...",
-    content:
-      "دل کا ہر سوز و گداز اپنا ہے، زندگی کا ہر طوفان اپنا ہے، ہر نفس میں ہے تیری ہی خوشبو، ہر قدم میں ہے تیری ہی پہچان، زندگی تیری ہے، موت بھی تیری ہے، میں تو بس تیرا ہوں، تو ہے میرے لیے۔",
-    type: "غزل",
-    language: "ur",
-    likes: 432,
-    views: 1987,
-    createdAt: "2024-01-01",
-    tags: ["اردو", "محبت", "شاعری"],
-    featured: false,
-  },
-  {
-    id: 5,
-    slug: "the-raven",
-    title: "The Raven",
-    poet: "Edgar Allan Poe",
-    poetSlug: "edgar-allan-poe",
-    excerpt: "Once upon a midnight dreary, while I pondered, weak and weary...",
-    content:
-      "Once upon a midnight dreary, while I pondered, weak and weary, Over many a quaint and curious volume of forgotten lore— While I nodded, nearly napping, suddenly there came a tapping, As of some one gently rapping, rapping at my chamber door. 'Tis some visitor,' I muttered, 'tapping at my chamber door— Only this and nothing more.'",
-    type: "Narrative",
-    language: "en",
-    likes: 876,
-    views: 3456,
-    createdAt: "2023-12-20",
-    tags: ["classic", "dark", "mystery"],
-    featured: false,
-  },
-  {
-    id: 6,
-    slug: "if",
-    title: "If—",
-    poet: "Rudyard Kipling",
-    poetSlug: "rudyard-kipling",
-    excerpt:
-      "If you can keep your head when all about you Are losing theirs and blaming it on you...",
-    content:
-      "If you can keep your head when all about you Are losing theirs and blaming it on you, If you can trust yourself when all men doubt you, But make allowance for their doubting too; If you can wait and not be tired by waiting, Or being lied about, don't deal in lies, Or being hated, don't give way to hating, And yet don't look too good, nor talk too wise.",
-    type: "Didactic",
-    language: "en",
-    likes: 765,
-    views: 2987,
-    createdAt: "2023-12-15",
-    tags: ["classic", "inspiration", "wisdom"],
-    featured: false,
-  },
-];
+import poemsData from "@/data/poems_data";
+import PoemsCard from "@/components/poems/poemscard";
+import Romanization from "@/components/poems/romanization";
+import Transliteration from "@/components/poems/transliteration";
+import Translation from "@/components/poems/translation";
 
 export default function PoemDetailPage() {
   const params = useParams();
@@ -148,14 +48,31 @@ export default function PoemDetailPage() {
   const [bookmarked, setBookmarked] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [relatedPoems, setRelatedPoems] = useState([]);
+  const [showLanguageTools, setShowLanguageTools] = useState(true);
+  const [activeTool, setActiveTool] = useState("romanization");
 
-  // Find poem by slug
+  // Find poem by slug and related poems
   useEffect(() => {
     setIsLoading(true);
-    // Simulate API call
     setTimeout(() => {
-      const foundPoem = samplePoems.find((p) => p.slug === slug);
+      const foundPoem = poemsData.find((p) => p.slug === slug);
+      console.log("Found poem:", foundPoem);
       setPoem(foundPoem || null);
+
+      if (foundPoem) {
+        const related = poemsData
+          .filter(
+            (p) =>
+              p.id !== foundPoem.id &&
+              (p.poetSlug === foundPoem.poetSlug ||
+                p.tags.some(
+                  (tag) => foundPoem.tags && foundPoem.tags.includes(tag),
+                )),
+          )
+          .slice(0, 3);
+        setRelatedPoems(related);
+      }
       setIsLoading(false);
     }, 500);
   }, [slug]);
@@ -229,6 +146,9 @@ export default function PoemDetailPage() {
   // Handle like
   const handleLike = () => {
     setLiked(!liked);
+    if (poem) {
+      setPoem({ ...poem, likes: poem.likes + (liked ? -1 : 1) });
+    }
   };
 
   // Handle bookmark
@@ -260,6 +180,38 @@ export default function PoemDetailPage() {
       },
     );
   };
+
+  // Get poem content based on language
+  const getPoemContent = () => {
+    if (!poem) return "";
+    if (
+      lang !== poem.language &&
+      poem.translations &&
+      poem.translations[lang]
+    ) {
+      return poem.translations[lang].content;
+    }
+    return poem.content;
+  };
+
+  const getPoemTitle = () => {
+    if (!poem) return "";
+    if (
+      lang !== poem.language &&
+      poem.translations &&
+      poem.translations[lang]
+    ) {
+      return poem.translations[lang].title;
+    }
+    return poem.title;
+  };
+
+  // Check if poem needs language tools
+  const needsLanguageTools = poem && poem.language && poem.language !== "en";
+  const hasTranslations =
+    poem && poem.translations && Object.keys(poem.translations).length > 0;
+  const isHindiOrUrdu =
+    poem && (poem.language === "hi" || poem.language === "ur");
 
   // Loading state
   if (isLoading) {
@@ -339,7 +291,7 @@ export default function PoemDetailPage() {
 
                 {/* Title */}
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
-                  {poem.title}
+                  {getPoemTitle()}
                 </h1>
 
                 {/* Poet */}
@@ -423,17 +375,6 @@ export default function PoemDetailPage() {
                         <FaFacebook size={14} className="text-blue-600" />
                         Facebook
                       </a>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(window.location.href);
-                          setCopied(true);
-                          setTimeout(() => setCopied(false), 2000);
-                        }}
-                        className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <FaLink size={14} />
-                        {t("copyLink") || "Copy Link"}
-                      </button>
                     </div>
                   )}
                 </button>
@@ -448,12 +389,113 @@ export default function PoemDetailPage() {
                 className={`absolute -top-2 -left-2 text-4xl ${textColor} opacity-10`}
               />
               <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
-                {poem.content}
+                {getPoemContent()}
               </div>
               <FaQuoteRight
                 className={`absolute -bottom-2 -right-2 text-4xl ${textColor} opacity-10`}
               />
             </div>
+
+            {/* ============================================================ */}
+            {/* LANGUAGE TOOLS SECTION - For non-English poems */}
+            {/* ============================================================ */}
+
+            {needsLanguageTools && (
+              <div className="mt-8">
+                {/* Language Tools Header */}
+                <button
+                  onClick={() => setShowLanguageTools(!showLanguageTools)}
+                  className={`flex items-center gap-2 w-full p-3 rounded-xl border ${borderColor} ${hoverBg} transition-colors`}
+                >
+                  <FaLanguage className={textColor} />
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {t("languageTools") || "Language Tools"}
+                  </span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
+                    {isHindiOrUrdu &&
+                      `(${t("romanization") || "Romanization"}, ${t("transliteration") || "Transliteration"})`}
+                    {hasTranslations && ` ${t("translation") || "Translation"}`}
+                  </span>
+                  <span className="ml-auto">
+                    {showLanguageTools ? <FaChevronUp /> : <FaChevronDown />}
+                  </span>
+                </button>
+
+                {showLanguageTools && (
+                  <div className="mt-4 space-y-4">
+                    {/* Tool Tabs */}
+                    {(isHindiOrUrdu || hasTranslations) && (
+                      <div className="flex flex-wrap gap-2">
+                        {isHindiOrUrdu && (
+                          <>
+                            <button
+                              onClick={() => setActiveTool("romanization")}
+                              className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                                activeTool === "romanization"
+                                  ? `bg-gradient-to-r ${gradient} text-white`
+                                  : `${hoverBg} ${textColor} border ${borderColor}`
+                              }`}
+                            >
+                              {t("romanization") || "Romanization"}
+                            </button>
+                            <button
+                              onClick={() => setActiveTool("transliteration")}
+                              className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                                activeTool === "transliteration"
+                                  ? `bg-gradient-to-r ${gradient} text-white`
+                                  : `${hoverBg} ${textColor} border ${borderColor}`
+                              }`}
+                            >
+                              {t("transliteration") || "Transliteration"}
+                            </button>
+                          </>
+                        )}
+                        {hasTranslations && (
+                          <button
+                            onClick={() => setActiveTool("translation")}
+                            className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                              activeTool === "translation"
+                                ? `bg-gradient-to-r ${gradient} text-white`
+                                : `${hoverBg} ${textColor} border ${borderColor}`
+                            }`}
+                          >
+                            {t("translation") || "Translation"}
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Tool Content */}
+                    <div className="mt-2">
+                      {/* Romanization */}
+                      {isHindiOrUrdu && activeTool === "romanization" && (
+                        <Romanization
+                          text={poem.content}
+                          language={poem.language}
+                        />
+                      )}
+
+                      {/* Transliteration */}
+                      {isHindiOrUrdu && activeTool === "transliteration" && (
+                        <Transliteration
+                          text={poem.content}
+                          fromLang={poem.language}
+                          toLang="en"
+                        />
+                      )}
+
+                      {/* Translation */}
+                      {hasTranslations && activeTool === "translation" && (
+                        <Translation
+                          poem={poem}
+                          availableLanguages={["hi", "ur", "ar", "en"]}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Tags */}
             {poem.tags && poem.tags.length > 0 && (
@@ -484,7 +526,7 @@ export default function PoemDetailPage() {
                 <span className="flex items-center gap-1">
                   <FaHeart className={textColor} size={14} />
                   <span>
-                    {poem.likes + (liked ? 1 : 0)} {t("likes") || "likes"}
+                    {poem.likes} {t("likes") || "likes"}
                   </span>
                 </span>
                 <span className="flex items-center gap-1">
@@ -504,15 +546,27 @@ export default function PoemDetailPage() {
           </div>
         </div>
 
-        {/* Related Poems (Optional) */}
-        <div className="mt-8">
-          <h2 className={`text-xl font-bold ${textColor} mb-4`}>
-            {t("relatedPoems") || "Related Poems"}
-          </h2>
-          <p className="text-gray-500 dark:text-gray-400">
-            {t("comingSoon") || "Related poems coming soon..."}
-          </p>
-        </div>
+        {/* Related Poems */}
+        {relatedPoems.length > 0 && (
+          <div className="mt-12">
+            <h2 className={`text-2xl font-bold ${textColor} mb-6`}>
+              {t("relatedPoems") || "Related Poems"}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedPoems.map((relatedPoem) => (
+                <PoemsCard
+                  key={relatedPoem.id}
+                  poem={relatedPoem}
+                  lang={lang}
+                  variant="compact"
+                  showActions={false}
+                  showTags={false}
+                  showExcerpt={false}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
