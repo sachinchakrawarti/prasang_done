@@ -1,4 +1,9 @@
-import { sqliteTable, text, integer, uniqueIndex } from "drizzle-orm/sqlite-core";
+import {
+  sqliteTable,
+  text,
+  integer,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 
 export const tags = sqliteTable(
   "tags",
@@ -8,22 +13,26 @@ export const tags = sqliteTable(
     // English tag name
     name: text("name").notNull(),
 
-    // URL-friendly version
+    // URL-friendly English slug
     slug: text("slug").notNull(),
 
-    // Optional description
-    description: text("description"),
 
-    createdAt: integer("created_at", { mode: "timestamp" })
+    createdAt: integer("created_at", {
+      mode: "timestamp",
+    })
       .notNull()
       .$defaultFn(() => new Date()),
 
-    updatedAt: integer("updated_at", { mode: "timestamp" })
+    updatedAt: integer("updated_at", {
+      mode: "timestamp",
+    })
       .notNull()
       .$defaultFn(() => new Date()),
   },
 
   (table) => ({
-    slugUnique: uniqueIndex("tags_slug_unique").on(table.slug),
+    slugUnique: uniqueIndex("tags_slug_unique").on(
+      table.slug
+    ),
   })
 );
