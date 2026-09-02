@@ -1,0 +1,23 @@
+{
+  "name": "prasang-db",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Poetry database automation",
+  "main": "automation/syncPoetry.js",
+  "scripts": {
+    "sync": "node automation/syncPoetry.js",
+    "sync:random": "node automation/syncPoetry.js --random 20",
+    "sync:author": "node automation/syncPoetry.js --author",
+    "sync:popular": "node automation/syncPoetry.js --popular",
+    "sync:stats": "node automation/syncPoetry.js --stats",
+    "test:db": "node automation/testDb.js"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.5.0",
+    "drizzle-orm": "^0.29.0",
+    "libsql": "^0.3.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.20.0"
+  }
+}
