@@ -28,11 +28,18 @@ import {
 } from "react-icons/fa";
 import { useTheme } from "@/themes/ThemeContext";
 import { useTranslation } from "@/hooks/useLoalization";
-import poemsData from "@/data/poems_data";
 import PoemsCard from "@/components/poems/poemscard";
 import Romanization from "@/components/poems/romanization";
 import Transliteration from "@/components/poems/transliteration";
 import Translation from "@/components/poems/translation";
+
+// Import the service
+import {
+  fetchPoemBySlug,
+  fetchRelatedPoems,
+  toggleLike,
+  toggleBookmark,
+} from "@/services/poemService";
 
 export default function PoemDetailPage() {
   const params = useParams();
@@ -43,6 +50,7 @@ export default function PoemDetailPage() {
 
   const [poem, setPoem] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -51,29 +59,51 @@ export default function PoemDetailPage() {
   const [showLanguageTools, setShowLanguageTools] = useState(true);
   const [activeTool, setActiveTool] = useState("translation");
 
-  // Find poem by slug and related poems
+  // Find poem by slug from API
   useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      const foundPoem = poemsData.find((p) => p.slug === slug);
-      console.log("Found poem:", foundPoem);
-      setPoem(foundPoem || null);
+    const loadPoem = async () => {
+      if (!slug) return;
 
-      if (foundPoem) {
-        const related = poemsData
-          .filter(
-            (p) =>
-              p.id !== foundPoem.id &&
-              (p.poetSlug === foundPoem.poetSlug ||
-                p.tags.some(
-                  (tag) => foundPoem.tags && foundPoem.tags.includes(tag),
-                )),
-          )
-          .slice(0, 3);
-        setRelatedPoems(related);
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // Fetch poem by slug
+        const response = await fetchPoemBySlug(slug);
+
+        // Handle different response structures
+        const poemData = response.data || response;
+
+        if (!poemData) {
+          setError("Poem not found");
+          setIsLoading(false);
+          return;
+        }
+
+        setPoem(poemData);
+        setLiked(poemData.isLiked || false);
+        setBookmarked(poemData.isBookmarked || false);
+
+        // Fetch related poems
+        try {
+          const relatedResponse = await fetchRelatedPoems(poemData.id);
+          const relatedData = relatedResponse.data || relatedResponse;
+          setRelatedPoems(
+            Array.isArray(relatedData) ? relatedData.slice(0, 3) : [],
+          );
+        } catch (relatedErr) {
+          console.error("Failed to load related poems:", relatedErr);
+          setRelatedPoems([]);
+        }
+      } catch (err) {
+        console.error("Failed to load poem:", err);
+        setError(err.message || "Failed to load poem");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }, 500);
+    };
+
+    loadPoem();
   }, [slug]);
 
   // Theme-aware styles
@@ -142,17 +172,38 @@ export default function PoemDetailPage() {
   const borderColor = getBorderColor();
   const hoverBg = getHoverBg();
 
-  // Handle like
-  const handleLike = () => {
-    setLiked(!liked);
-    if (poem) {
-      setPoem({ ...poem, likes: poem.likes + (liked ? -1 : 1) });
+  // Handle like with API
+  const handleLike = async () => {
+    if (!poem) return;
+
+    const newLiked = !liked;
+    // Optimistic update
+    setLiked(newLiked);
+    setPoem({ ...poem, likes: (poem.likes || 0) + (newLiked ? 1 : -1) });
+
+    try {
+      await toggleLike(poem.id);
+    } catch (err) {
+      // Revert on error
+      setLiked(!newLiked);
+      setPoem({ ...poem, likes: (poem.likes || 0) + (newLiked ? -1 : 1) });
+      console.error("Failed to toggle like:", err);
     }
   };
 
-  // Handle bookmark
-  const handleBookmark = () => {
-    setBookmarked(!bookmarked);
+  // Handle bookmark with API
+  const handleBookmark = async () => {
+    if (!poem) return;
+
+    const newBookmarked = !bookmarked;
+    setBookmarked(newBookmarked);
+
+    try {
+      await toggleBookmark(poem.id);
+    } catch (err) {
+      setBookmarked(!newBookmarked);
+      console.error("Failed to toggle bookmark:", err);
+    }
   };
 
   // Handle share
@@ -170,14 +221,19 @@ export default function PoemDetailPage() {
 
   // Format date
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString(
-      lang === "en" ? "en-US" : lang === "hi" ? "hi-IN" : "ur-PK",
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      },
-    );
+    if (!dateString) return "";
+    try {
+      return new Date(dateString).toLocaleDateString(
+        lang === "en" ? "en-US" : lang === "hi" ? "hi-IN" : "ur-PK",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        },
+      );
+    } catch {
+      return dateString;
+    }
   };
 
   // Get poem content based on language
@@ -191,7 +247,7 @@ export default function PoemDetailPage() {
     ) {
       return poem.translations[lang].content;
     }
-    return poem.content;
+    return poem.content || "";
   };
 
   const getPoemTitle = () => {
@@ -203,7 +259,7 @@ export default function PoemDetailPage() {
     ) {
       return poem.translations[lang].title;
     }
-    return poem.title;
+    return poem.title || "Untitled";
   };
 
   // Check if poem needs language tools
@@ -216,7 +272,6 @@ export default function PoemDetailPage() {
   // Determine which tabs to show
   const showRomanization = isHindiOrUrdu;
   const showTransliteration = isHindiOrUrdu;
-  // Translation is always available via Google Translate
   const showTranslation = true; // Always show translation option
 
   // Set default active tab
@@ -237,7 +292,7 @@ export default function PoemDetailPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-300">
-            {t("loading") || "Loading..."}
+            {t?.("loading") || "Loading..."}
           </p>
         </div>
       </div>
@@ -245,19 +300,20 @@ export default function PoemDetailPage() {
   }
 
   // Not found
-  if (!poem) {
+  if (error || !poem) {
     return (
       <div className="min-h-screen flex items-center justify-center py-8 px-4">
         <div className="text-center">
           <FaBookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-medium text-gray-600 dark:text-gray-300">
-            {t("noPoemsFound") || "Poem not found"}
+            {t?.("noPoemsFound") || "Poem not found"}
           </h3>
+          <p className="text-gray-400 dark:text-gray-500 mt-2">{error}</p>
           <Link
             href={`/${lang}/poems`}
             className={`inline-block mt-4 px-6 py-2 bg-gradient-to-r ${gradient} text-white rounded-full font-medium hover:shadow-lg transition-all`}
           >
-            {t("viewAll") || "View All Poems"} →
+            {t?.("viewAll") || "View All Poems"} →
           </Link>
         </div>
       </div>
@@ -273,7 +329,7 @@ export default function PoemDetailPage() {
           className={`inline-flex items-center gap-2 ${textColor} hover:underline mb-6 group`}
         >
           <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
-          {t("backToPoems") || "Back to Poems"}
+          {t?.("backToPoems") || "Back to Poems"}
         </Link>
 
         {/* Poem Card */}
@@ -291,17 +347,17 @@ export default function PoemDetailPage() {
                   <span
                     className={`px-3 py-1 text-xs rounded-full ${hoverBg} ${textColor}`}
                   >
-                    {poem.type}
+                    {poem.type || poem.category?.name || "Poem"}
                   </span>
                   <span className="text-xs text-gray-400 dark:text-gray-500">
-                    {poem.language.toUpperCase()}
+                    {(poem.language || "en").toUpperCase()}
                   </span>
                   {poem.featured && (
                     <span
                       className={`px-3 py-1 text-xs font-medium text-white bg-gradient-to-r ${gradient} rounded-full`}
                     >
                       <FaStar className="inline mr-1" size={10} />
-                      {t("featured") || "Featured"}
+                      {t?.("featured") || "Featured"}
                     </span>
                   )}
                 </div>
@@ -313,22 +369,24 @@ export default function PoemDetailPage() {
 
                 {/* Poet */}
                 <Link
-                  href={`/${lang}/poets/${poem.poetSlug}`}
+                  href={`/${lang}/poets/${poem.poetSlug || poem.poet?.slug}`}
                   className={`inline-flex items-center gap-2 mt-2 ${textColor} hover:underline`}
                 >
                   <FaUser size={14} />
-                  <span className="font-medium">{poem.poet}</span>
+                  <span className="font-medium">
+                    {poem.poet?.name || poem.poet || "Unknown Poet"}
+                  </span>
                 </Link>
 
                 {/* Date and Stats */}
                 <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400">
                   <span className="flex items-center gap-1">
                     <FaClock size={14} />
-                    {formatDate(poem.createdAt)}
+                    {formatDate(poem.createdAt || poem.created_at)}
                   </span>
                   <span className="flex items-center gap-1">
                     <FaEye size={14} />
-                    {poem.views} {t("views") || "views"}
+                    {poem.views || 0} {t?.("views") || "views"}
                   </span>
                 </div>
               </div>
@@ -338,7 +396,7 @@ export default function PoemDetailPage() {
                 <button
                   onClick={handleLike}
                   className={`p-2 rounded-full ${hoverBg} transition-all group`}
-                  aria-label={t("like") || "Like"}
+                  aria-label={t?.("like") || "Like"}
                 >
                   <FaHeart
                     className={`text-xl transition-all ${
@@ -349,7 +407,7 @@ export default function PoemDetailPage() {
                 <button
                   onClick={handleBookmark}
                   className={`p-2 rounded-full ${hoverBg} transition-all`}
-                  aria-label={t("bookmark") || "Bookmark"}
+                  aria-label={t?.("bookmark") || "Bookmark"}
                 >
                   {bookmarked ? (
                     <FaBookmark className={`text-xl ${textColor}`} />
@@ -360,7 +418,7 @@ export default function PoemDetailPage() {
                 <button
                   onClick={handleShare}
                   className={`p-2 rounded-full ${hoverBg} transition-all relative`}
-                  aria-label={t("share") || "Share"}
+                  aria-label={t?.("share") || "Share"}
                 >
                   <FaShare className={`text-xl ${textColor}`} />
                   {showShare && (
@@ -371,8 +429,8 @@ export default function PoemDetailPage() {
                       >
                         <FaCopy size={14} />
                         {copied
-                          ? t("copied") || "Copied!"
-                          : t("copyLink") || "Copy Link"}
+                          ? t?.("copied") || "Copied!"
+                          : t?.("copyLink") || "Copy Link"}
                       </button>
                       <a
                         href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(poem.title)}&url=${encodeURIComponent(window.location.href)}`}
@@ -413,31 +471,28 @@ export default function PoemDetailPage() {
               />
             </div>
 
-            {/* ============================================================ */}
-            {/* LANGUAGE TOOLS SECTION - Shows for all poems */}
-            {/* ============================================================ */}
-
+            {/* Language Tools Section */}
             {(showRomanization || showTransliteration || showTranslation) && (
               <div className="mt-8">
-                {/* Language Tools Header */}
                 <button
                   onClick={() => setShowLanguageTools(!showLanguageTools)}
                   className={`flex items-center gap-2 w-full p-3 rounded-xl border ${borderColor} ${hoverBg} transition-colors`}
                 >
                   <FaLanguage className={textColor} />
                   <span className="font-medium text-gray-700 dark:text-gray-300">
-                    {t("languageTools") || "Language Tools"}
+                    {t?.("languageTools") || "Language Tools"}
                   </span>
                   <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
                     {showRomanization &&
-                      `(${t("romanization") || "Romanization"}`}
+                      `${t?.("romanization") || "Romanization"}`}
                     {showRomanization && showTransliteration && `, `}
                     {showTransliteration &&
-                      `${t("transliteration") || "Transliteration"}`}
+                      `${t?.("transliteration") || "Transliteration"}`}
                     {(showRomanization || showTransliteration) &&
                       showTranslation &&
                       `, `}
-                    {showTranslation && `${t("translation") || "Translation"}`}
+                    {showTranslation &&
+                      `${t?.("translation") || "Translation"}`}
                     {showTranslation && `)`}
                   </span>
                   <span className="ml-auto">
@@ -461,7 +516,7 @@ export default function PoemDetailPage() {
                                 : `${hoverBg} ${textColor} border ${borderColor}`
                             }`}
                           >
-                            {t("romanization") || "Romanization"}
+                            {t?.("romanization") || "Romanization"}
                           </button>
                         )}
                         {showTransliteration && (
@@ -473,7 +528,7 @@ export default function PoemDetailPage() {
                                 : `${hoverBg} ${textColor} border ${borderColor}`
                             }`}
                           >
-                            {t("transliteration") || "Transliteration"}
+                            {t?.("transliteration") || "Transliteration"}
                           </button>
                         )}
                         {showTranslation && (
@@ -485,7 +540,7 @@ export default function PoemDetailPage() {
                                 : `${hoverBg} ${textColor} border ${borderColor}`
                             }`}
                           >
-                            {t("translation") || "Translation"}
+                            {t?.("translation") || "Translation"}
                           </button>
                         )}
                       </div>
@@ -493,25 +548,22 @@ export default function PoemDetailPage() {
 
                     {/* Tool Content */}
                     <div className="mt-2">
-                      {/* Romanization - Only for Hindi/Urdu poems */}
                       {showRomanization && activeTool === "romanization" && (
                         <Romanization
-                          text={poem.content}
-                          language={poem.language}
+                          text={poem.content || ""}
+                          language={poem.language || "en"}
                         />
                       )}
 
-                      {/* Transliteration - Only for Hindi/Urdu poems */}
                       {showTransliteration &&
                         activeTool === "transliteration" && (
                           <Transliteration
-                            text={poem.content}
-                            fromLang={poem.language}
+                            text={poem.content || ""}
+                            fromLang={poem.language || "en"}
                             toLang={lang === poem.language ? "en" : lang}
                           />
                         )}
 
-                      {/* Translation - For ALL poems using Google Translate */}
                       {showTranslation && activeTool === "translation" && (
                         <Translation
                           poem={poem}
@@ -539,17 +591,21 @@ export default function PoemDetailPage() {
             {poem.tags && poem.tags.length > 0 && (
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                  {t("tags") || "Tags"}
+                  {t?.("tags") || "Tags"}
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {poem.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className={`px-3 py-1 text-xs rounded-full ${hoverBg} ${textColor}`}
-                    >
-                      #{tag}
-                    </span>
-                  ))}
+                  {poem.tags.map((tag, index) => {
+                    const tagName =
+                      typeof tag === "string" ? tag : tag?.name || "";
+                    return (
+                      <span
+                        key={index}
+                        className={`px-3 py-1 text-xs rounded-full ${hoverBg} ${textColor}`}
+                      >
+                        #{tagName}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -564,21 +620,21 @@ export default function PoemDetailPage() {
                 <span className="flex items-center gap-1">
                   <FaHeart className={textColor} size={14} />
                   <span>
-                    {poem.likes} {t("likes") || "likes"}
+                    {poem.likes || 0} {t?.("likes") || "likes"}
                   </span>
                 </span>
                 <span className="flex items-center gap-1">
                   <FaEye size={14} />
                   <span>
-                    {poem.views} {t("views") || "views"}
+                    {poem.views || 0} {t?.("views") || "views"}
                   </span>
                 </span>
               </div>
               <Link
-                href={`/${lang}/poets/${poem.poetSlug}`}
+                href={`/${lang}/poets/${poem.poetSlug || poem.poet?.slug}`}
                 className={`flex items-center gap-2 text-sm ${textColor} hover:underline`}
               >
-                {t("moreByPoet") || "More by this poet"} →
+                {t?.("moreByPoet") || "More by this poet"} →
               </Link>
             </div>
           </div>
@@ -588,13 +644,28 @@ export default function PoemDetailPage() {
         {relatedPoems.length > 0 && (
           <div className="mt-12">
             <h2 className={`text-2xl font-bold ${textColor} mb-6`}>
-              {t("relatedPoems") || "Related Poems"}
+              {t?.("relatedPoems") || "Related Poems"}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedPoems.map((relatedPoem) => (
                 <PoemsCard
                   key={relatedPoem.id}
-                  poem={relatedPoem}
+                  poem={{
+                    ...relatedPoem,
+                    poet:
+                      relatedPoem.poet?.name ||
+                      relatedPoem.author ||
+                      "Unknown Poet",
+                    excerpt:
+                      relatedPoem.excerpt ||
+                      relatedPoem.content?.substring(0, 150) + "...",
+                    tags:
+                      relatedPoem.tags?.map((t) =>
+                        typeof t === "string" ? t : t?.name,
+                      ) || [],
+                    type:
+                      relatedPoem.type || relatedPoem.category?.name || "Poem",
+                  }}
                   lang={lang}
                   variant="compact"
                   showActions={false}

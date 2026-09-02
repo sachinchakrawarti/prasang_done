@@ -8,6 +8,7 @@ import Footer from '@/layout/footer/Footer';
 import { ThemeProvider } from '@/themes/ThemeContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -15,11 +16,20 @@ const inter = Inter({
 });
 
 export default function RootLayout({ children }) {
+  const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Check if current route is admin
+  const isAdminRoute = pathname?.includes('/admin-dashboard') || 
+                        pathname?.includes('/admin-login') ||
+                        pathname?.includes('/admin-');
+
+  // Check if current route is public (with language)
+  const isPublicRoute = pathname?.match(/^\/[a-z]{2}\//) && !isAdminRoute;
 
   if (!isMounted) {
     return (
@@ -48,11 +58,30 @@ export default function RootLayout({ children }) {
         <ThemeProvider>
           <LanguageProvider>
             <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
+              {isAdminRoute ? (
+                // Admin routes - no Navbar/Footer
+                <main className="flex-1">
+                  {children}
+                </main>
+              ) : isPublicRoute ? (
+                // Public routes - with Navbar/Footer
+                <>
+                  <Navbar />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                  <Footer />
+                </>
+              ) : (
+                // Other routes (like landing page without language)
+                <>
+                  <Navbar />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                  <Footer />
+                </>
+              )}
             </div>
           </LanguageProvider>
         </ThemeProvider>

@@ -3,25 +3,19 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import {
   FaSearch,
   FaFilter,
-  FaHeart,
-  FaBookOpen,
-  FaUser,
-  FaClock,
-  FaStar,
   FaFeather,
   FaChevronDown,
   FaTh,
   FaList,
-  FaEye,
+  FaBookOpen,
 } from "react-icons/fa";
 import { useTheme } from "@/themes/ThemeContext";
 import { useTranslation } from "@/hooks/useLoalization";
 import PoemsCard from "@/components/poems/poemscard";
-import poemsData from "@/data/poems_data";
+import { fetchPoems } from "@/services/poemService";
 
 export default function PoemsPage() {
   const params = useParams();
@@ -38,77 +32,155 @@ export default function PoemsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState("newest");
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  });
 
-  // Load poems data
-  useEffect(() => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setPoems(poemsData);
-      setFilteredPoems(poemsData);
-      setIsLoading(false);
-    }, 500);
-  }, []);
+  // Load poems from API
+  const loadPoems = useCallback(
+    async (page = 1) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const queryParams = {
+          page,
+          limit: pagination.limit,
+        };
 
-  // Get unique types and languages for filters
-  const types = useMemo(
-    () => ["all", ...new Set(poems.map((p) => p.type))],
-    [poems],
+        // Only add filters if they have values
+        if (searchTerm) {
+          queryParams.search = searchTerm;
+        }
+        if (selectedLanguage && selectedLanguage !== "all") {
+          queryParams.language = selectedLanguage;
+        }
+        // DON'T add status filter yet - let's see all poems first
+        // queryParams.status = "published";
+
+        console.log("Fetching poems with params:", queryParams);
+        const response = await fetchPoems(queryParams);
+        console.log("API Response:", response);
+
+        if (response.success && response.data) {
+          const poemsList = Array.isArray(response.data) ? response.data : [];
+          console.log(`✅ Found ${poemsList.length} poems`);
+
+          setPoems(poemsList);
+          setFilteredPoems(poemsList);
+
+          if (response.pagination) {
+            setPagination({
+              page: response.pagination.page || page,
+              limit: response.pagination.limit || pagination.limit,
+              total: response.pagination.total || poemsList.length,
+              totalPages: response.pagination.totalPages || 1,
+            });
+          }
+        } else {
+          console.error("Invalid response:", response);
+          setError("Invalid response from server");
+        }
+      } catch (err) {
+        console.error("Failed to load poems:", err);
+        setError(err.message || "Failed to load poems");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [searchTerm, selectedLanguage, pagination.limit],
   );
-  const languages = useMemo(
-    () => ["all", ...new Set(poems.map((p) => p.language))],
-    [poems],
-  );
 
-  // Filter poems based on search, type, language
+  // Initial load
   useEffect(() => {
-    let filtered = poems;
+    loadPoems(1);
+  }, [loadPoems]);
 
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (poem) =>
-          poem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          poem.poet.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          poem.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          poem.tags.some((tag) =>
-            tag.toLowerCase().includes(searchTerm.toLowerCase()),
-          ),
-      );
-    }
+  // Get unique types and languages from loaded poems
+  const types = useMemo(() => {
+    const uniqueTypes = new Set(
+      poems.map((p) => p.category?.name || p.type || "Poem"),
+    );
+    return ["all", ...uniqueTypes];
+  }, [poems]);
 
-    // Type filter
+  const languages = useMemo(() => {
+    const uniqueLanguages = new Set(poems.map((p) => p.language || "en"));
+    return ["all", ...uniqueLanguages];
+  }, [poems]);
+
+  // Client-side filtering and sorting
+  useEffect(() => {
+    let filtered = [...poems];
+
+    // Type filter (using category)
     if (selectedType !== "all") {
-      filtered = filtered.filter((poem) => poem.type === selectedType);
-    }
-
-    // Language filter
-    if (selectedLanguage !== "all") {
-      filtered = filtered.filter((poem) => poem.language === selectedLanguage);
+      filtered = filtered.filter(
+        (poem) => (poem.category?.name || poem.type || "Poem") === selectedType,
+      );
     }
 
     // Sort
     switch (sortBy) {
       case "newest":
-        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        filtered.sort(
+          (a, b) =>
+            new Date(b.createdAt || b.created_at || 0) -
+            new Date(a.createdAt || a.created_at || 0),
+        );
         break;
       case "oldest":
-        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        filtered.sort(
+          (a, b) =>
+            new Date(a.createdAt || a.created_at || 0) -
+            new Date(b.createdAt || b.created_at || 0),
+        );
         break;
       case "popular":
-        filtered.sort((a, b) => b.likes - a.likes);
+        filtered.sort((a, b) => (b.likes || 0) - (a.likes || 0));
         break;
       case "views":
-        filtered.sort((a, b) => b.views - a.views);
+        filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
         break;
       default:
         break;
     }
 
     setFilteredPoems(filtered);
-  }, [searchTerm, selectedType, selectedLanguage, sortBy, poems]);
+  }, [selectedType, sortBy, poems]);
 
-  // Theme-aware styles
+  // Handle like
+  const handleLike = (poemId, liked) => {
+    setPoems((prev) =>
+      prev.map((p) =>
+        p.id === poemId
+          ? { ...p, likes: (p.likes || 0) + (liked ? 1 : -1), isLiked: liked }
+          : p,
+      ),
+    );
+  };
+
+  // Handle bookmark
+  const handleBookmark = (poemId, bookmarked) => {
+    console.log(`Poem ${poemId} ${bookmarked ? "bookmarked" : "unbookmarked"}`);
+  };
+
+  // Handle share
+  const handleShare = (poemId) => {
+    console.log(`Sharing poem ${poemId}`);
+  };
+
+  // Load more
+  const loadMore = () => {
+    if (pagination.page < pagination.totalPages) {
+      loadPoems(pagination.page + 1);
+    }
+  };
+
+  // Theme styles (keep your existing theme functions)
   const getTextColor = () => {
     switch (themeName) {
       case "forest":
@@ -174,26 +246,34 @@ export default function PoemsPage() {
   const borderColor = getBorderColor();
   const hoverBg = getHoverBg();
 
-  // Handle like
-  const handleLike = (poemId, liked) => {
-    setPoems((prev) =>
-      prev.map((p) =>
-        p.id === poemId ? { ...p, likes: p.likes + (liked ? 1 : -1) } : p,
-      ),
+  // Render states
+  if (isLoading && poems.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+      </div>
     );
-  };
+  }
 
-  // Handle bookmark
-  const handleBookmark = (poemId, bookmarked) => {
-    // Implement bookmark logic
-    console.log(`Poem ${poemId} ${bookmarked ? "bookmarked" : "unbookmarked"}`);
-  };
-
-  // Handle share
-  const handleShare = (poemId) => {
-    // Implement share logic
-    console.log(`Sharing poem ${poemId}`);
-  };
+  if (error && poems.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <FaBookOpen className="w-16 h-16 text-red-400 mx-auto mb-4" />
+          <h3 className="text-xl font-medium text-gray-600 dark:text-gray-300">
+            Error loading poems
+          </h3>
+          <p className="text-gray-400 dark:text-gray-500 mt-2">{error}</p>
+          <button
+            onClick={() => loadPoems(1)}
+            className="mt-4 px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900/50">
@@ -205,66 +285,66 @@ export default function PoemsPage() {
             <h1
               className={`text-4xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}
             >
-              {t("poems") || "Poems"}
+              {t?.("poems") || "Poems"}
             </h1>
+            <span className="text-sm text-gray-400">
+              ({poems.length} total)
+            </span>
           </div>
           <p className="text-gray-600 dark:text-gray-300 mt-2 ml-11">
-            {t("poemsDescription") || "Discover poems from around the world"}
+            {t?.("poemsDescription") || "Discover poems from around the world"}
           </p>
         </div>
 
-        {/* Search and Filters Bar */}
+        {/* Search and Filters */}
         <div className="mb-8 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
             <div className="flex-1 relative">
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder={t("searchPoems") || "Search poems, poets..."}
+                placeholder={t?.("searchPoems") || "Search poems, poets..."}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  // Reload with search
+                  loadPoems(1);
+                }}
                 className={`w-full pl-10 pr-4 py-2 rounded-lg border ${borderColor} bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all`}
                 aria-label="Search poems"
               />
             </div>
 
             <div className="flex gap-2">
-              {/* Filter Toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`px-4 py-2 rounded-lg border ${borderColor} ${hoverBg} flex items-center gap-2 transition whitespace-nowrap`}
-                aria-label="Toggle filters"
               >
                 <FaFilter className={textColor} />
-                <span>{t("filter") || "Filter"}</span>
+                <span>{t?.("filter") || "Filter"}</span>
                 <FaChevronDown
                   className={`transition-transform ${showFilters ? "rotate-180" : ""}`}
                 />
               </button>
 
-              {/* View Toggle */}
               <button
                 onClick={() =>
                   setViewMode(viewMode === "grid" ? "list" : "grid")
                 }
                 className={`px-4 py-2 rounded-lg border ${borderColor} ${hoverBg} transition`}
-                aria-label="Toggle view mode"
               >
                 {viewMode === "grid" ? <FaList /> : <FaTh />}
               </button>
             </div>
           </div>
 
-          {/* Filters Panel */}
           {showFilters && (
             <div
-              className={`p-4 rounded-lg border ${borderColor} bg-white dark:bg-gray-800 grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fadeIn`}
+              className={`p-4 rounded-lg border ${borderColor} bg-white dark:bg-gray-800 grid grid-cols-1 sm:grid-cols-3 gap-4`}
             >
-              {/* Type Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  {t("type") || "Type"}
+                  {t?.("type") || "Type"}
                 </label>
                 <select
                   value={selectedType}
@@ -273,49 +353,50 @@ export default function PoemsPage() {
                 >
                   {types.map((type) => (
                     <option key={type} value={type}>
-                      {type === "all" ? t("allTypes") || "All Types" : type}
+                      {type === "all" ? t?.("allTypes") || "All Types" : type}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Language Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  {t("language") || "Language"}
+                  {t?.("language") || "Language"}
                 </label>
                 <select
                   value={selectedLanguage}
-                  onChange={(e) => setSelectedLanguage(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedLanguage(e.target.value);
+                    loadPoems(1);
+                  }}
                   className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
                   {languages.map((lang) => (
                     <option key={lang} value={lang}>
                       {lang === "all"
-                        ? t("allLanguages") || "All Languages"
+                        ? t?.("allLanguages") || "All Languages"
                         : lang}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Sort */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  {t("sortBy") || "Sort By"}
+                  {t?.("sortBy") || "Sort By"}
                 </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
-                  <option value="newest">{t("newest") || "Newest"}</option>
-                  <option value="oldest">{t("oldest") || "Oldest"}</option>
+                  <option value="newest">{t?.("newest") || "Newest"}</option>
+                  <option value="oldest">{t?.("oldest") || "Oldest"}</option>
                   <option value="popular">
-                    {t("mostLiked") || "Most Liked"}
+                    {t?.("mostLiked") || "Most Liked"}
                   </option>
                   <option value="views">
-                    {t("mostViewed") || "Most Viewed"}
+                    {t?.("mostViewed") || "Most Viewed"}
                   </option>
                 </select>
               </div>
@@ -323,21 +404,17 @@ export default function PoemsPage() {
           )}
         </div>
 
-        {/* Poems Grid/List */}
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
-          </div>
-        ) : filteredPoems.length === 0 ? (
+        {/* Poems Display */}
+        {filteredPoems.length === 0 ? (
           <div
             className={`text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border ${borderColor}`}
           >
             <FaBookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <h3 className="text-xl font-medium text-gray-600 dark:text-gray-300">
-              {t("noPoemsFound") || "No poems found"}
+              {t?.("noPoemsFound") || "No poems found"}
             </h3>
             <p className="text-gray-400 dark:text-gray-500 mt-2">
-              {t("tryDifferentSearch") ||
+              {t?.("tryDifferentSearch") ||
                 "Try adjusting your search or filters"}
             </p>
           </div>
@@ -346,7 +423,16 @@ export default function PoemsPage() {
             {filteredPoems.map((poem) => (
               <PoemsCard
                 key={poem.id}
-                poem={poem}
+                poem={{
+                  ...poem,
+                  poet: poem.poet?.name || poem.author || "Unknown Poet",
+                  excerpt:
+                    poem.description ||
+                    poem.excerpt ||
+                    poem.content?.substring(0, 150) + "...",
+                  tags: poem.tags || [],
+                  type: poem.category?.name || poem.type || "Poem",
+                }}
                 lang={lang}
                 variant="grid"
                 showActions={true}
@@ -363,7 +449,16 @@ export default function PoemsPage() {
             {filteredPoems.map((poem) => (
               <PoemsCard
                 key={poem.id}
-                poem={poem}
+                poem={{
+                  ...poem,
+                  poet: poem.poet?.name || poem.author || "Unknown Poet",
+                  excerpt:
+                    poem.description ||
+                    poem.excerpt ||
+                    poem.content?.substring(0, 150) + "...",
+                  tags: poem.tags || [],
+                  type: poem.category?.name || poem.type || "Poem",
+                }}
                 lang={lang}
                 variant="list"
                 showActions={true}
@@ -380,8 +475,30 @@ export default function PoemsPage() {
         {/* Results Count */}
         {filteredPoems.length > 0 && (
           <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-            {t("showing") || "Showing"} {filteredPoems.length}{" "}
-            {t("poems") || "poems"}
+            {t?.("showing") || "Showing"} {filteredPoems.length}{" "}
+            {t?.("poems") || "poems"}
+            {pagination.total > 0 &&
+              ` (${t?.("total") || "Total"}: ${pagination.total})`}
+          </div>
+        )}
+
+        {/* Load More */}
+        {pagination.page < pagination.totalPages && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={loadMore}
+              disabled={isLoading}
+              className={`px-6 py-2 rounded-lg border ${borderColor} ${hoverBg} transition disabled:opacity-50`}
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500"></div>
+                  {t?.("loading") || "Loading..."}
+                </span>
+              ) : (
+                t?.("loadMore") || "Load More"
+              )}
+            </button>
           </div>
         )}
       </div>
