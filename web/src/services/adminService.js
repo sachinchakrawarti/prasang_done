@@ -1,288 +1,18 @@
 // src/services/adminService.js
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-// ============================================
-// POEMS
-// ============================================
-
-// Get all poems with pagination and filters
-export async function fetchPoems(params = {}) {
-  const queryParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      queryParams.append(key, value);
+// Helper function to handle fetch errors
+async function handleFetchResponse(response) {
+  if (!response.ok) {
+    let errorMessage = `HTTP error ${response.status}`;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch (e) {
+      errorMessage = response.statusText || errorMessage;
     }
-  });
-
-  const response = await fetch(`${API_BASE_URL}/poems?${queryParams}`, {
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error ${response.status}`);
+    throw new Error(errorMessage);
   }
-
-  return response.json();
-}
-
-// Get poem by ID
-export async function fetchPoemById(id) {
-  const response = await fetch(`${API_BASE_URL}/poems/${id}`, {
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error ${response.status}`);
-  }
-
-  return response.json();
-}
-
-// Get poem by slug
-export async function fetchPoemBySlug(slug) {
-  const response = await fetch(`${API_BASE_URL}/poems/slug/${slug}`, {
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error ${response.status}`);
-  }
-
-  return response.json();
-}
-
-// Create new poem
-export async function createPoem(data) {
-  const response = await fetch(`${API_BASE_URL}/poems`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to create poem");
-  }
-
-  return response.json();
-}
-
-// Update poem
-export async function updatePoem(id, data) {
-  const response = await fetch(`${API_BASE_URL}/poems/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to update poem");
-  }
-
-  return response.json();
-}
-
-// Delete poem
-export async function deletePoem(id) {
-  const response = await fetch(`${API_BASE_URL}/poems/${id}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to delete poem");
-  }
-
-  return response.json();
-}
-
-// Update poem status
-export async function updatePoemStatus(id, status) {
-  const response = await fetch(`${API_BASE_URL}/poems/${id}/status`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to update poem status");
-  }
-
-  return response.json();
-}
-
-// ============================================
-// POETS
-// ============================================
-
-// Get all poets
-export async function fetchPoets(params = {}) {
-  const queryParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      queryParams.append(key, value);
-    }
-  });
-
-  const response = await fetch(`${API_BASE_URL}/poets?${queryParams}`, {
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error ${response.status}`);
-  }
-
-  return response.json();
-}
-
-// Get poet by ID
-export async function fetchPoetById(id) {
-  const response = await fetch(`${API_BASE_URL}/poets/${id}`, {
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error ${response.status}`);
-  }
-
-  return response.json();
-}
-
-// Create new poet
-export async function createPoet(data) {
-  const response = await fetch(`${API_BASE_URL}/poets`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to create poet");
-  }
-
-  return response.json();
-}
-
-// Update poet
-export async function updatePoet(id, data) {
-  const response = await fetch(`${API_BASE_URL}/poets/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to update poet");
-  }
-
-  return response.json();
-}
-
-// Delete poet
-export async function deletePoet(id) {
-  const response = await fetch(`${API_BASE_URL}/poets/${id}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to delete poet");
-  }
-
-  return response.json();
-}
-
-// ============================================
-// CATEGORIES
-// ============================================
-
-// Get all categories
-export async function fetchCategories(params = {}) {
-  const queryParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      queryParams.append(key, value);
-    }
-  });
-
-  const response = await fetch(`${API_BASE_URL}/categories?${queryParams}`, {
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error ${response.status}`);
-  }
-
-  return response.json();
-}
-
-// Get category by ID
-export async function fetchCategoryById(id) {
-  const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error ${response.status}`);
-  }
-
-  return response.json();
-}
-
-// Create new category
-export async function createCategory(data) {
-  const response = await fetch(`${API_BASE_URL}/categories`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to create category");
-  }
-
-  return response.json();
-}
-
-// Update category
-export async function updateCategory(id, data) {
-  const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to update category");
-  }
-
-  return response.json();
-}
-
-// Delete category
-export async function deleteCategory(id) {
-  const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to delete category");
-  }
-
   return response.json();
 }
 
@@ -290,133 +20,430 @@ export async function deleteCategory(id) {
 // TAGS
 // ============================================
 
-// Get all tags
 export async function fetchTags(params = {}) {
-  const queryParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      queryParams.append(key, value);
-    }
-  });
+  try {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "" && value !== "all") {
+        queryParams.append(key, value);
+      }
+    });
 
-  const response = await fetch(`${API_BASE_URL}/tags?${queryParams}`, {
-    headers: { "Content-Type": "application/json" },
-  });
+    const url = `${API_BASE_URL}/tags${queryParams.toString() ? `?${queryParams}` : ''}`;
+    console.log("Fetching tags from:", url);
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error ${response.status}`);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error("Fetch tags error:", error);
+    return {
+      data: [],
+      pagination: {
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0,
+      },
+      success: false,
+      error: error.message,
+    };
   }
-
-  return response.json();
 }
 
-// Create new tag
+export async function fetchTagById(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/tags/${id}`, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Fetch tag ${id} error:`, error);
+    throw error;
+  }
+}
+
 export async function createTag(data) {
-  const response = await fetch(`${API_BASE_URL}/tags`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to create tag");
+  try {
+    const response = await fetch(`${API_BASE_URL}/tags`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error("Create tag error:", error);
+    throw error;
   }
-
-  return response.json();
 }
 
-// Update tag
 export async function updateTag(id, data) {
-  const response = await fetch(`${API_BASE_URL}/tags/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to update tag");
+  try {
+    const response = await fetch(`${API_BASE_URL}/tags/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Update tag ${id} error:`, error);
+    throw error;
   }
-
-  return response.json();
 }
 
-// Delete tag
 export async function deleteTag(id) {
-  const response = await fetch(`${API_BASE_URL}/tags/${id}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to delete tag");
+  try {
+    const response = await fetch(`${API_BASE_URL}/tags/${id}`, {
+      method: "DELETE",
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Delete tag ${id} error:`, error);
+    throw error;
   }
+}
 
-  return response.json();
+// ============================================
+// POEMS
+// ============================================
+
+export async function fetchPoems(params = {}) {
+  try {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "" && value !== "all") {
+        queryParams.append(key, value);
+      }
+    });
+
+    const url = `${API_BASE_URL}/poems${queryParams.toString() ? `?${queryParams}` : ''}`;
+    console.log("Fetching poems from:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error("Fetch poems error:", error);
+    return {
+      data: [],
+      pagination: {
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0,
+      },
+      success: false,
+      error: error.message,
+    };
+  }
+}
+
+export async function fetchPoemById(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/poems/${id}`, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Fetch poem ${id} error:`, error);
+    throw error;
+  }
+}
+
+export async function createPoem(data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/poems`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error("Create poem error:", error);
+    throw error;
+  }
+}
+
+export async function updatePoem(id, data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/poems/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Update poem ${id} error:`, error);
+    throw error;
+  }
+}
+
+export async function deletePoem(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/poems/${id}`, {
+      method: "DELETE",
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Delete poem ${id} error:`, error);
+    throw error;
+  }
+}
+
+// ============================================
+// POETS
+// ============================================
+
+export async function fetchPoets(params = {}) {
+  try {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "" && value !== "all") {
+        queryParams.append(key, value);
+      }
+    });
+
+    const url = `${API_BASE_URL}/poets${queryParams.toString() ? `?${queryParams}` : ''}`;
+    console.log("Fetching poets from:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error("Fetch poets error:", error);
+    return {
+      data: [],
+      pagination: {
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0,
+      },
+      success: false,
+      error: error.message,
+    };
+  }
+}
+
+export async function fetchPoetById(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/poets/${id}`, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Fetch poet ${id} error:`, error);
+    throw error;
+  }
+}
+
+export async function createPoet(data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/poets`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error("Create poet error:", error);
+    throw error;
+  }
+}
+
+export async function updatePoet(id, data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/poets/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Update poet ${id} error:`, error);
+    throw error;
+  }
+}
+
+export async function deletePoet(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/poets/${id}`, {
+      method: "DELETE",
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Delete poet ${id} error:`, error);
+    throw error;
+  }
+}
+
+// ============================================
+// CATEGORIES
+// ============================================
+
+export async function fetchCategories(params = {}) {
+  try {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "" && value !== "all") {
+        queryParams.append(key, value);
+      }
+    });
+
+    const url = `${API_BASE_URL}/categories${queryParams.toString() ? `?${queryParams}` : ''}`;
+    console.log("Fetching categories from:", url);
+
+    const response = await fetch(url, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error("Fetch categories error:", error);
+    return { data: [], success: false, error: error.message };
+  }
+}
+
+export async function fetchCategoryById(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Fetch category ${id} error:`, error);
+    throw error;
+  }
+}
+
+export async function createCategory(data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/categories`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error("Create category error:", error);
+    throw error;
+  }
+}
+
+export async function updateCategory(id, data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Update category ${id} error:`, error);
+    throw error;
+  }
+}
+
+export async function deleteCategory(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
+      method: "DELETE",
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Delete category ${id} error:`, error);
+    throw error;
+  }
 }
 
 // ============================================
 // TRANSLATIONS
 // ============================================
 
-// Get translations for a poem
-export async function fetchPoemTranslations(poemId) {
-  const response = await fetch(`${API_BASE_URL}/ai-translations/poem/${poemId}`, {
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error ${response.status}`);
+export async function fetchTranslationById(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/ai-translations/${id}`, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Fetch translation ${id} error:`, error);
+    throw error;
   }
-
-  return response.json();
 }
 
-// Create translation
 export async function createTranslation(data) {
-  const response = await fetch(`${API_BASE_URL}/ai-translations`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to create translation");
+  try {
+    const response = await fetch(`${API_BASE_URL}/ai-translations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error("Create translation error:", error);
+    throw error;
   }
-
-  return response.json();
 }
 
-// Update translation
 export async function updateTranslation(id, data) {
-  const response = await fetch(`${API_BASE_URL}/ai-translations/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to update translation");
+  try {
+    const response = await fetch(`${API_BASE_URL}/ai-translations/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Update translation ${id} error:`, error);
+    throw error;
   }
-
-  return response.json();
 }
 
-// Delete translation
 export async function deleteTranslation(id) {
-  const response = await fetch(`${API_BASE_URL}/ai-translations/${id}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Failed to delete translation");
+  try {
+    const response = await fetch(`${API_BASE_URL}/ai-translations/${id}`, {
+      method: "DELETE",
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Delete translation ${id} error:`, error);
+    throw error;
   }
+}
 
-  return response.json();
+export async function fetchPoemTranslations(poemId, params = {}) {
+  try {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        queryParams.append(key, value);
+      }
+    });
+
+    const url = `${API_BASE_URL}/ai-translations/poem/${poemId}${queryParams.toString() ? `?${queryParams}` : ''}`;
+    console.log("Fetching poem translations from:", url);
+
+    const response = await fetch(url, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return await handleFetchResponse(response);
+  } catch (error) {
+    console.error(`Fetch translations for poem ${poemId} error:`, error);
+    return { data: [], success: false, error: error.message };
+  }
 }
