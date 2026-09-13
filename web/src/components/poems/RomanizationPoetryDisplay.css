@@ -1,0 +1,29 @@
+/* RomanizationPoetryDisplay.css - Additional styles if needed */
+
+.romanization-poetry-display {
+  /* Base styles are in the component with styled-jsx */
+}
+
+/* Add any custom overrides here if needed */
+.romanization-poetry-display.dark-mode {
+  background: #1a1a2e;
+  color: #e9ecef;
+}
+
+.romanization-poetry-display.dark-mode .original-text-section {
+  background: #2d2d44;
+  border-color: #3d3d5a;
+}
+
+.romanization-poetry-display.dark-mode .original-line {
+  color: #e9ecef;
+}
+
+.romanization-poetry-display.dark-mode .romanized-text {
+  background: #2d2d44;
+  border-left-color: #007bff;
+}
+
+.romanization-poetry-display.dark-mode .romanized-line {
+  color: #adb5bd;
+}

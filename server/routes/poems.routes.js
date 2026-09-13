@@ -4,6 +4,7 @@ import {
   getAllPoems,
   getPoemById,
   getPoemBySlug,
+  getRelatedPoems,
   createPoem,
   updatePoem,
   deletePoem,
@@ -38,6 +39,19 @@ router.get(
 router.get(
   "/slug/:slug",
   getPoemBySlug
+);
+
+// --------------------------------------------------
+// GET RELATED POEMS
+// GET /api/poems/related/:id
+//
+// IMPORTANT: must be registered BEFORE "/:id"
+// or Express will match "/:id" with id="related".
+// --------------------------------------------------
+
+router.get(
+  "/related/:id",
+  getRelatedPoems
 );
 
 // --------------------------------------------------

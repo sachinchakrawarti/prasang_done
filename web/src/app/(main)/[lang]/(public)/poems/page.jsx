@@ -17,6 +17,9 @@ import { useTranslation } from "@/hooks/useLoalization";
 import PoemsCard from "@/components/poems/poemscard";
 import { fetchPoems } from "@/services/poemService";
 
+const DEFAULT_LIMIT = 20;
+const SEARCH_DEBOUNCE_MS = 400;
+
 export default function PoemsPage() {
   const params = useParams();
   const lang = params?.lang || "en";
@@ -35,7 +38,7 @@ export default function PoemsPage() {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 20,
+    limit: DEFAULT_LIMIT,
     total: 0,
     totalPages: 0,
   });
@@ -48,34 +51,35 @@ export default function PoemsPage() {
       try {
         const queryParams = {
           page,
-          limit: pagination.limit,
+          limit: DEFAULT_LIMIT,
         };
 
-        // Only add filters if they have values
-        if (searchTerm) {
-          queryParams.search = searchTerm;
-        }
+        if (searchTerm) queryParams.search = searchTerm;
         if (selectedLanguage && selectedLanguage !== "all") {
           queryParams.language = selectedLanguage;
         }
-        // DON'T add status filter yet - let's see all poems first
-        // queryParams.status = "published";
 
         console.log("Fetching poems with params:", queryParams);
         const response = await fetchPoems(queryParams);
         console.log("API Response:", response);
 
-        if (response.success && response.data) {
-          const poemsList = Array.isArray(response.data) ? response.data : [];
+        const poemsList = Array.isArray(response?.poems) ? response.poems : [];
+
+        if (response?.success) {
           console.log(`✅ Found ${poemsList.length} poems`);
 
-          setPoems(poemsList);
+          // For "Load More", append. For fresh load/search, replace.
+          if (page > 1) {
+            setPoems((prev) => [...prev, ...poemsList]);
+          } else {
+            setPoems(poemsList);
+          }
           setFilteredPoems(poemsList);
 
           if (response.pagination) {
             setPagination({
               page: response.pagination.page || page,
-              limit: response.pagination.limit || pagination.limit,
+              limit: response.pagination.limit || DEFAULT_LIMIT,
               total: response.pagination.total || poemsList.length,
               totalPages: response.pagination.totalPages || 1,
             });
@@ -91,13 +95,17 @@ export default function PoemsPage() {
         setIsLoading(false);
       }
     },
-    [searchTerm, selectedLanguage, pagination.limit],
+    [searchTerm, selectedLanguage],
   );
 
-  // Initial load
+  // Debounced load for search + language changes
   useEffect(() => {
-    loadPoems(1);
-  }, [loadPoems]);
+    const id = setTimeout(() => {
+      loadPoems(1);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, selectedLanguage]);
 
   // Get unique types and languages from loaded poems
   const types = useMemo(() => {
@@ -116,14 +124,12 @@ export default function PoemsPage() {
   useEffect(() => {
     let filtered = [...poems];
 
-    // Type filter (using category)
     if (selectedType !== "all") {
       filtered = filtered.filter(
         (poem) => (poem.category?.name || poem.type || "Poem") === selectedType,
       );
     }
 
-    // Sort
     switch (sortBy) {
       case "newest":
         filtered.sort(
@@ -152,7 +158,7 @@ export default function PoemsPage() {
     setFilteredPoems(filtered);
   }, [selectedType, sortBy, poems]);
 
-  // Handle like
+  // Handle like (optimistic)
   const handleLike = (poemId, liked) => {
     setPoems((prev) =>
       prev.map((p) =>
@@ -163,24 +169,21 @@ export default function PoemsPage() {
     );
   };
 
-  // Handle bookmark
   const handleBookmark = (poemId, bookmarked) => {
     console.log(`Poem ${poemId} ${bookmarked ? "bookmarked" : "unbookmarked"}`);
   };
 
-  // Handle share
   const handleShare = (poemId) => {
     console.log(`Sharing poem ${poemId}`);
   };
 
-  // Load more
   const loadMore = () => {
-    if (pagination.page < pagination.totalPages) {
+    if (pagination.page < pagination.totalPages && !isLoading) {
       loadPoems(pagination.page + 1);
     }
   };
 
-  // Theme styles (keep your existing theme functions)
+  // Theme helpers
   const getTextColor = () => {
     switch (themeName) {
       case "forest":
@@ -246,6 +249,20 @@ export default function PoemsPage() {
   const borderColor = getBorderColor();
   const hoverBg = getHoverBg();
 
+  // Map API poem -> card poem (keep poet object AND name)
+  const mapPoemForCard = (poem) => ({
+    ...poem,
+    poet: poem.poet?.name || poem.author || "Unknown Poet",
+    poetSlug: poem.poet?.slug,
+    poetId: poem.poet?.id,
+    excerpt:
+      poem.description ||
+      poem.excerpt ||
+      (poem.content ? poem.content.substring(0, 150) + "..." : ""),
+    tags: poem.tags || [],
+    type: poem.category?.name || poem.type || "Poem",
+  });
+
   // Render states
   if (isLoading && poems.length === 0) {
     return (
@@ -261,14 +278,14 @@ export default function PoemsPage() {
         <div className="text-center">
           <FaBookOpen className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h3 className="text-xl font-medium text-gray-600 dark:text-gray-300">
-            Error loading poems
+            {t?.("errorLoadingPoems") || "Error loading poems"}
           </h3>
           <p className="text-gray-400 dark:text-gray-500 mt-2">{error}</p>
           <button
             onClick={() => loadPoems(1)}
             className="mt-4 px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition"
           >
-            Retry
+            {t?.("retry") || "Retry"}
           </button>
         </div>
       </div>
@@ -288,7 +305,7 @@ export default function PoemsPage() {
               {t?.("poems") || "Poems"}
             </h1>
             <span className="text-sm text-gray-400">
-              ({poems.length} total)
+              ({pagination.total || poems.length} {t?.("total") || "total"})
             </span>
           </div>
           <p className="text-gray-600 dark:text-gray-300 mt-2 ml-11">
@@ -305,11 +322,7 @@ export default function PoemsPage() {
                 type="text"
                 placeholder={t?.("searchPoems") || "Search poems, poets..."}
                 value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  // Reload with search
-                  loadPoems(1);
-                }}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className={`w-full pl-10 pr-4 py-2 rounded-lg border ${borderColor} bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all`}
                 aria-label="Search poems"
               />
@@ -332,6 +345,9 @@ export default function PoemsPage() {
                   setViewMode(viewMode === "grid" ? "list" : "grid")
                 }
                 className={`px-4 py-2 rounded-lg border ${borderColor} ${hoverBg} transition`}
+                aria-label={
+                  viewMode === "grid" ? "Switch to list" : "Switch to grid"
+                }
               >
                 {viewMode === "grid" ? <FaList /> : <FaTh />}
               </button>
@@ -365,17 +381,14 @@ export default function PoemsPage() {
                 </label>
                 <select
                   value={selectedLanguage}
-                  onChange={(e) => {
-                    setSelectedLanguage(e.target.value);
-                    loadPoems(1);
-                  }}
+                  onChange={(e) => setSelectedLanguage(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
-                  {languages.map((lang) => (
-                    <option key={lang} value={lang}>
-                      {lang === "all"
+                  {languages.map((lng) => (
+                    <option key={lng} value={lng}>
+                      {lng === "all"
                         ? t?.("allLanguages") || "All Languages"
-                        : lang}
+                        : lng}
                     </option>
                   ))}
                 </select>
@@ -423,16 +436,7 @@ export default function PoemsPage() {
             {filteredPoems.map((poem) => (
               <PoemsCard
                 key={poem.id}
-                poem={{
-                  ...poem,
-                  poet: poem.poet?.name || poem.author || "Unknown Poet",
-                  excerpt:
-                    poem.description ||
-                    poem.excerpt ||
-                    poem.content?.substring(0, 150) + "...",
-                  tags: poem.tags || [],
-                  type: poem.category?.name || poem.type || "Poem",
-                }}
+                poem={mapPoemForCard(poem)}
                 lang={lang}
                 variant="grid"
                 showActions={true}
@@ -449,16 +453,7 @@ export default function PoemsPage() {
             {filteredPoems.map((poem) => (
               <PoemsCard
                 key={poem.id}
-                poem={{
-                  ...poem,
-                  poet: poem.poet?.name || poem.author || "Unknown Poet",
-                  excerpt:
-                    poem.description ||
-                    poem.excerpt ||
-                    poem.content?.substring(0, 150) + "...",
-                  tags: poem.tags || [],
-                  type: poem.category?.name || poem.type || "Poem",
-                }}
+                poem={mapPoemForCard(poem)}
                 lang={lang}
                 variant="list"
                 showActions={true}

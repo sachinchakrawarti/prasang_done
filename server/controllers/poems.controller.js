@@ -1,4 +1,16 @@
-import { eq, and, or, like, desc, asc, count } from "drizzle-orm";
+// server/controllers/poems.controller.js
+
+import {
+  eq,
+  and,
+  or,
+  ne,
+  notInArray,
+  like,
+  desc,
+  asc,
+  count,
+} from "drizzle-orm";
 
 import { db } from "../config/database.js";
 
@@ -7,6 +19,8 @@ import {
   poets,
   categories,
 } from "../../db/schema/index.js";
+
+import { slugify, makeUniqueSlug } from "../utils/slugify.js";
 
 // --------------------------------------------------
 // GET ALL POEMS
@@ -24,25 +38,14 @@ import {
 
 export async function getAllPoems(req, res) {
   try {
-    const page = Math.max(
-      Number(req.query.page) || 1,
-      1
-    );
-
+    const page = Math.max(Number(req.query.page) || 1, 1);
     const limit = Math.min(
       Math.max(Number(req.query.limit) || 20, 1),
       100
     );
-
     const offset = (page - 1) * limit;
 
-    const {
-      search,
-      language,
-      status,
-      poetId,
-      categoryId,
-    } = req.query;
+    const { search, language, status, poetId, categoryId } = req.query;
 
     const conditions = [];
 
@@ -59,15 +62,11 @@ export async function getAllPoems(req, res) {
     }
 
     if (language?.trim()) {
-      conditions.push(
-        eq(poems.language, language.trim())
-      );
+      conditions.push(eq(poems.language, language.trim()));
     }
 
     if (status?.trim()) {
-      conditions.push(
-        eq(poems.status, status.trim())
-      );
+      conditions.push(eq(poems.status, status.trim()));
     }
 
     if (poetId) {
@@ -97,9 +96,7 @@ export async function getAllPoems(req, res) {
     }
 
     const whereClause =
-      conditions.length > 0
-        ? and(...conditions)
-        : undefined;
+      conditions.length > 0 ? and(...conditions) : undefined;
 
     const data = await db
       .select({
@@ -129,14 +126,8 @@ export async function getAllPoems(req, res) {
         },
       })
       .from(poems)
-      .leftJoin(
-        poets,
-        eq(poems.poetId, poets.id)
-      )
-      .leftJoin(
-        categories,
-        eq(poems.categoryId, categories.id)
-      )
+      .leftJoin(poets, eq(poems.poetId, poets.id))
+      .leftJoin(categories, eq(poems.categoryId, categories.id))
       .where(whereClause)
       .orderBy(desc(poems.createdAt))
       .limit(limit)
@@ -159,8 +150,7 @@ export async function getAllPoems(req, res) {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
-        hasNextPage:
-          page < Math.ceil(total / limit),
+        hasNextPage: page < Math.ceil(total / limit),
         hasPreviousPage: page > 1,
       },
 
@@ -220,14 +210,8 @@ export async function getPoemById(req, res) {
         },
       })
       .from(poems)
-      .leftJoin(
-        poets,
-        eq(poems.poetId, poets.id)
-      )
-      .leftJoin(
-        categories,
-        eq(poems.categoryId, categories.id)
-      )
+      .leftJoin(poets, eq(poems.poetId, poets.id))
+      .leftJoin(categories, eq(poems.categoryId, categories.id))
       .where(eq(poems.id, id))
       .limit(1);
 
@@ -259,53 +243,64 @@ export async function getPoemById(req, res) {
 
 export async function getPoemBySlug(req, res) {
   try {
-    const slug = req.params.slug?.trim();
+    const rawSlug = req.params.slug?.trim();
 
-    if (!slug) {
+    if (!rawSlug) {
       return res.status(400).json({
         success: false,
         message: "Slug is required",
       });
     }
 
-    const [poem] = await db
-      .select({
-        id: poems.id,
-        title: poems.title,
-        slug: poems.slug,
-        content: poems.content,
-        description: poems.description,
-        language: poems.language,
-        script: poems.script,
-        status: poems.status,
-        contentVersion: poems.contentVersion,
-        coverImage: poems.coverImage,
-        createdAt: poems.createdAt,
-        updatedAt: poems.updatedAt,
+    // Accept both the ASCII slug ("rshmirthi") and legacy Devanagari slugs.
+    // Normalise first, then fall back to the raw value.
+    const normalized = slugify(rawSlug);
 
-        poet: {
-          id: poets.id,
-          name: poets.name,
-          slug: poets.slug,
-        },
+    const candidates = Array.from(
+      new Set([rawSlug, normalized].filter(Boolean))
+    );
 
-        category: {
-          id: categories.id,
-          name: categories.name,
-          slug: categories.slug,
-        },
-      })
-      .from(poems)
-      .leftJoin(
-        poets,
-        eq(poems.poetId, poets.id)
-      )
-      .leftJoin(
-        categories,
-        eq(poems.categoryId, categories.id)
-      )
-      .where(eq(poems.slug, slug))
-      .limit(1);
+    let poem = null;
+
+    for (const candidate of candidates) {
+      const [row] = await db
+        .select({
+          id: poems.id,
+          title: poems.title,
+          slug: poems.slug,
+          content: poems.content,
+          description: poems.description,
+          language: poems.language,
+          script: poems.script,
+          status: poems.status,
+          contentVersion: poems.contentVersion,
+          coverImage: poems.coverImage,
+          createdAt: poems.createdAt,
+          updatedAt: poems.updatedAt,
+
+          poet: {
+            id: poets.id,
+            name: poets.name,
+            slug: poets.slug,
+          },
+
+          category: {
+            id: categories.id,
+            name: categories.name,
+            slug: categories.slug,
+          },
+        })
+        .from(poems)
+        .leftJoin(poets, eq(poems.poetId, poets.id))
+        .leftJoin(categories, eq(poems.categoryId, categories.id))
+        .where(eq(poems.slug, candidate))
+        .limit(1);
+
+      if (row) {
+        poem = row;
+        break;
+      }
+    }
 
     if (!poem) {
       return res.status(404).json({
@@ -319,14 +314,127 @@ export async function getPoemBySlug(req, res) {
       data: poem,
     });
   } catch (error) {
-    console.error(
-      "Get poem by slug error:",
-      error
-    );
+    console.error("Get poem by slug error:", error);
 
     res.status(500).json({
       success: false,
       message: "Failed to fetch poem",
+    });
+  }
+}
+
+// --------------------------------------------------
+// GET RELATED POEMS
+// GET /api/poems/related/:id
+//
+// Returns up to 3 other poems:
+//   1. Same poet (excluding the current poem)
+//   2. Topped up with same category
+// --------------------------------------------------
+
+export async function getRelatedPoems(req, res) {
+  try {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid poem ID",
+      });
+    }
+
+    // Load source poem to know poet + category
+    const [source] = await db
+      .select({
+        id: poems.id,
+        poetId: poems.poetId,
+        categoryId: poems.categoryId,
+      })
+      .from(poems)
+      .where(eq(poems.id, id))
+      .limit(1);
+
+    if (!source) {
+      return res.status(404).json({
+        success: false,
+        message: "Poem not found",
+      });
+    }
+
+    const baseColumns = {
+      id: poems.id,
+      title: poems.title,
+      slug: poems.slug,
+      content: poems.content,
+      description: poems.description,
+      language: poems.language,
+      script: poems.script,
+      status: poems.status,
+      contentVersion: poems.contentVersion,
+      coverImage: poems.coverImage,
+      createdAt: poems.createdAt,
+      updatedAt: poems.updatedAt,
+
+      poet: {
+        id: poets.id,
+        name: poets.name,
+        slug: poets.slug,
+      },
+
+      category: {
+        id: categories.id,
+        name: categories.name,
+        slug: categories.slug,
+      },
+    };
+
+    // 1) Same poet first
+    let results = [];
+
+    if (source.poetId) {
+      results = await db
+        .select(baseColumns)
+        .from(poems)
+        .leftJoin(poets, eq(poems.poetId, poets.id))
+        .leftJoin(categories, eq(poems.categoryId, categories.id))
+        .where(
+          and(eq(poems.poetId, source.poetId), ne(poems.id, id))
+        )
+        .orderBy(desc(poems.createdAt))
+        .limit(3);
+    }
+
+    // 2) Top up with same category if needed
+    if (results.length < 3 && source.categoryId) {
+      const excludeIds = [id, ...results.map((p) => p.id)];
+
+      const sameCategory = await db
+        .select(baseColumns)
+        .from(poems)
+        .leftJoin(poets, eq(poems.poetId, poets.id))
+        .leftJoin(categories, eq(poems.categoryId, categories.id))
+        .where(
+          and(
+            eq(poems.categoryId, source.categoryId),
+            notInArray(poems.id, excludeIds)
+          )
+        )
+        .orderBy(desc(poems.createdAt))
+        .limit(3 - results.length);
+
+      results = [...results, ...sameCategory];
+    }
+
+    res.json({
+      success: true,
+      data: results,
+    });
+  } catch (error) {
+    console.error("Get related poems error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch related poems",
     });
   }
 }
@@ -340,7 +448,6 @@ export async function createPoem(req, res) {
   try {
     const {
       title,
-      slug,
       content,
       description,
       poetId,
@@ -352,22 +459,12 @@ export async function createPoem(req, res) {
       coverImage,
     } = req.body;
 
-    // ----------------------------------------------
-    // REQUIRED FIELDS
-    // ----------------------------------------------
-
-    if (
-      !title ||
-      !slug ||
-      !content ||
-      !poetId ||
-      !categoryId ||
-      !language
-    ) {
+    // Slug is always generated from the title.
+    if (!title || !content || !poetId || !categoryId || !language) {
       return res.status(400).json({
         success: false,
         message:
-          "title, slug, content, poetId, categoryId and language are required",
+          "title, content, poetId, categoryId and language are required",
       });
     }
 
@@ -388,14 +485,9 @@ export async function createPoem(req, res) {
       });
     }
 
-    // ----------------------------------------------
-    // CHECK POET
-    // ----------------------------------------------
-
+    // Check poet
     const [poet] = await db
-      .select({
-        id: poets.id,
-      })
+      .select({ id: poets.id })
       .from(poets)
       .where(eq(poets.id, parsedPoetId))
       .limit(1);
@@ -407,14 +499,9 @@ export async function createPoem(req, res) {
       });
     }
 
-    // ----------------------------------------------
-    // CHECK CATEGORY
-    // ----------------------------------------------
-
+    // Check category
     const [category] = await db
-      .select({
-        id: categories.id,
-      })
+      .select({ id: categories.id })
       .from(categories)
       .where(eq(categories.id, parsedCategoryId))
       .limit(1);
@@ -426,44 +513,28 @@ export async function createPoem(req, res) {
       });
     }
 
-    // ----------------------------------------------
-    // INSERT
-    // ----------------------------------------------
+    // Generate unique slug from title
+    const generatedSlug = await makeUniqueSlug(
+      db,
+      poems,
+      title.trim()
+    );
 
     const [created] = await db
       .insert(poems)
       .values({
         title: title.trim(),
-
-        slug: slug
-          .trim()
-          .toLowerCase(),
-
+        slug: generatedSlug,
         content: content.trim(),
-
-        description:
-          description?.trim() || null,
-
+        description: description?.trim() || null,
         poetId: parsedPoetId,
-
         categoryId: parsedCategoryId,
-
-        language:
-          language.trim().toLowerCase(),
-
-        script:
-          script?.trim() || null,
-
-        status:
-          status?.trim() || "draft",
-
+        language: language.trim().toLowerCase(),
+        script: script?.trim() || null,
+        status: status?.trim() || "draft",
         contentVersion:
-          contentVersion !== undefined
-            ? Number(contentVersion)
-            : 1,
-
-        coverImage:
-          coverImage?.trim() || null,
+          contentVersion !== undefined ? Number(contentVersion) : 1,
+        coverImage: coverImage?.trim() || null,
       })
       .returning();
 
@@ -475,22 +546,17 @@ export async function createPoem(req, res) {
   } catch (error) {
     console.error("Create poem error:", error);
 
-    if (
-      error.code === "SQLITE_CONSTRAINT_UNIQUE"
-    ) {
+    if (error.code === "SQLITE_CONSTRAINT_UNIQUE") {
       return res.status(409).json({
         success: false,
         message: "Poem slug already exists",
       });
     }
 
-    if (
-      error.code === "SQLITE_CONSTRAINT_FOREIGNKEY"
-    ) {
+    if (error.code === "SQLITE_CONSTRAINT_FOREIGNKEY") {
       return res.status(400).json({
         success: false,
-        message:
-          "Invalid poetId or categoryId",
+        message: "Invalid poetId or categoryId",
       });
     }
 
@@ -519,7 +585,6 @@ export async function updatePoem(req, res) {
 
     const {
       title,
-      slug,
       content,
       description,
       poetId,
@@ -534,41 +599,36 @@ export async function updatePoem(req, res) {
       updatedAt: new Date(),
     };
 
-    // ----------------------------------------------
-    // BASIC FIELDS
-    // ----------------------------------------------
+    // ---------- BASIC FIELDS ----------
 
     if (title !== undefined) {
       updateData.title = title.trim();
-    }
 
-    if (slug !== undefined) {
-      updateData.slug = slug
-        .trim()
-        .toLowerCase();
+      // Regenerate slug whenever the title changes.
+      // The current poem is excluded so it doesn't collide with itself.
+      updateData.slug = await makeUniqueSlug(
+        db,
+        poems,
+        title.trim(),
+        id
+      );
     }
 
     if (content !== undefined) {
       updateData.content = content.trim();
-
-      // Increase content version
-      updateData.contentVersion =
-        await getNextContentVersion(id);
+      updateData.contentVersion = await getNextContentVersion(id);
     }
 
     if (description !== undefined) {
-      updateData.description =
-        description?.trim() || null;
+      updateData.description = description?.trim() || null;
     }
 
     if (language !== undefined) {
-      updateData.language =
-        language.trim().toLowerCase();
+      updateData.language = language.trim().toLowerCase();
     }
 
     if (script !== undefined) {
-      updateData.script =
-        script?.trim() || null;
+      updateData.script = script?.trim() || null;
     }
 
     if (status !== undefined) {
@@ -576,13 +636,10 @@ export async function updatePoem(req, res) {
     }
 
     if (coverImage !== undefined) {
-      updateData.coverImage =
-        coverImage?.trim() || null;
+      updateData.coverImage = coverImage?.trim() || null;
     }
 
-    // ----------------------------------------------
-    // POET
-    // ----------------------------------------------
+    // ---------- POET ----------
 
     if (poetId !== undefined) {
       const parsedPoetId = Number(poetId);
@@ -595,9 +652,7 @@ export async function updatePoem(req, res) {
       }
 
       const [poet] = await db
-        .select({
-          id: poets.id,
-        })
+        .select({ id: poets.id })
         .from(poets)
         .where(eq(poets.id, parsedPoetId))
         .limit(1);
@@ -612,13 +667,10 @@ export async function updatePoem(req, res) {
       updateData.poetId = parsedPoetId;
     }
 
-    // ----------------------------------------------
-    // CATEGORY
-    // ----------------------------------------------
+    // ---------- CATEGORY ----------
 
     if (categoryId !== undefined) {
-      const parsedCategoryId =
-        Number(categoryId);
+      const parsedCategoryId = Number(categoryId);
 
       if (!Number.isInteger(parsedCategoryId)) {
         return res.status(400).json({
@@ -628,16 +680,9 @@ export async function updatePoem(req, res) {
       }
 
       const [category] = await db
-        .select({
-          id: categories.id,
-        })
+        .select({ id: categories.id })
         .from(categories)
-        .where(
-          eq(
-            categories.id,
-            parsedCategoryId
-          )
-        )
+        .where(eq(categories.id, parsedCategoryId))
         .limit(1);
 
       if (!category) {
@@ -647,13 +692,10 @@ export async function updatePoem(req, res) {
         });
       }
 
-      updateData.categoryId =
-        parsedCategoryId;
+      updateData.categoryId = parsedCategoryId;
     }
 
-    // ----------------------------------------------
-    // UPDATE
-    // ----------------------------------------------
+    // ---------- UPDATE ----------
 
     const [updated] = await db
       .update(poems)
@@ -676,9 +718,7 @@ export async function updatePoem(req, res) {
   } catch (error) {
     console.error("Update poem error:", error);
 
-    if (
-      error.code === "SQLITE_CONSTRAINT_UNIQUE"
-    ) {
+    if (error.code === "SQLITE_CONSTRAINT_UNIQUE") {
       return res.status(409).json({
         success: false,
         message: "Poem slug already exists",
@@ -741,16 +781,12 @@ export async function deletePoem(req, res) {
 
 async function getNextContentVersion(poemId) {
   const [poem] = await db
-    .select({
-      contentVersion: poems.contentVersion,
-    })
+    .select({ contentVersion: poems.contentVersion })
     .from(poems)
     .where(eq(poems.id, poemId))
     .limit(1);
 
-  if (!poem) {
-    return 1;
-  }
+  if (!poem) return 1;
 
   return Number(poem.contentVersion || 1) + 1;
 }

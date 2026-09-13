@@ -1,7 +1,6 @@
-// src/app/(main)/[lang]/(public)/poems/[slug]/page.jsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -18,22 +17,16 @@ import {
   FaQuoteRight,
   FaTwitter,
   FaFacebook,
-  FaLink,
   FaCopy,
   FaStar,
   FaLanguage,
   FaChevronDown,
   FaChevronUp,
-  FaGlobe,
 } from "react-icons/fa";
 import { useTheme } from "@/themes/ThemeContext";
 import { useTranslation } from "@/hooks/useLoalization";
 import PoemsCard from "@/components/poems/poemscard";
-import Romanization from "@/components/poems/romanization";
-import Transliteration from "@/components/poems/transliteration";
-import Translation from "@/components/poems/translation";
-
-// Import the service
+import RomanizationPoetryDisplay from "@/components/poems/RomanizationPoetryDisplay";
 import {
   fetchPoemBySlug,
   fetchRelatedPoems,
@@ -58,9 +51,42 @@ export default function PoemDetailPage() {
   const [relatedPoems, setRelatedPoems] = useState([]);
   const [showLanguageTools, setShowLanguageTools] = useState(true);
   const [activeTool, setActiveTool] = useState("translation");
+  const [showRomanization, setShowRomanization] = useState(false);
+  const [isRomanizationEnabled, setIsRomanizationEnabled] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
 
-  // Find poem by slug from API
+  const shareRef = useRef(null);
+
+  // Compute share URL only in the browser (avoids SSR crash)
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      setShareUrl(window.location.href);
+    }
+  }, [slug]);
+
+  // Close the share dropdown on outside click / Escape
+  useEffect(() => {
+    if (!showShare) return;
+    const handleClick = (e) => {
+      if (shareRef.current && !shareRef.current.contains(e.target)) {
+        setShowShare(false);
+      }
+    };
+    const handleKey = (e) => {
+      if (e.key === "Escape") setShowShare(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [showShare]);
+
+  // Load poem + related poems
+  useEffect(() => {
+    let cancelled = false;
+
     const loadPoem = async () => {
       if (!slug) return;
 
@@ -68,46 +94,62 @@ export default function PoemDetailPage() {
       setError(null);
 
       try {
-        // Fetch poem by slug
         const response = await fetchPoemBySlug(slug);
+        // Service may return { success, data } or the poem directly.
+        const poemData = response?.data ?? response;
 
-        // Handle different response structures
-        const poemData = response.data || response;
+        if (cancelled) return;
 
-        if (!poemData) {
+        if (!poemData || (!poemData.id && !poemData.slug)) {
           setError("Poem not found");
-          setIsLoading(false);
+          setPoem(null);
           return;
         }
 
         setPoem(poemData);
-        setLiked(poemData.isLiked || false);
-        setBookmarked(poemData.isBookmarked || false);
+        setLiked(Boolean(poemData.isLiked));
+        setBookmarked(Boolean(poemData.isBookmarked));
 
-        // Fetch related poems
+        if (poemData.language === "hi" || poemData.language === "ur") {
+          setIsRomanizationEnabled(true);
+          setShowRomanization(true);
+          setActiveTool("romanization");
+        } else {
+          setIsRomanizationEnabled(false);
+          setShowRomanization(false);
+          setActiveTool("translation");
+        }
+
+        // Related poems (non-blocking)
         try {
           const relatedResponse = await fetchRelatedPoems(poemData.id);
-          const relatedData = relatedResponse.data || relatedResponse;
-          setRelatedPoems(
-            Array.isArray(relatedData) ? relatedData.slice(0, 3) : [],
-          );
+          const relatedData = relatedResponse?.data ?? relatedResponse;
+          if (!cancelled) {
+            setRelatedPoems(
+              Array.isArray(relatedData) ? relatedData.slice(0, 3) : [],
+            );
+          }
         } catch (relatedErr) {
           console.error("Failed to load related poems:", relatedErr);
-          setRelatedPoems([]);
+          if (!cancelled) setRelatedPoems([]);
         }
       } catch (err) {
+        if (cancelled) return;
         console.error("Failed to load poem:", err);
         setError(err.message || "Failed to load poem");
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     loadPoem();
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
 
-  // Theme-aware styles
-  const getTextColor = () => {
+  // Theme helpers
+  const getTextColor = useCallback(() => {
     switch (themeName) {
       case "forest":
         return "text-green-600 dark:text-green-400";
@@ -120,9 +162,9 @@ export default function PoemDetailPage() {
       default:
         return "text-amber-600 dark:text-amber-400";
     }
-  };
+  }, [themeName]);
 
-  const getGradient = () => {
+  const getGradient = useCallback(() => {
     switch (themeName) {
       case "forest":
         return "from-green-600 to-emerald-500";
@@ -135,9 +177,9 @@ export default function PoemDetailPage() {
       default:
         return "from-amber-600 to-yellow-500";
     }
-  };
+  }, [themeName]);
 
-  const getBorderColor = () => {
+  const getBorderColor = useCallback(() => {
     switch (themeName) {
       case "forest":
         return "border-green-200 dark:border-green-800";
@@ -150,9 +192,9 @@ export default function PoemDetailPage() {
       default:
         return "border-amber-200 dark:border-amber-800";
     }
-  };
+  }, [themeName]);
 
-  const getHoverBg = () => {
+  const getHoverBg = useCallback(() => {
     switch (themeName) {
       case "forest":
         return "hover:bg-green-50 dark:hover:bg-green-900/20";
@@ -165,33 +207,35 @@ export default function PoemDetailPage() {
       default:
         return "hover:bg-amber-50 dark:hover:bg-amber-900/20";
     }
-  };
+  }, [themeName]);
 
   const textColor = getTextColor();
   const gradient = getGradient();
   const borderColor = getBorderColor();
   const hoverBg = getHoverBg();
 
-  // Handle like with API
+  // Handlers
   const handleLike = async () => {
     if (!poem) return;
 
     const newLiked = !liked;
-    // Optimistic update
+    const prevPoem = poem;
+
     setLiked(newLiked);
-    setPoem({ ...poem, likes: (poem.likes || 0) + (newLiked ? 1 : -1) });
+    setPoem({
+      ...poem,
+      likes: Math.max(0, (poem.likes || 0) + (newLiked ? 1 : -1)),
+    });
 
     try {
       await toggleLike(poem.id);
     } catch (err) {
-      // Revert on error
       setLiked(!newLiked);
-      setPoem({ ...poem, likes: (poem.likes || 0) + (newLiked ? -1 : 1) });
+      setPoem(prevPoem);
       console.error("Failed to toggle like:", err);
     }
   };
 
-  // Handle bookmark with API
   const handleBookmark = async () => {
     if (!poem) return;
 
@@ -206,44 +250,41 @@ export default function PoemDetailPage() {
     }
   };
 
-  // Handle share
-  const handleShare = () => {
-    setShowShare(!showShare);
+  const handleShare = () => setShowShare((s) => !s);
+
+  const handleCopyLink = async () => {
+    const url =
+      shareUrl || (typeof window !== "undefined" ? window.location.href : "");
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+    }
   };
 
-  // Handle copy link
-  const handleCopyLink = () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "";
     try {
-      return new Date(dateString).toLocaleDateString(
-        lang === "en" ? "en-US" : lang === "hi" ? "hi-IN" : "ur-PK",
-        {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        },
-      );
+      const locale =
+        lang === "en" ? "en-US" : lang === "hi" ? "hi-IN" : "ur-PK";
+      return new Date(dateString).toLocaleDateString(locale, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
     } catch {
       return dateString;
     }
   };
 
-  // Get poem content based on language
   const getPoemContent = () => {
     if (!poem) return "";
-    // If current language is different from poem language and translation exists
     if (
       lang !== poem.language &&
       poem.translations &&
-      poem.translations[lang]
+      poem.translations[lang]?.content
     ) {
       return poem.translations[lang].content;
     }
@@ -255,35 +296,28 @@ export default function PoemDetailPage() {
     if (
       lang !== poem.language &&
       poem.translations &&
-      poem.translations[lang]
+      poem.translations[lang]?.title
     ) {
       return poem.translations[lang].title;
     }
     return poem.title || "Untitled";
   };
 
-  // Check if poem needs language tools
-  const hasTranslations =
-    poem?.translations && Object.keys(poem.translations).length > 0;
+  const poetName = poem?.poet?.name || poem?.author || "Unknown Poet";
+  const poetSlug = poem?.poet?.slug || poem?.poetSlug;
+
   const isHindiOrUrdu =
     poem && (poem.language === "hi" || poem.language === "ur");
-  const isEnglishPoem = poem?.language === "en";
 
-  // Determine which tabs to show
-  const showRomanization = isHindiOrUrdu;
-  const showTransliteration = isHindiOrUrdu;
-  const showTranslation = true; // Always show translation option
-
-  // Set default active tab
-  useEffect(() => {
-    if (showTranslation) {
-      setActiveTool("translation");
-    } else if (showRomanization) {
+  const toggleRomanization = () => {
+    if (!isRomanizationEnabled) {
+      setIsRomanizationEnabled(true);
+      setShowRomanization(true);
       setActiveTool("romanization");
-    } else if (showTransliteration) {
-      setActiveTool("transliteration");
+    } else {
+      setShowRomanization((v) => !v);
     }
-  }, [showTranslation, showRomanization, showTransliteration]);
+  };
 
   // Loading state
   if (isLoading) {
@@ -342,7 +376,6 @@ export default function PoemDetailPage() {
           >
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex-1">
-                {/* Type Badge */}
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <span
                     className={`px-3 py-1 text-xs rounded-full ${hoverBg} ${textColor}`}
@@ -362,23 +395,27 @@ export default function PoemDetailPage() {
                   )}
                 </div>
 
-                {/* Title */}
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
                   {getPoemTitle()}
                 </h1>
 
-                {/* Poet */}
-                <Link
-                  href={`/${lang}/poets/${poem.poetSlug || poem.poet?.slug}`}
-                  className={`inline-flex items-center gap-2 mt-2 ${textColor} hover:underline`}
-                >
-                  <FaUser size={14} />
-                  <span className="font-medium">
-                    {poem.poet?.name || poem.poet || "Unknown Poet"}
+                {poetSlug ? (
+                  <Link
+                    href={`/${lang}/poets/${poetSlug}`}
+                    className={`inline-flex items-center gap-2 mt-2 ${textColor} hover:underline`}
+                  >
+                    <FaUser size={14} />
+                    <span className="font-medium">{poetName}</span>
+                  </Link>
+                ) : (
+                  <span
+                    className={`inline-flex items-center gap-2 mt-2 ${textColor}`}
+                  >
+                    <FaUser size={14} />
+                    <span className="font-medium">{poetName}</span>
                   </span>
-                </Link>
+                )}
 
-                {/* Date and Stats */}
                 <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400">
                   <span className="flex items-center gap-1">
                     <FaClock size={14} />
@@ -404,6 +441,7 @@ export default function PoemDetailPage() {
                     } group-hover:scale-110`}
                   />
                 </button>
+
                 <button
                   onClick={handleBookmark}
                   className={`p-2 rounded-full ${hoverBg} transition-all`}
@@ -415,12 +453,17 @@ export default function PoemDetailPage() {
                     <FaRegBookmark className="text-xl text-gray-400" />
                   )}
                 </button>
-                <button
-                  onClick={handleShare}
-                  className={`p-2 rounded-full ${hoverBg} transition-all relative`}
-                  aria-label={t?.("share") || "Share"}
-                >
-                  <FaShare className={`text-xl ${textColor}`} />
+
+                <div className="relative" ref={shareRef}>
+                  <button
+                    onClick={handleShare}
+                    className={`p-2 rounded-full ${hoverBg} transition-all`}
+                    aria-label={t?.("share") || "Share"}
+                    aria-expanded={showShare}
+                  >
+                    <FaShare className={`text-xl ${textColor}`} />
+                  </button>
+
                   {showShare && (
                     <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50">
                       <button
@@ -433,7 +476,9 @@ export default function PoemDetailPage() {
                           : t?.("copyLink") || "Copy Link"}
                       </button>
                       <a
-                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(poem.title)}&url=${encodeURIComponent(window.location.href)}`}
+                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                          getPoemTitle(),
+                        )}&url=${encodeURIComponent(shareUrl)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -442,7 +487,9 @@ export default function PoemDetailPage() {
                         Twitter
                       </a>
                       <a
-                        href={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                        href={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                          shareUrl,
+                        )}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -452,143 +499,161 @@ export default function PoemDetailPage() {
                       </a>
                     </div>
                   )}
-                </button>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Content */}
           <div className="p-6 sm:p-8">
-            <div className={`relative`}>
+            <div className="relative">
               <FaQuoteLeft
                 className={`absolute -top-2 -left-2 text-4xl ${textColor} opacity-10`}
               />
-              <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
-                {getPoemContent()}
-              </div>
+
+              {isHindiOrUrdu && (
+                <div className="flex items-center justify-end gap-3 mb-4">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {t?.("romanization") || "Romanization"}
+                  </span>
+                  <button
+                    onClick={toggleRomanization}
+                    className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ${
+                      isRomanizationEnabled && showRomanization
+                        ? `bg-gradient-to-r ${gradient}`
+                        : "bg-gray-300 dark:bg-gray-600"
+                    }`}
+                    aria-label="Toggle romanization"
+                    aria-pressed={isRomanizationEnabled && showRomanization}
+                  >
+                    <span
+                      className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
+                        isRomanizationEnabled && showRomanization
+                          ? "translate-x-6"
+                          : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    {isRomanizationEnabled && showRomanization
+                      ? t?.("on") || "ON"
+                      : t?.("off") || "OFF"}
+                  </span>
+                </div>
+              )}
+
+              {isHindiOrUrdu && isRomanizationEnabled && showRomanization ? (
+                <RomanizationPoetryDisplay
+                  poetry={getPoemContent()}
+                  title={getPoemTitle()}
+                  author={poetName}
+                  showToggle={false}
+                  autoRomanize={true}
+                  preserveLineBreaks={true}
+                />
+              ) : (
+                <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
+                  {getPoemContent()}
+                </div>
+              )}
+
               <FaQuoteRight
                 className={`absolute -bottom-2 -right-2 text-4xl ${textColor} opacity-10`}
               />
             </div>
 
-            {/* Language Tools Section */}
-            {(showRomanization || showTransliteration || showTranslation) && (
-              <div className="mt-8">
-                <button
-                  onClick={() => setShowLanguageTools(!showLanguageTools)}
-                  className={`flex items-center gap-2 w-full p-3 rounded-xl border ${borderColor} ${hoverBg} transition-colors`}
-                >
-                  <FaLanguage className={textColor} />
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    {t?.("languageTools") || "Language Tools"}
-                  </span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
-                    {showRomanization &&
-                      `${t?.("romanization") || "Romanization"}`}
-                    {showRomanization && showTransliteration && `, `}
-                    {showTransliteration &&
-                      `${t?.("transliteration") || "Transliteration"}`}
-                    {(showRomanization || showTransliteration) &&
-                      showTranslation &&
-                      `, `}
-                    {showTranslation &&
-                      `${t?.("translation") || "Translation"}`}
-                    {showTranslation && `)`}
-                  </span>
-                  <span className="ml-auto">
-                    {showLanguageTools ? <FaChevronUp /> : <FaChevronDown />}
-                  </span>
-                </button>
+            {/* Language Tools */}
+            <div className="mt-8">
+              <button
+                onClick={() => setShowLanguageTools((v) => !v)}
+                className={`flex items-center gap-2 w-full p-3 rounded-xl border ${borderColor} ${hoverBg} transition-colors`}
+              >
+                <FaLanguage className={textColor} />
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  {t?.("languageTools") || "Language Tools"}
+                </span>
+                <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
+                  {isHindiOrUrdu
+                    ? `${t?.("romanization") || "Romanization"}, `
+                    : ""}
+                  {t?.("translation") || "Translation"}
+                </span>
+                <span className="ml-auto">
+                  {showLanguageTools ? <FaChevronUp /> : <FaChevronDown />}
+                </span>
+              </button>
 
-                {showLanguageTools && (
-                  <div className="mt-4 space-y-4">
-                    {/* Tool Tabs */}
-                    {(showRomanization ||
-                      showTransliteration ||
-                      showTranslation) && (
-                      <div className="flex flex-wrap gap-2">
-                        {showRomanization && (
-                          <button
-                            onClick={() => setActiveTool("romanization")}
-                            className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
-                              activeTool === "romanization"
-                                ? `bg-gradient-to-r ${gradient} text-white`
-                                : `${hoverBg} ${textColor} border ${borderColor}`
-                            }`}
-                          >
-                            {t?.("romanization") || "Romanization"}
-                          </button>
-                        )}
-                        {showTransliteration && (
-                          <button
-                            onClick={() => setActiveTool("transliteration")}
-                            className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
-                              activeTool === "transliteration"
-                                ? `bg-gradient-to-r ${gradient} text-white`
-                                : `${hoverBg} ${textColor} border ${borderColor}`
-                            }`}
-                          >
-                            {t?.("transliteration") || "Transliteration"}
-                          </button>
-                        )}
-                        {showTranslation && (
-                          <button
-                            onClick={() => setActiveTool("translation")}
-                            className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
-                              activeTool === "translation"
-                                ? `bg-gradient-to-r ${gradient} text-white`
-                                : `${hoverBg} ${textColor} border ${borderColor}`
-                            }`}
-                          >
-                            {t?.("translation") || "Translation"}
-                          </button>
-                        )}
+              {showLanguageTools && (
+                <div className="mt-4 space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {isHindiOrUrdu && (
+                      <button
+                        onClick={() => {
+                          setActiveTool("romanization");
+                          setIsRomanizationEnabled(true);
+                          setShowRomanization(true);
+                        }}
+                        className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                          activeTool === "romanization" &&
+                          isRomanizationEnabled &&
+                          showRomanization
+                            ? `bg-gradient-to-r ${gradient} text-white`
+                            : `${hoverBg} ${textColor} border ${borderColor}`
+                        }`}
+                      >
+                        {t?.("romanization") || "Romanization"}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setActiveTool("translation")}
+                      className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                        activeTool === "translation"
+                          ? `bg-gradient-to-r ${gradient} text-white`
+                          : `${hoverBg} ${textColor} border ${borderColor}`
+                      }`}
+                    >
+                      {t?.("translation") || "Translation"}
+                    </button>
+                  </div>
+
+                  <div className="mt-2">
+                    {activeTool === "romanization" &&
+                      isHindiOrUrdu &&
+                      isRomanizationEnabled &&
+                      showRomanization && (
+                        <div className="p-4 bg-gray-50 dark:bg-gray-900/30 rounded-xl">
+                          <RomanizationPoetryDisplay
+                            poetry={getPoemContent()}
+                            title={getPoemTitle()}
+                            author={poetName}
+                            showToggle={false}
+                            autoRomanize={true}
+                            preserveLineBreaks={true}
+                          />
+                        </div>
+                      )}
+
+                    {activeTool === "translation" && (
+                      <div className="p-4 bg-gray-50 dark:bg-gray-900/30 rounded-xl">
+                        <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
+                          {poem.translations?.[lang]?.content ||
+                            poem.content ||
+                            ""}
+                        </div>
+                        <div className="mt-2 text-sm text-gray-400 dark:text-gray-500">
+                          {t?.("translatedFrom") || "Translated from"}{" "}
+                          {(poem.language || "unknown").toUpperCase()} →{" "}
+                          {lang.toUpperCase()}
+                        </div>
                       </div>
                     )}
-
-                    {/* Tool Content */}
-                    <div className="mt-2">
-                      {showRomanization && activeTool === "romanization" && (
-                        <Romanization
-                          text={poem.content || ""}
-                          language={poem.language || "en"}
-                        />
-                      )}
-
-                      {showTransliteration &&
-                        activeTool === "transliteration" && (
-                          <Transliteration
-                            text={poem.content || ""}
-                            fromLang={poem.language || "en"}
-                            toLang={lang === poem.language ? "en" : lang}
-                          />
-                        )}
-
-                      {showTranslation && activeTool === "translation" && (
-                        <Translation
-                          poem={poem}
-                          availableLanguages={[
-                            "hi",
-                            "ur",
-                            "ar",
-                            "en",
-                            "fr",
-                            "es",
-                            "de",
-                            "ru",
-                            "zh",
-                            "ja",
-                          ]}
-                        />
-                      )}
-                    </div>
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
 
             {/* Tags */}
-            {poem.tags && poem.tags.length > 0 && (
+            {Array.isArray(poem.tags) && poem.tags.length > 0 && (
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                   {t?.("tags") || "Tags"}
@@ -597,9 +662,10 @@ export default function PoemDetailPage() {
                   {poem.tags.map((tag, index) => {
                     const tagName =
                       typeof tag === "string" ? tag : tag?.name || "";
+                    if (!tagName) return null;
                     return (
                       <span
-                        key={index}
+                        key={`${tagName}-${index}`}
                         className={`px-3 py-1 text-xs rounded-full ${hoverBg} ${textColor}`}
                       >
                         #{tagName}
@@ -630,12 +696,14 @@ export default function PoemDetailPage() {
                   </span>
                 </span>
               </div>
-              <Link
-                href={`/${lang}/poets/${poem.poetSlug || poem.poet?.slug}`}
-                className={`flex items-center gap-2 text-sm ${textColor} hover:underline`}
-              >
-                {t?.("moreByPoet") || "More by this poet"} →
-              </Link>
+              {poetSlug && (
+                <Link
+                  href={`/${lang}/poets/${poetSlug}`}
+                  className={`flex items-center gap-2 text-sm ${textColor} hover:underline`}
+                >
+                  {t?.("moreByPoet") || "More by this poet"} →
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -656,12 +724,15 @@ export default function PoemDetailPage() {
                       relatedPoem.poet?.name ||
                       relatedPoem.author ||
                       "Unknown Poet",
+                    poetSlug: relatedPoem.poet?.slug,
                     excerpt:
                       relatedPoem.excerpt ||
-                      relatedPoem.content?.substring(0, 150) + "...",
+                      (relatedPoem.content
+                        ? relatedPoem.content.substring(0, 150) + "..."
+                        : ""),
                     tags:
-                      relatedPoem.tags?.map((t) =>
-                        typeof t === "string" ? t : t?.name,
+                      relatedPoem.tags?.map((tag) =>
+                        typeof tag === "string" ? tag : tag?.name,
                       ) || [],
                     type:
                       relatedPoem.type || relatedPoem.category?.name || "Poem",
