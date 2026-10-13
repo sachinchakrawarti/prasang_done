@@ -4,10 +4,10 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 // Import translations from separate files
-import { englishLocalization } from "@/localization/english_localization";
-import { hindiLocalization } from "@/localization/hindi_localization";
-import { urduLocalization } from "@/localization/urdu_localization";
-import { arabicLocalization } from "@/localization/arabic_localization";
+import { englishLocalization } from "@/lang/localization/english_localization";
+import { hindiLocalization } from "@/lang/localization/hindi_localization";
+import { urduLocalization } from "@/lang/localization/urdu_localization";
+import { arabicLocalization } from "@/lang/localization/arabic_localization";
 
 // ==================== TRANSLATIONS OBJECT ====================
 export const translations = {

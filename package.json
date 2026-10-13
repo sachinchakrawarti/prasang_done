@@ -6,7 +6,9 @@
   "scripts": {
     "git": "node auto-push.js",
     "start": "node auto-push.js",
-    "watch": "node auto-push.js"
+    "watch": "node auto-push.js",
+    "web": "npm --prefix web run dev",
+    "prasang": "node app_start.js"
   },
   "devDependencies": {
     "@marp-team/marp-cli": "^4.4.1",
@@ -21,6 +23,7 @@
     "simple-git": "^3.36.0"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "@mdx-js/mdx": "^3.1.1",
     "@remotion/cli": "4.0.513",
     "cors": "^2.8.6",
