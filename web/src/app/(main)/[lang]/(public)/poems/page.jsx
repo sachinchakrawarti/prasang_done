@@ -15,6 +15,7 @@ import {
 import { useTheme } from "@/themes/ThemeContext";
 import { useTranslation } from "@/hooks/useLoalization";
 import PoemsCard from "@/components/poems/poemscard";
+import PoemScriptBadge from "@/components/poems/PoemScriptBadge";
 import { fetchPoems } from "@/services/poemService";
 
 const DEFAULT_LIMIT = 20;
@@ -434,35 +435,49 @@ export default function PoemsPage() {
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPoems.map((poem) => (
-              <PoemsCard
-                key={poem.id}
-                poem={mapPoemForCard(poem)}
-                lang={lang}
-                variant="grid"
-                showActions={true}
-                showTags={true}
-                showExcerpt={true}
-                onLike={handleLike}
-                onBookmark={handleBookmark}
-                onShare={handleShare}
-              />
+              <div key={poem.id} className="flex flex-col gap-2">
+                <div className="flex justify-end px-1">
+                  <PoemScriptBadge
+                    language={poem.language}
+                    script={poem.script}
+                  />
+                </div>
+                <PoemsCard
+                  poem={mapPoemForCard(poem)}
+                  lang={lang}
+                  variant="grid"
+                  showActions={true}
+                  showTags={true}
+                  showExcerpt={true}
+                  onLike={handleLike}
+                  onBookmark={handleBookmark}
+                  onShare={handleShare}
+                />
+              </div>
             ))}
           </div>
         ) : (
           <div className="space-y-4">
             {filteredPoems.map((poem) => (
-              <PoemsCard
-                key={poem.id}
-                poem={mapPoemForCard(poem)}
-                lang={lang}
-                variant="list"
-                showActions={true}
-                showTags={true}
-                showExcerpt={true}
-                onLike={handleLike}
-                onBookmark={handleBookmark}
-                onShare={handleShare}
-              />
+              <div key={poem.id} className="flex flex-col gap-1">
+                <div className="flex justify-end px-1">
+                  <PoemScriptBadge
+                    language={poem.language}
+                    script={poem.script}
+                  />
+                </div>
+                <PoemsCard
+                  poem={mapPoemForCard(poem)}
+                  lang={lang}
+                  variant="list"
+                  showActions={true}
+                  showTags={true}
+                  showExcerpt={true}
+                  onLike={handleLike}
+                  onBookmark={handleBookmark}
+                  onShare={handleShare}
+                />
+              </div>
             ))}
           </div>
         )}
