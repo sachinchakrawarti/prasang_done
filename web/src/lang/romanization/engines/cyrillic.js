@@ -8,7 +8,6 @@ const MAP = {
   'с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh',
   'щ':'shch','ъ':'"','ы':'y','ь':"'",'э':'e','ю':'yu','я':'ya',
 };
-
 export function romanizeCyrillic(input) {
   return [...input].map((c) => MAP[c] ?? c).join('');
 }

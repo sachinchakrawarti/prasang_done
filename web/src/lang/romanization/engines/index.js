@@ -1,17 +1,39 @@
-// web/src/lang/romanization/engines/index.js
 import { romanizeDevanagari } from './devanagari.js';
+import { romanizeBengali }    from './bengali.js';
+import { romanizeGurmukhi }   from './gurmukhi.js';
+import { romanizeGujarati }   from './gujarati.js';
+import { romanizeTamil }      from './tamil.js';
+import { romanizeTelugu }     from './telugu.js';
+import { romanizeKannada }    from './kannada.js';
+import { romanizeMalayalam }  from './malayalam.js';
+import { romanizeOdia }       from './odia.js';
 import { romanizeArabic }     from './arabic.js';
+import { romanizeCyrillic }   from './cyrillic.js';
+import { romanizeHan }        from './han.js';
+import { romanizeKana }       from './kana.js';
+import { romanizeHangul }     from './hangul.js';
 import { romanizeLatin }      from './latin.js';
 
 const HANDLERS = {
   Devanagari: romanizeDevanagari,
+  Bengali:    romanizeBengali,
+  Gurmukhi:   romanizeGurmukhi,
+  Gujarati:   romanizeGujarati,
+  Tamil:      romanizeTamil,
+  Telugu:     romanizeTelugu,
+  Kannada:    romanizeKannada,
+  Malayalam:  romanizeMalayalam,
+  Odia:       romanizeOdia,
   Arabic:     romanizeArabic,
+  Cyrillic:   romanizeCyrillic,
+  Han:        romanizeHan,
+  Kana:       romanizeKana,
+  Hangul:     romanizeHangul,
   Latin:      romanizeLatin,
 };
 
 export const SUPPORTED_SCRIPTS = Object.keys(HANDLERS);
 
-// ---------- display romanization (ISO 15919, keeps diacritics) ----------
 export function romanize(text, script) {
   const fn = HANDLERS[script];
   return fn ? fn(text) : text;
@@ -26,29 +48,17 @@ export function romanizeCached(text, script) {
   return out;
 }
 
-// ---------- ASCII romanization for transliteration input ----------
-// Google Input Tools wants plain a-z, not ā ī ū ē ō ṁ ṛ etc.
-
 const DIACRITIC_MAP = {
-  // lowercase vowels
-  'ā':'a','ī':'i','ū':'u','ē':'e','ō':'o',
-  // lowercase consonants
-  'ṛ':'r','ṝ':'r','ḷ':'l','ḹ':'l',
-  'ṅ':'n','ñ':'n','ṭ':'t','ḍ':'d','ṇ':'n',
-  'ś':'s','ṣ':'s','ḥ':'h','ṁ':'n',
-  // uppercase
-  'Ā':'A','Ī':'I','Ū':'U','Ē':'E','Ō':'O',
-  'Ṛ':'R','Ḷ':'L','Ṅ':'N','Ñ':'N',
+  'ā':'a','ī':'i','ū':'u','ē':'e','ō':'o','ṛ':'r','ṝ':'r','ḷ':'l','ḹ':'l',
+  'ṅ':'n','ñ':'n','ṭ':'t','ḍ':'d','ṇ':'n','ś':'s','ṣ':'s','ḥ':'h','ṁ':'n',
+  'Ā':'A','Ī':'I','Ū':'U','Ē':'E','Ō':'O','Ṛ':'R','Ḷ':'L','Ṅ':'N','Ñ':'N',
   'Ṭ':'T','Ḍ':'D','Ṇ':'N','Ś':'S','Ṣ':'S','Ḥ':'H','Ṁ':'M',
-  // arabic-roman
-  'ġ':'g','ẓ':'z','ʾ':'','ʻ':'',
+  'ġ':'g','ẓ':'z','ż':'z','ẓ̌':'z','ṣ̌':'sh','ə':'a','ʻ':'','ʾ':'',
   'k͟h':'kh',
 };
-
 export function toAscii(text) {
   let out = '';
   for (const ch of text) out += DIACRITIC_MAP[ch] ?? ch;
-  // strip any remaining combining marks (e.g. the candrabindu 'm̐')
   return out.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 

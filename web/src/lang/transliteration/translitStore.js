@@ -23,24 +23,29 @@ export const translitStore = {
   getState: () => state,
   subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); },
 
-  async transliterate(text, fromScript, toScript) {
+  async transliterate(text, fromScript, toScript, toLanguage) {
     if (!text) return '';
-    if (fromScript === toScript) return text;
+    if (fromScript === toScript && !toLanguage) return text;
 
-    const key = `${fromScript}>${toScript}:${text}`;
+    const key = `${fromScript}>${toScript}@${toLanguage ?? ''}:${text}`;
     if (cache.has(key))    return cache.get(key);
     if (inflight.has(key)) return inflight.get(key);
 
     setLoading(true);
 
     const promise = (async () => {
-      // ASCII pivot — Google's Hindi model wants plain a-z
-      const ascii = romanizeAsciiCached(text, fromScript);
-      const out   = await fetchTransliteration(ascii, 'Latin', toScript);
+      const pivot = fromScript === 'Latin'
+        ? text
+        : romanizeAsciiCached(text, fromScript);
+
+      const out = await fetchTransliteration(pivot, 'Latin', toScript, toLanguage);
       cacheSet(key, out);
       return out;
     })()
-      .catch((err) => { console.warn('[translit]', err.message); return text; })
+      .catch((err) => {
+        console.warn('[translit]', err.message);
+        return text;
+      })
       .finally(() => {
         inflight.delete(key);
         if (inflight.size === 0) setLoading(false);

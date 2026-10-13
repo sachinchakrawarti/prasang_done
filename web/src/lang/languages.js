@@ -1,9 +1,3 @@
-// Master registry: every language the platform supports.
-// script      = Unicode script family (drives romanization engine)
-// googleLang  = Google Input Tools language code (drives transliteration)
-// dir         = text direction
-// native      = name in the language itself
-
 export const LANGUAGES = {
   hi: { code:'hi', name:'Hindi',    native:'हिन्दी',   script:'Devanagari', googleLang:'hi', dir:'ltr' },
   ur: { code:'ur', name:'Urdu',     native:'اردو',      script:'Arabic',     googleLang:'ur', dir:'rtl' },
@@ -30,7 +24,8 @@ export const LANGUAGES = {
 };
 
 export const LANGUAGE_CODES = Object.keys(LANGUAGES);
-
-export function getLanguage(code) {
-  return LANGUAGES[code] ?? LANGUAGES.en;
-}
+export const SCRIPT_TO_LANGUAGES = Object.values(LANGUAGES).reduce((acc, l) => {
+  (acc[l.script] ??= []).push(l);
+  return acc;
+}, {});
+export function getLanguage(code) { return LANGUAGES[code] ?? LANGUAGES.en; }
