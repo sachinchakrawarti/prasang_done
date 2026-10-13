@@ -15,12 +15,115 @@ import {
 import { useTheme } from "@/themes/ThemeContext";
 import { useTranslation } from "@/hooks/useLoalization";
 import PoemsCard from "@/components/poems/poemscard";
-import PoemScriptBadge from "@/components/poems/PoemScriptBadge";
 import { fetchPoems } from "@/services/poemService";
+import { romanizeCached, SUPPORTED_SCRIPTS } from "@/lang/romanization";
+import { translitStore } from "@/lang/transliteration";
 
 const DEFAULT_LIMIT = 20;
 const SEARCH_DEBOUNCE_MS = 400;
 
+/* ------------------------------------------------------------------ */
+/*  Per-card wrapper with Roman toggle + script dropdown               */
+/* ------------------------------------------------------------------ */
+function PoemCardWithLang({ poem, lang, ...cardProps }) {
+  const [roman, setRoman]               = useState(false);
+  const [targetScript, setTargetScript] = useState(null);
+  const [loading, setLoading]           = useState(false);
+  const [translitText, setTranslitText] = useState(null);
+
+  // derive the text to display based on current mode
+  const displayedExcerpt = useMemo(() => {
+    if (loading) return "…";
+
+    if (translitText) {
+      return translitText.substring(0, 160) + "…";
+    }
+
+    if (roman && poem.content) {
+      const r = romanizeCached(poem.content, poem.script || "Latin");
+      return r.substring(0, 160) + "…";
+    }
+
+    return poem.excerpt ?? (poem.content ? poem.content.substring(0, 160) + "…" : "");
+  }, [loading, translitText, roman, poem]);
+
+  async function onScriptChange(e) {
+    const script = e.target.value || null;
+    setTargetScript(script);
+
+    if (!script) {
+      setTranslitText(null);
+      return;
+    }
+
+    if (!poem.content || !poem.script) return;
+
+    setLoading(true);
+    try {
+      const out = await translitStore.transliterate(
+        poem.content,
+        poem.script,
+        script,
+      );
+      setTranslitText(out);
+    } catch {
+      setTranslitText(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const card = {
+    ...poem,
+    excerpt: displayedExcerpt,
+  };
+
+  return (
+    <div className="relative flex flex-col gap-2">
+      {/* controls row */}
+      <div className="flex items-center justify-end gap-2 px-1">
+        <button
+          type="button"
+          onClick={() => {
+            setRoman((v) => !v);
+            setTargetScript(null);
+            setTranslitText(null);
+          }}
+          className={`text-[11px] px-2 py-0.5 rounded-full border transition ${
+            roman
+              ? "bg-amber-500 text-white border-amber-500"
+              : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+          }`}
+          title="Read in Roman"
+        >
+          {roman ? "Original" : "Roman"}
+        </button>
+
+        {poem.script && SUPPORTED_SCRIPTS.length > 0 && (
+          <select
+            value={targetScript ?? ""}
+            onChange={onScriptChange}
+            className="text-[11px] px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+            title="Transliterate"
+          >
+            <option value="">Script</option>
+            {SUPPORTED_SCRIPTS.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      <PoemsCard poem={card} lang={lang} {...cardProps} />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Page                                                               */
+/* ------------------------------------------------------------------ */
 export default function PoemsPage() {
   const params = useParams();
   const lang = params?.lang || "en";
@@ -50,26 +153,16 @@ export default function PoemsPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const queryParams = {
-          page,
-          limit: DEFAULT_LIMIT,
-        };
-
+        const queryParams = { page, limit: DEFAULT_LIMIT };
         if (searchTerm) queryParams.search = searchTerm;
         if (selectedLanguage && selectedLanguage !== "all") {
           queryParams.language = selectedLanguage;
         }
 
-        console.log("Fetching poems with params:", queryParams);
         const response = await fetchPoems(queryParams);
-        console.log("API Response:", response);
-
         const poemsList = Array.isArray(response?.poems) ? response.poems : [];
 
         if (response?.success) {
-          console.log(`✅ Found ${poemsList.length} poems`);
-
-          // For "Load More", append. For fresh load/search, replace.
           if (page > 1) {
             setPoems((prev) => [...prev, ...poemsList]);
           } else {
@@ -86,11 +179,9 @@ export default function PoemsPage() {
             });
           }
         } else {
-          console.error("Invalid response:", response);
           setError("Invalid response from server");
         }
       } catch (err) {
-        console.error("Failed to load poems:", err);
         setError(err.message || "Failed to load poems");
       } finally {
         setIsLoading(false);
@@ -99,16 +190,12 @@ export default function PoemsPage() {
     [searchTerm, selectedLanguage],
   );
 
-  // Debounced load for search + language changes
   useEffect(() => {
-    const id = setTimeout(() => {
-      loadPoems(1);
-    }, SEARCH_DEBOUNCE_MS);
+    const id = setTimeout(() => loadPoems(1), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, selectedLanguage]);
 
-  // Get unique types and languages from loaded poems
   const types = useMemo(() => {
     const uniqueTypes = new Set(
       poems.map((p) => p.category?.name || p.type || "Poem"),
@@ -121,7 +208,6 @@ export default function PoemsPage() {
     return ["all", ...uniqueLanguages];
   }, [poems]);
 
-  // Client-side filtering and sorting
   useEffect(() => {
     let filtered = [...poems];
 
@@ -159,7 +245,6 @@ export default function PoemsPage() {
     setFilteredPoems(filtered);
   }, [selectedType, sortBy, poems]);
 
-  // Handle like (optimistic)
   const handleLike = (poemId, liked) => {
     setPoems((prev) =>
       prev.map((p) =>
@@ -184,7 +269,6 @@ export default function PoemsPage() {
     }
   };
 
-  // Theme helpers
   const getTextColor = () => {
     switch (themeName) {
       case "forest":
@@ -250,7 +334,6 @@ export default function PoemsPage() {
   const borderColor = getBorderColor();
   const hoverBg = getHoverBg();
 
-  // Map API poem -> card poem (keep poet object AND name)
   const mapPoemForCard = (poem) => ({
     ...poem,
     poet: poem.poet?.name || poem.author || "Unknown Poet",
@@ -264,7 +347,6 @@ export default function PoemsPage() {
     type: poem.category?.name || poem.type || "Poem",
   });
 
-  // Render states
   if (isLoading && poems.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -435,49 +517,35 @@ export default function PoemsPage() {
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPoems.map((poem) => (
-              <div key={poem.id} className="flex flex-col gap-2">
-                <div className="flex justify-end px-1">
-                  <PoemScriptBadge
-                    language={poem.language}
-                    script={poem.script}
-                  />
-                </div>
-                <PoemsCard
-                  poem={mapPoemForCard(poem)}
-                  lang={lang}
-                  variant="grid"
-                  showActions={true}
-                  showTags={true}
-                  showExcerpt={true}
-                  onLike={handleLike}
-                  onBookmark={handleBookmark}
-                  onShare={handleShare}
-                />
-              </div>
+              <PoemCardWithLang
+                key={poem.id}
+                poem={mapPoemForCard(poem)}
+                lang={lang}
+                variant="grid"
+                showActions={true}
+                showTags={true}
+                showExcerpt={true}
+                onLike={handleLike}
+                onBookmark={handleBookmark}
+                onShare={handleShare}
+              />
             ))}
           </div>
         ) : (
           <div className="space-y-4">
             {filteredPoems.map((poem) => (
-              <div key={poem.id} className="flex flex-col gap-1">
-                <div className="flex justify-end px-1">
-                  <PoemScriptBadge
-                    language={poem.language}
-                    script={poem.script}
-                  />
-                </div>
-                <PoemsCard
-                  poem={mapPoemForCard(poem)}
-                  lang={lang}
-                  variant="list"
-                  showActions={true}
-                  showTags={true}
-                  showExcerpt={true}
-                  onLike={handleLike}
-                  onBookmark={handleBookmark}
-                  onShare={handleShare}
-                />
-              </div>
+              <PoemCardWithLang
+                key={poem.id}
+                poem={mapPoemForCard(poem)}
+                lang={lang}
+                variant="list"
+                showActions={true}
+                showTags={true}
+                showExcerpt={true}
+                onLike={handleLike}
+                onBookmark={handleBookmark}
+                onShare={handleShare}
+              />
             ))}
           </div>
         )}
