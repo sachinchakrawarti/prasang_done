@@ -318,6 +318,7 @@ export default function PoemDetailPage() {
               <FaQuoteLeft className={`absolute -top-2 -left-2 text-4xl ${textColor} opacity-10`} />
 
               <LanguageTools
+                poemId={poem.id}
                 content={getPoemContent()}
                 script={poem.script || "Latin"}
                 language={poem.language || "en"}
