@@ -1,6 +1,5 @@
-// web/src/lang/transliteration/translitStore.js
 import { romanizeAsciiCached } from '../romanization/engines/index.js';
-import { fetchTransliteration } from './providers/google.js';
+import { fetchTransliteration, LANG_FOR_SCRIPT } from './providers/google.js';
 
 const CACHE_MAX = 500;
 const cache    = new Map();
@@ -14,22 +13,14 @@ function cacheSet(key, value) {
   cache.set(key, value);
 }
 
-// Google Input Tools collapses newlines. Transliterate line by line,
-// blank lines preserved, then rejoin with the original separators.
+// Google Input Tools collapses newlines → transliterate line by line.
 async function transliteratePreservingLines(text, fromScript, toScript, toLanguage) {
-  // Split on \n but keep the separators so we can rebuild
-  const parts = text.split(/(\n)/);
+  const parts = text.split(/(\r?\n)/);
   const out = [];
 
   for (const part of parts) {
-    if (part === '\n' || part === '\r\n') {
-      out.push(part);
-      continue;
-    }
-    if (!part.trim()) {
-      out.push(part); // whitespace-only line, keep as-is
-      continue;
-    }
+    if (part === '\n' || part === '\r\n') { out.push(part); continue; }
+    if (!part.trim())                       { out.push(part); continue; }
 
     const pivot = fromScript === 'Latin'
       ? part
@@ -39,13 +30,22 @@ async function transliteratePreservingLines(text, fromScript, toScript, toLangua
       const converted = await fetchTransliteration(pivot, 'Latin', toScript, toLanguage);
       out.push(converted);
     } catch {
-      out.push(part); // fall back to original line on error
+      out.push(part);
     }
   }
-
   return out.join('');
 }
 
+/**
+ * Transliterate text from one script to another.
+ *
+ * @param {string} text
+ * @param {string} fromScript      - e.g. "Latin"
+ * @param {string} toScript        - e.g. "Devanagari"
+ * @param {string} [toLanguage]    - Google language code for the target; if
+ *                                   not given, uses LANG_FOR_SCRIPT[toScript]
+ * @param {string} [fromLanguage]  - Google language code of the source
+ */
 export const translitStore = {
   getState: () => state,
   subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); },
@@ -53,20 +53,29 @@ export const translitStore = {
   async transliterate(text, fromScript, toScript, toLanguage, fromLanguage) {
     if (!text) return '';
 
+    // Identity: same script + same language
     if (fromScript === toScript) {
       const sameLanguage =
         !fromLanguage || !toLanguage || fromLanguage === toLanguage;
       if (sameLanguage) return text;
     }
 
-    const key = `${fromScript}:${fromLanguage ?? ''}>${toScript}:${toLanguage ?? ''}:${text}`;
+    // Guard: "en" is only valid as a target for Latin.
+    // If someone passes en with a non-Latin script, snap to the script's language.
+    let effectiveLang = toLanguage;
+    if (toScript !== 'Latin' && (!effectiveLang || effectiveLang === 'en')) {
+      effectiveLang = LANG_FOR_SCRIPT[toScript];
+    }
+    if (!effectiveLang) effectiveLang = LANG_FOR_SCRIPT[toScript];
+
+    const key = `${fromScript}:${fromLanguage ?? ''}>${toScript}:${effectiveLang ?? ''}:${text}`;
     if (cache.has(key))    return cache.get(key);
     if (inflight.has(key)) return inflight.get(key);
 
     setLoading(true);
     const promise = (async () => {
       const out = await transliteratePreservingLines(
-        text, fromScript, toScript, toLanguage,
+        text, fromScript, toScript, effectiveLang,
       );
       cacheSet(key, out);
       return out;
