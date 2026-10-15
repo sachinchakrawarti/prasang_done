@@ -2,8 +2,8 @@ import {
   sqliteTable,
   text,
   integer,
-  uniqueIndex,
   index,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
 import { poems } from "./poems.js";
@@ -13,52 +13,38 @@ export const aiTranslations = sqliteTable(
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
 
-    // Original poem
+    // The poem this translation belongs to
     poemId: integer("poem_id")
       .notNull()
       .references(() => poems.id, {
         onDelete: "cascade",
       }),
 
-    // Original poem language
-    sourceLanguage: text("source_language").notNull(),
+    // Where the translation came from
+    sourceLang: text("source_lang").notNull(),
+    sourceScript: text("source_script"),
 
-    // Translation language
-    targetLanguage: text("target_language").notNull(),
+    // The translation target
+    targetLang: text("target_lang").notNull(),
+    targetScript: text("target_script"),
 
-    // AI-generated translation
-    translation: text("translation"),
+    // Translated fields
+    title: text("title"),
+    content: text("content").notNull(),
 
-    // AI model used
+    // Provenance
+    provider: text("provider").notNull().default("google"),
     model: text("model"),
 
-    // pending | processing | generated | approved | rejected | failed
-    status: text("status")
-      .notNull()
-      .default("pending"),
-
-    // Number of AI attempts
-    attempts: integer("attempts")
-      .notNull()
-      .default(0),
-
-    // Version of poem that was translated
-    poemVersion: integer("poem_version")
+    // Versioned against poems.content_version
+    // so we can invalidate stale translations
+    sourceContentVersion: integer("source_content_version")
       .notNull()
       .default(1),
 
-    // Error message if generation fails
-    error: text("error"),
-
-    // When translation was generated
-    generatedAt: integer("generated_at", {
-      mode: "timestamp",
-    }),
-
-    // When admin approved it
-    approvedAt: integer("approved_at", {
-      mode: "timestamp",
-    }),
+    // Optional: quality flag for human review
+    // ai | reviewed | rejected
+    status: text("status").notNull().default("ai"),
 
     createdAt: integer("created_at", {
       mode: "timestamp",
@@ -74,24 +60,16 @@ export const aiTranslations = sqliteTable(
   },
 
   (table) => ({
-    // One translation per poem + target language
-    poemLanguageUnique: uniqueIndex(
-      "ai_translations_poem_language_unique"
-    ).on(
+    // Look up all translations for a poem
+    poemIndex: index("ait_poem_id_idx").on(table.poemId),
+
+    // Look up every poem translated into a language
+    targetLangIndex: index("ait_target_lang_idx").on(table.targetLang),
+
+    // One translation per (poem, target_lang)
+    poemTargetUnique: uniqueIndex("ait_poem_target_unique").on(
       table.poemId,
-      table.targetLanguage
+      table.targetLang
     ),
-
-    poemIndex: index(
-      "ai_translations_poem_id_idx"
-    ).on(table.poemId),
-
-    statusIndex: index(
-      "ai_translations_status_idx"
-    ).on(table.status),
-
-    targetLanguageIndex: index(
-      "ai_translations_target_language_idx"
-    ).on(table.targetLanguage),
   })
 );
