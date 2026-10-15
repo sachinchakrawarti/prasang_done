@@ -1,22 +1,29 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { romanizeCached } from "@/lang/romanization";
+import { romanizeCached, SUPPORTED_SCRIPTS } from "@/lang/romanization";
 import { translitStore } from "@/lang/transliteration";
 import { LANGUAGES, SCRIPT_TO_LANGUAGES } from "@/lang/languages";
 
-const SCRIPT_ORDER = [
-  "Devanagari", "Bengali", "Gurmukhi", "Gujarati", "Odia",
-  "Tamil", "Telugu", "Kannada", "Malayalam",
-  "Arabic", "Cyrillic",
+/**
+ * Script order for the picker.
+ * Latin omitted (source is usually Latin; picking Latin as a target = identity).
+ * Han/Kana/Hangul omitted (Google Input Tools has no working Latin→CJK model).
+ */
+const TRANSLIT_SCRIPTS = [
+  "Devanagari",
+  "Bengali",
+  "Gurmukhi",
+  "Gujarati",
+  "Odia",
+  "Tamil",
+  "Telugu",
+  "Kannada",
+  "Malayalam",
+  "Arabic",
+  "Cyrillic",
 ];
 
-/**
- * Resolve the language to use for the picked script.
- *  - If the current targetLang already belongs to targetScript → keep it.
- *  - Otherwise → the first language registered under that script.
- *  - If the script has no language → fall back to the poem's language.
- */
 function resolveLanguage(targetScript, targetLang, fallbackLang) {
   const candidates = SCRIPT_TO_LANGUAGES[targetScript] ?? [];
   if (candidates.find((l) => l.code === targetLang)) return targetLang;
@@ -26,39 +33,42 @@ function resolveLanguage(targetScript, targetLang, fallbackLang) {
 
 export default function LanguageTools({
   content,
-  script,
-  language,
+  script = "Latin",
+  language = "en",
   themeGradient = "from-amber-600 to-yellow-500",
   themeText = "text-amber-600 dark:text-amber-400",
   themeBorder = "border-amber-200 dark:border-amber-800",
   themeHover = "hover:bg-amber-50 dark:hover:bg-amber-900/20",
 }) {
-  const [mode, setMode]                 = useState("original");   // original | roman | translit
-  const [targetScript, setTargetScript] = useState(script);
-  const [targetLang, setTargetLang]     = useState(language);
-  const [output, setOutput]             = useState(content);
-  const [busy, setBusy]                 = useState(false);
-  const [err, setErr]                   = useState(null);
+  const [mode, setMode] = useState("original"); // original | roman | translit
+  const [targetScript, setTargetScript] = useState(() =>
+    script === "Latin" ? "Devanagari" : script
+  );
+  const [targetLang, setTargetLang] = useState(language);
+  const [output, setOutput] = useState(content);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState(null);
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
 
-  // Guard against state updates from stale async calls
   const requestIdRef = useRef(0);
 
   // ── Reset when the poem changes ───────────────────────────────
   useEffect(() => {
     setMode("original");
-    setTargetScript(script);
+    setTargetScript(script === "Latin" ? "Devanagari" : script);
     setTargetLang(language);
     setOutput(content);
     setErr(null);
+    setProgress({ done: 0, total: 0 });
   }, [content, script, language]);
 
-  // ── Keep targetLang consistent with targetScript ──────────────
+  // ── Snap targetLang to a valid one for the script ────────────
   useEffect(() => {
     const resolved = resolveLanguage(targetScript, targetLang, language);
     if (resolved !== targetLang) setTargetLang(resolved);
   }, [targetScript, targetLang, language]);
 
-  // ── Roman (synchronous, no network) ───────────────────────────
+  // ── Roman text (sync) ─────────────────────────────────────────
   const romanText = useMemo(() => {
     if (mode !== "roman") return "";
     try {
@@ -68,32 +78,35 @@ export default function LanguageTools({
     }
   }, [mode, content, script]);
 
-  // ── Languages available for the current script ────────────────
+  // ── Language options for the current script ──────────────────
   const langsForScript = useMemo(
     () => SCRIPT_TO_LANGUAGES[targetScript] ?? [],
     [targetScript],
   );
 
-  // ── Transliterate (async) — re-runs on mode / script / language ─
+  // ── Transliterate (async) ─────────────────────────────────────
   useEffect(() => {
     if (mode !== "translit") return;
 
-    // Always resolve the language from the script before calling.
     const resolvedLang = resolveLanguage(targetScript, targetLang, language);
     const target = LANGUAGES[resolvedLang];
     if (!target) return;
 
-    // Same script + same language = identity, don't hit the API.
+    // identity: same script + same language → no work
     if (targetScript === script && resolvedLang === language) {
       setOutput(content);
       setErr(null);
       setBusy(false);
+      setProgress({ done: 0, total: 0 });
       return;
     }
 
     const myId = ++requestIdRef.current;
     let cancelled = false;
 
+    // Count non-empty lines for progress display
+    const totalLines = content.split(/\r?\n/).filter((l) => l.trim()).length;
+    setProgress({ done: 0, total: totalLines });
     setBusy(true);
     setErr(null);
 
@@ -103,11 +116,12 @@ export default function LanguageTools({
           content,
           script,
           targetScript,
-          target.googleLang,   // ← always the script's language
-          language,            // ← source language, for identity check
+          target.googleLang,
+          language,
         );
         if (cancelled || myId !== requestIdRef.current) return;
         setOutput(out);
+        setProgress({ done: totalLines, total: totalLines });
       } catch (e) {
         if (cancelled || myId !== requestIdRef.current) return;
         setErr(e?.message || "transliteration failed");
@@ -120,7 +134,7 @@ export default function LanguageTools({
     return () => { cancelled = true; };
   }, [mode, targetScript, targetLang, content, script, language]);
 
-  // ── Compute the visible text ──────────────────────────────────
+  // ── Visible text ──────────────────────────────────────────────
   const visible =
     mode === "original" ? content :
     mode === "roman"    ? romanText :
@@ -134,59 +148,58 @@ export default function LanguageTools({
   const targetDir =
     mode === "translit" && LANGUAGES[targetLang]?.dir === "rtl" ? "rtl" : "ltr";
 
+  const canPickTargetScript = TRANSLIT_SCRIPTS.includes(targetScript);
+
+  // ─────────────────────────────────────────────────────────────
   return (
     <div className="mt-6">
-      {/* ── controls ───────────────────────────────────────────── */}
+      {/* ── controls ─────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
-        <button
-          type="button"
+        <ModeButton
+          active={mode === "original"}
           onClick={() => setMode("original")}
-          className={`px-3 py-1.5 text-sm rounded-full border transition ${
-            mode === "original"
-              ? `bg-gradient-to-r ${themeGradient} text-white border-transparent`
-              : `${themeHover} ${themeText} ${themeBorder}`
-          }`}
+          gradient={themeGradient}
+          text={themeText}
+          border={themeBorder}
+          hover={themeHover}
         >
           Original
-        </button>
+        </ModeButton>
 
-        <button
-          type="button"
+        <ModeButton
+          active={mode === "roman"}
           onClick={() => setMode("roman")}
-          className={`px-3 py-1.5 text-sm rounded-full border transition ${
-            mode === "roman"
-              ? `bg-gradient-to-r ${themeGradient} text-white border-transparent`
-              : `${themeHover} ${themeText} ${themeBorder}`
-          }`}
+          gradient={themeGradient}
+          text={themeText}
+          border={themeBorder}
+          hover={themeHover}
         >
           Roman
-        </button>
+        </ModeButton>
 
-        <button
-          type="button"
+        <ModeButton
+          active={mode === "translit"}
           onClick={() => setMode("translit")}
-          className={`px-3 py-1.5 text-sm rounded-full border transition ${
-            mode === "translit"
-              ? `bg-gradient-to-r ${themeGradient} text-white border-transparent`
-              : `${themeHover} ${themeText} ${themeBorder}`
-          }`}
+          gradient={themeGradient}
+          text={themeText}
+          border={themeBorder}
+          hover={themeHover}
         >
           Transliterate
-        </button>
+        </ModeButton>
 
         {mode === "translit" && (
           <>
             <select
               value={targetScript}
               onChange={(e) => {
-                setTargetScript(e.target.value);
-                // Proactively snap targetLang to a valid one for the new script.
-                const resolved = resolveLanguage(e.target.value, targetLang, language);
-                setTargetLang(resolved);
+                const next = e.target.value;
+                setTargetScript(next);
+                setTargetLang(resolveLanguage(next, targetLang, language));
               }}
-              className={`text-sm px-3 py-1.5 rounded-full border ${themeBorder} bg-white dark:bg-gray-800`}
+              className={`text-sm px-3 py-1.5 rounded-full border ${themeBorder} bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200`}
             >
-              {SCRIPT_ORDER.map((s) => (
+              {TRANSLIT_SCRIPTS.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
@@ -195,7 +208,7 @@ export default function LanguageTools({
               <select
                 value={targetLang}
                 onChange={(e) => setTargetLang(e.target.value)}
-                className={`text-sm px-3 py-1.5 rounded-full border ${themeBorder} bg-white dark:bg-gray-800`}
+                className={`text-sm px-3 py-1.5 rounded-full border ${themeBorder} bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200`}
               >
                 {langsForScript.map((l) => (
                   <option key={l.code} value={l.code}>
@@ -208,21 +221,27 @@ export default function LanguageTools({
         )}
 
         {busy && (
-          <span className="text-xs text-gray-400 animate-pulse">translating…</span>
+          <span className="text-xs text-gray-400 animate-pulse">
+            {progress.total > 1
+              ? `translating ${progress.done}/${progress.total} lines…`
+              : "translating…"}
+          </span>
         )}
       </div>
 
-      {/* ── output ────────────────────────────────────────────── */}
+      {/* ── poem body ────────────────────────────────────────── */}
       <div
         dir={targetDir}
         className={`prose prose-lg dark:prose-invert max-w-none leading-relaxed whitespace-pre-wrap text-gray-700 dark:text-gray-200 ${
           targetDir === "rtl" ? "text-right" : ""
         }`}
-        style={targetDir === "rtl"
-          ? { fontFamily: "'Noto Nastaliq Urdu','Amiri',serif", lineHeight: 2.2 }
-          : undefined}
+        style={
+          targetDir === "rtl"
+            ? { fontFamily: "'Noto Nastaliq Urdu','Amiri',serif", lineHeight: 2.2 }
+            : undefined
+        }
       >
-        {busy ? "…" : visible}
+        {busy && !output ? "…" : visible}
       </div>
 
       {isIdentity && (
@@ -230,9 +249,30 @@ export default function LanguageTools({
           Already in this script and language.
         </p>
       )}
+      {!isIdentity && !canPickTargetScript && (
+        <p className="mt-2 text-xs text-amber-600">
+          This script isn't supported for transliteration from the source.
+        </p>
+      )}
       {err && (
         <p className="mt-2 text-xs text-red-500">⚠ {err}</p>
       )}
     </div>
+  );
+}
+
+function ModeButton({ active, onClick, children, gradient, text, border, hover }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-3 py-1.5 text-sm rounded-full border transition ${
+        active
+          ? `bg-gradient-to-r ${gradient} text-white border-transparent`
+          : `${hover} ${text} ${border}`
+      }`}
+    >
+      {children}
+    </button>
   );
 }
