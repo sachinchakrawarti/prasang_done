@@ -1,3 +1,4 @@
+// web/src/lang/transliteration/translitStore.js
 import { romanizeAsciiCached } from '../romanization/engines/index.js';
 import { fetchTransliteration } from './providers/google.js';
 
@@ -13,14 +14,38 @@ function cacheSet(key, value) {
   cache.set(key, value);
 }
 
-/**
- * transliterate(text, fromScript, toScript, toLanguage?, fromLanguage?)
- *
- * Same-script + same-language is a no-op — return the text unchanged.
- *
- * The Roman pivot is used for everything else:
- *   native → roman (offline) → Google Input Tools → target native
- */
+// Google Input Tools collapses newlines. Transliterate line by line,
+// blank lines preserved, then rejoin with the original separators.
+async function transliteratePreservingLines(text, fromScript, toScript, toLanguage) {
+  // Split on \n but keep the separators so we can rebuild
+  const parts = text.split(/(\n)/);
+  const out = [];
+
+  for (const part of parts) {
+    if (part === '\n' || part === '\r\n') {
+      out.push(part);
+      continue;
+    }
+    if (!part.trim()) {
+      out.push(part); // whitespace-only line, keep as-is
+      continue;
+    }
+
+    const pivot = fromScript === 'Latin'
+      ? part
+      : romanizeAsciiCached(part, fromScript);
+
+    try {
+      const converted = await fetchTransliteration(pivot, 'Latin', toScript, toLanguage);
+      out.push(converted);
+    } catch {
+      out.push(part); // fall back to original line on error
+    }
+  }
+
+  return out.join('');
+}
+
 export const translitStore = {
   getState: () => state,
   subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); },
@@ -28,7 +53,6 @@ export const translitStore = {
   async transliterate(text, fromScript, toScript, toLanguage, fromLanguage) {
     if (!text) return '';
 
-    // Identity: no conversion needed
     if (fromScript === toScript) {
       const sameLanguage =
         !fromLanguage || !toLanguage || fromLanguage === toLanguage;
@@ -41,11 +65,9 @@ export const translitStore = {
 
     setLoading(true);
     const promise = (async () => {
-      const pivot = fromScript === 'Latin'
-        ? text
-        : romanizeAsciiCached(text, fromScript);
-
-      const out = await fetchTransliteration(pivot, 'Latin', toScript, toLanguage);
+      const out = await transliteratePreservingLines(
+        text, fromScript, toScript, toLanguage,
+      );
       cacheSet(key, out);
       return out;
     })()
