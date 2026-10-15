@@ -1,19 +1,7 @@
 const LANG_FOR_SCRIPT = {
-  Devanagari: 'hi',
-  Bengali:    'bn',
-  Gurmukhi:   'pa',
-  Gujarati:   'gu',
-  Tamil:      'ta',
-  Telugu:     'te',
-  Kannada:    'kn',
-  Malayalam:  'ml',
-  Odia:       'or',
-  Arabic:     'ur',        // fallback; prefer toLanguage
-  Cyrillic:   'ru',
-  Han:        'zh',
-  Kana:       'ja',
-  Hangul:     'ko',
-  Latin:      'en',
+  Devanagari: 'hi', Bengali: 'bn', Gurmukhi: 'pa', Gujarati: 'gu',
+  Tamil: 'ta', Telugu: 'te', Kannada: 'kn', Malayalam: 'ml', Odia: 'or',
+  Arabic: 'ur', Cyrillic: 'ru', Han: 'zh', Kana: 'ja', Hangul: 'ko', Latin: 'en',
 };
 
 const SUPPORTED_GOOGLE_LANGS = new Set([
@@ -29,7 +17,7 @@ function itcFor(lang) {
 export async function fetchTransliteration(text, _fromScript, toScript, toLanguage) {
   const lang = toLanguage ?? LANG_FOR_SCRIPT[toScript];
   if (!lang) throw new Error(`no google lang for script ${toScript}`);
-  if (!SUPPORTED_GOOGLE_LANGS.has(lang)) throw new Error(`unsupported google lang: ${lang}`);
+  if (!SUPPORTED_GOOGLE_LANGS.has(lang)) throw new Error(`unsupported lang ${lang}`);
 
   const url =
     'https://inputtools.google.com/request' +

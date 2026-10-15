@@ -4,16 +4,10 @@ import { fetchTransliteration } from './providers/google.js';
 const CACHE_MAX = 500;
 const cache    = new Map();
 const inflight = new Map();
-
-const state = { loading: false };
+const state    = { loading: false };
 const listeners = new Set();
 const emit = () => { for (const l of listeners) l(); };
-
-function setLoading(v) {
-  if (state.loading === v) return;
-  state.loading = v;
-  emit();
-}
+function setLoading(v) { if (state.loading === v) return; state.loading = v; emit(); }
 function cacheSet(key, value) {
   if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value);
   cache.set(key, value);
@@ -32,20 +26,13 @@ export const translitStore = {
     if (inflight.has(key)) return inflight.get(key);
 
     setLoading(true);
-
     const promise = (async () => {
-      const pivot = fromScript === 'Latin'
-        ? text
-        : romanizeAsciiCached(text, fromScript);
-
+      const pivot = fromScript === 'Latin' ? text : romanizeAsciiCached(text, fromScript);
       const out = await fetchTransliteration(pivot, 'Latin', toScript, toLanguage);
       cacheSet(key, out);
       return out;
     })()
-      .catch((err) => {
-        console.warn('[translit]', err.message);
-        return text;
-      })
+      .catch((err) => { console.warn('[translit]', err.message); return text; })
       .finally(() => {
         inflight.delete(key);
         if (inflight.size === 0) setLoading(false);
