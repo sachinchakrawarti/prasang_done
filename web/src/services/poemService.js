@@ -3,8 +3,13 @@
 // All requests use relative URLs (/api/...). Next.js proxies these to the
 // Express backend via rewrites in next.config.mjs.
 
+/* ══════════════════════════════════════════════════════════════════
+ *  Helpers
+ * ══════════════════════════════════════════════════════════════════ */
+
 async function parseJsonResponse(response) {
   const text = await response.text();
+
   if (!text) {
     if (!response.ok) {
       throw new Error(
@@ -13,6 +18,7 @@ async function parseJsonResponse(response) {
     }
     return null;
   }
+
   try {
     return JSON.parse(text);
   } catch {
@@ -25,7 +31,7 @@ async function parseJsonResponse(response) {
     throw new Error(
       `Expected JSON but received ${
         response.headers.get("content-type") || "unknown content type"
-      } (status ${response.status}).`
+      } (status ${response.status}). Is the API proxy configured in next.config.mjs?`
     );
   }
 }
@@ -54,120 +60,189 @@ async function apiFetch(url, options = {}) {
     },
     ...options,
   });
+
   if (!response.ok) {
     const message = await extractErrorMessage(response);
     throw new Error(message);
   }
+
   return parseJsonResponse(response);
 }
 
-/* ── poems ── */
+/* ══════════════════════════════════════════════════════════════════
+ *  POEMS
+ * ══════════════════════════════════════════════════════════════════ */
 
 export async function fetchPoemBySlug(slug) {
   if (!slug) throw new Error("Slug is required");
-  return apiFetch(`/api/poems/slug/${encodeURIComponent(slug)}`);
+  try {
+    return await apiFetch(`/api/poems/slug/${encodeURIComponent(slug)}`);
+  } catch (error) {
+    console.error("Error fetching poem:", error);
+    throw error;
+  }
 }
 
 export async function fetchRelatedPoems(poemId) {
   if (!poemId) return { data: [] };
   try {
     return await apiFetch(`/api/poems/related/${encodeURIComponent(poemId)}`);
-  } catch (e) {
-    console.error("Error fetching related poems:", e);
+  } catch (error) {
+    console.error("Error fetching related poems:", error);
     return { data: [] };
   }
 }
 
 export async function toggleLike(poemId) {
   if (!poemId) throw new Error("Poem ID is required");
-  return apiFetch(`/api/poems/${encodeURIComponent(poemId)}/like`, { method: "POST" });
+  try {
+    return await apiFetch(`/api/poems/${encodeURIComponent(poemId)}/like`, {
+      method: "POST",
+    });
+  } catch (error) {
+    console.error("Error toggling like:", error);
+    throw error;
+  }
 }
 
 export async function toggleBookmark(poemId) {
   if (!poemId) throw new Error("Poem ID is required");
-  return apiFetch(`/api/poems/${encodeURIComponent(poemId)}/bookmark`, { method: "POST" });
+  try {
+    return await apiFetch(`/api/poems/${encodeURIComponent(poemId)}/bookmark`, {
+      method: "POST",
+    });
+  } catch (error) {
+    console.error("Error toggling bookmark:", error);
+    throw error;
+  }
 }
 
 export async function fetchPoems(filters = {}) {
-  const qp = new URLSearchParams();
-  Object.entries(filters).forEach(([k, v]) => {
-    if (v !== undefined && v !== null && v !== "") qp.append(k, v);
-  });
-  const q = qp.toString();
-  const json = await apiFetch(`/api/poems${q ? `?${q}` : ""}`);
-  return {
-    success: json?.success ?? true,
-    poems: json?.data ?? json?.poems ?? [],
-    pagination: json?.pagination ?? null,
-  };
+  try {
+    const queryParams = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        queryParams.append(key, value);
+      }
+    });
+
+    const query = queryParams.toString();
+    const url = `/api/poems${query ? `?${query}` : ""}`;
+    const json = await apiFetch(url);
+
+    return {
+      success: json?.success ?? true,
+      poems: json?.data ?? json?.poems ?? [],
+      pagination: json?.pagination ?? null,
+    };
+  } catch (error) {
+    console.error("Error fetching poems:", error);
+    throw error;
+  }
 }
 
-/* ── translations ── */
+/* ══════════════════════════════════════════════════════════════════
+ *  TRANSLATIONS  — reads poems.translations JSON column
+ * ══════════════════════════════════════════════════════════════════ */
 
 /**
- * Fetch the translations map for a poem.
- * Expects the server response to include `translations: { ur: "...", fr: "..." }`.
- * Falls back to `data` or the raw row so it works with several controller shapes.
+ * Fetch all translations stored for a poem.
+ *
+ * Server response shape (confirmed working):
+ *   {
+ *     success: true,
+ *     poemId: 1,
+ *     sourceLanguage: "en",
+ *     languages: ["hi", "ur", "ar", ...],
+ *     translations: { "hi": "...", "ur": "...", ... }
+ *   }
+ *
+ * Always returns a safe shape:
+ *   { success, poemId, sourceLanguage, languages, translations }
  */
 export async function fetchPoemTranslations(poemId) {
   if (!poemId) throw new Error("Poem ID is required");
 
   try {
-    const json = await apiFetch(`/api/ai-translations/${encodeURIComponent(poemId)}`);
+    const data = await apiFetch(
+      `/api/poems/${encodeURIComponent(poemId)}/translations`
+    );
 
-    // Unwrap any common server shape:
-    //   { translations: {...} }  |  { data: { translations: {...} } }  |  raw map
-    const map =
-      json?.translations ??
-      json?.data?.translations ??
-      json?.data ??
-      json ??
-      {};
-
-    const translations =
-      typeof map === "string" ? JSON.parse(map) : map;
+    const translations = data?.translations ?? {};
+    const languages = Array.isArray(data?.languages)
+      ? data.languages
+      : Object.keys(translations);
 
     return {
-      success: true,
+      success: data?.success ?? true,
       poemId,
-      translations: translations ?? {},
-      languages: Object.keys(translations ?? {}),
+      sourceLanguage: data?.sourceLanguage ?? null,
+      languages,
+      translations,
     };
-  } catch (e) {
-    console.error("Error fetching poem translations:", e);
-    return { success: false, translations: {}, languages: [] };
+  } catch (error) {
+    console.error("Error fetching poem translations:", error);
+    return {
+      success: false,
+      poemId,
+      sourceLanguage: null,
+      languages: [],
+      translations: {},
+      error: error.message,
+    };
   }
 }
 
 /**
- * Fetch one language's translation.
- * If the server doesn't expose a per-language route, falls back to the map.
+ * Fetch one language's translation for a poem.
+ *
+ * Server response shape:
+ *   {
+ *     success: true,
+ *     poemId: 1,
+ *     sourceLanguage: "en",
+ *     targetLanguage: "hi",
+ *     content: "क्या मैं तुम्हें..."
+ *   }
  */
 export async function fetchPoemTranslation(poemId, lang) {
   if (!poemId || !lang) throw new Error("poemId and lang are required");
 
-  // Try direct per-language route first
   try {
-    return await apiFetch(
-      `/api/ai-translations/${encodeURIComponent(poemId)}/${encodeURIComponent(lang)}`
+    const data = await apiFetch(
+      `/api/poems/${encodeURIComponent(poemId)}/translations/${encodeURIComponent(
+        lang
+      )}`
     );
-  } catch {
-    // Fall back to fetching the whole map and picking
-    const all = await fetchPoemTranslations(poemId);
-    const text = all.translations?.[lang];
-    if (!text) throw new Error(`No translation for ${lang}`);
-    return { success: true, poemId, targetLanguage: lang, content: text };
+
+    return {
+      success: data?.success ?? true,
+      poemId,
+      sourceLanguage: data?.sourceLanguage ?? null,
+      targetLanguage: data?.targetLanguage ?? lang,
+      content: data?.content ?? "",
+    };
+  } catch (error) {
+    console.error(`Error fetching translation ${lang}:`, error);
+    throw error;
   }
 }
 
-/* ── legacy live translate ── */
+/* ══════════════════════════════════════════════════════════════════
+ *  LEGACY — live translate endpoint
+ * ══════════════════════════════════════════════════════════════════ */
 
 export async function translateText(text, fromLang, toLang) {
   if (!text || !fromLang || !toLang) {
     throw new Error("Missing required fields: text, from, to");
   }
-  return apiFetch("/api/translate", {
-    method: "POST",
-    body: JSON.stringify({ text, from: fromLang, to: toLang }),
-  });
+  try {
+    return await apiFetch("/api/translate", {
+      method: "POST",
+      body: JSON.stringify({ text, from: fromLang, to: toLang }),
+    });
+  } catch (error) {
+    console.error("Error translating text:", error);
+    throw error;
+  }
 }
