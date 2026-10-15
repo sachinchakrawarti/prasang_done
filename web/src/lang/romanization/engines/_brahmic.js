@@ -17,9 +17,9 @@ export function makeBrahmicRomanizer({
         out.push(s + 'a'); i++; continue;
       }
       if (vowels[c])                        { out.push(vowels[c]); i++; continue; }
-      if (anusvara    && c === anusvara)    { out.push('á¹'); i++; continue; }
-      if (candrabindu && c === candrabindu) { out.push('mÌ'); i++; continue; }
-      if (visarga     && c === visarga)     { out.push('á¸¥'); i++; continue; }
+      if (anusvara    && c === anusvara)    { out.push('ṁ'); i++; continue; }
+      if (candrabindu && c === candrabindu) { out.push('m̐'); i++; continue; }
+      if (visarga     && c === visarga)     { out.push('ḥ'); i++; continue; }
       if (virama      && c === virama)      { i++; continue; }
       out.push(c); i++;
     }
