@@ -1,85 +1,85 @@
-import { Router } from "express";
+// server/routes/translations.routes.js
+import { Router } from 'express';
+import { createClient } from '@libsql/client';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import {
-  getAllAiTranslations,
-  getAiTranslationById,
-  getTranslationsByPoem,
-  createAiTranslation,
-  updateAiTranslation,
-  updateTranslationStatus,
-  deleteAiTranslation,
-} from "../controllers/aiTranslations.controller.js";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.resolve(__dirname, '..', '..', 'db', 'database', 'prasang.db');
+const db = createClient({ url: `file:${DB_PATH}` });
 
 const router = Router();
 
-// --------------------------------------------------
-// GET ALL AI TRANSLATIONS
-// GET /api/ai-translations
-// --------------------------------------------------
+/**
+ * GET /api/poems/:id/translations
+ * Returns the whole translations JSON object for a poem.
+ */
+router.get('/:id/translations', async (req, res) => {
+  try {
+    const poemId = Number(req.params.id);
+    if (!poemId) return res.status(400).json({ success: false, error: 'invalid id' });
 
-router.get(
-  "/",
-  getAllAiTranslations
-);
+    const r = await db.execute({
+      sql: 'SELECT id, language, translations FROM poems WHERE id = ? LIMIT 1',
+      args: [poemId],
+    });
 
-// --------------------------------------------------
-// GET TRANSLATIONS FOR A POEM
-// GET /api/ai-translations/poem/:poemId
-// --------------------------------------------------
+    const row = r.rows[0];
+    if (!row) return res.status(404).json({ success: false, error: 'poem not found' });
 
-router.get(
-  "/poem/:poemId",
-  getTranslationsByPoem
-);
+    let map = {};
+    if (row.translations) {
+      try { map = JSON.parse(row.translations) ?? {}; } catch {}
+    }
 
-// --------------------------------------------------
-// GET AI TRANSLATION BY ID
-// GET /api/ai-translations/:id
-// --------------------------------------------------
+    res.json({
+      success: true,
+      poemId: row.id,
+      sourceLanguage: row.language,
+      languages: Object.keys(map),
+      translations: map,
+    });
+  } catch (err) {
+    console.error('[translations]', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
-router.get(
-  "/:id",
-  getAiTranslationById
-);
+/**
+ * GET /api/poems/:id/translations/:lang
+ * Returns just one language's translation.
+ */
+router.get('/:id/translations/:lang', async (req, res) => {
+  try {
+    const poemId = Number(req.params.id);
+    const lang   = String(req.params.lang).toLowerCase();
 
-// --------------------------------------------------
-// CREATE AI TRANSLATION
-// POST /api/ai-translations
-// --------------------------------------------------
+    const r = await db.execute({
+      sql: 'SELECT id, language, translations FROM poems WHERE id = ? LIMIT 1',
+      args: [poemId],
+    });
+    const row = r.rows[0];
+    if (!row) return res.status(404).json({ success: false, error: 'poem not found' });
 
-router.post(
-  "/",
-  createAiTranslation
-);
+    let map = {};
+    if (row.translations) {
+      try { map = JSON.parse(row.translations) ?? {}; } catch {}
+    }
 
-// --------------------------------------------------
-// UPDATE AI TRANSLATION
-// PUT /api/ai-translations/:id
-// --------------------------------------------------
+    const text = map[lang];
+    if (!text) return res.status(404).json({ success: false, error: 'no translation for ' + lang });
 
-router.put(
-  "/:id",
-  updateAiTranslation
-);
-
-// --------------------------------------------------
-// UPDATE TRANSLATION STATUS
-// PATCH /api/ai-translations/:id/status
-// --------------------------------------------------
-
-router.patch(
-  "/:id/status",
-  updateTranslationStatus
-);
-
-// --------------------------------------------------
-// DELETE AI TRANSLATION
-// DELETE /api/ai-translations/:id
-// --------------------------------------------------
-
-router.delete(
-  "/:id",
-  deleteAiTranslation
-);
+    res.json({
+      success: true,
+      poemId: row.id,
+      sourceLanguage: row.language,
+      targetLanguage: lang,
+      content: text,
+    });
+  } catch (err) {
+    console.error('[translations]', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 export default router;
