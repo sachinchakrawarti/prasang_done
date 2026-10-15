@@ -13,21 +13,38 @@ function cacheSet(key, value) {
   cache.set(key, value);
 }
 
+/**
+ * transliterate(text, fromScript, toScript, toLanguage?, fromLanguage?)
+ *
+ * Same-script + same-language is a no-op — return the text unchanged.
+ *
+ * The Roman pivot is used for everything else:
+ *   native → roman (offline) → Google Input Tools → target native
+ */
 export const translitStore = {
   getState: () => state,
   subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); },
 
-  async transliterate(text, fromScript, toScript, toLanguage) {
+  async transliterate(text, fromScript, toScript, toLanguage, fromLanguage) {
     if (!text) return '';
-    if (fromScript === toScript && !toLanguage) return text;
 
-    const key = `${fromScript}>${toScript}@${toLanguage ?? ''}:${text}`;
+    // Identity: no conversion needed
+    if (fromScript === toScript) {
+      const sameLanguage =
+        !fromLanguage || !toLanguage || fromLanguage === toLanguage;
+      if (sameLanguage) return text;
+    }
+
+    const key = `${fromScript}:${fromLanguage ?? ''}>${toScript}:${toLanguage ?? ''}:${text}`;
     if (cache.has(key))    return cache.get(key);
     if (inflight.has(key)) return inflight.get(key);
 
     setLoading(true);
     const promise = (async () => {
-      const pivot = fromScript === 'Latin' ? text : romanizeAsciiCached(text, fromScript);
+      const pivot = fromScript === 'Latin'
+        ? text
+        : romanizeAsciiCached(text, fromScript);
+
       const out = await fetchTransliteration(pivot, 'Latin', toScript, toLanguage);
       cacheSet(key, out);
       return out;

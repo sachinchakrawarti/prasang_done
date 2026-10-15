@@ -18,13 +18,11 @@ export default function TestPage() {
   const [roman, setRoman]   = useState("");
   const [ascii, setAscii]   = useState("");
   const [out, setOut]       = useState("");
-  const [status, setStatus] = useState("idle"); // idle | loading | ok | error
+  const [status, setStatus] = useState("idle");
 
-  // --- import self-check ---
   const missing = ["romanizeCached", "romanizeAsciiCached", "SUPPORTED_SCRIPTS"]
     .filter((k) => typeof R[k] === "undefined");
 
-  // --- load poems once ---
   useEffect(() => {
     (async () => {
       try {
@@ -32,13 +30,10 @@ export default function TestPage() {
         const list = res?.poems ?? [];
         setPoems(list);
         setPoem(list[0] ?? null);
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     })();
   }, []);
 
-  // --- derive roman + ascii on poem change ---
   useEffect(() => {
     if (!poem || missing.length) return;
     try {
@@ -52,13 +47,11 @@ export default function TestPage() {
     setStatus("idle");
   }, [poem, missing.length]);
 
-  // --- languages available for the current target script ---
   const languagesForScript = useMemo(
     () => SCRIPT_TO_LANGUAGES[targetScript] ?? [],
     [targetScript],
   );
 
-  // when target script changes, pick a sensible default language
   useEffect(() => {
     if (languagesForScript.length && !languagesForScript.find((l) => l.code === targetLang)) {
       setTargetLang(languagesForScript[0].code);
@@ -78,6 +71,7 @@ export default function TestPage() {
         poem.script,
         target.script,
         target.googleLang,
+        poem.language,
       );
       setOut(result);
       setStatus("ok");
@@ -87,17 +81,12 @@ export default function TestPage() {
     }
   }
 
-  // --- import failure UI ---
   if (missing.length) {
     return (
-      <div style={{ padding: 24, maxWidth: 900, margin: "0 auto", fontFamily: "monospace" }}>
-        <h2 style={{ color: "#c33" }}>Import problem</h2>
-        <p>Missing from <code>@/lang/romanization</code>:</p>
-        <ul>{missing.map((k) => <li key={k}>{k}</li>)}</ul>
-        <p>
-          Re-run <code>node scripts/fix.js --force</code> and restart{" "}
-          <code>npm run dev</code>.
-        </p>
+      <div style={{ padding: 24, fontFamily: "monospace", color: "#c33" }}>
+        <h2>Import problem</h2>
+        <ul>{missing.map((k) => <li key={k}>missing: {k}</li>)}</ul>
+        <p>Run <code>node scripts/fix-all.mjs</code> then restart the dev server.</p>
       </div>
     );
   }
@@ -105,6 +94,7 @@ export default function TestPage() {
   if (!poem) return <div style={{ padding: 24 }}>Loading…</div>;
 
   const target = LANGUAGES[targetLang];
+  const isIdentity = poem.script === target?.script && poem.language === targetLang;
 
   return (
     <div style={{ padding: 24, maxWidth: 960, margin: "0 auto", fontFamily: "system-ui, sans-serif" }}>
@@ -113,14 +103,11 @@ export default function TestPage() {
         {poem.language?.toUpperCase()} · {poem.script}
       </p>
 
-      {/* --- poem switcher --- */}
       <label style={{ display: "block", margin: "12px 0 24px" }}>
         Poem:{" "}
         <select
           value={poem.id}
-          onChange={(e) =>
-            setPoem(poems.find((p) => p.id === Number(e.target.value)))
-          }
+          onChange={(e) => setPoem(poems.find((p) => p.id === Number(e.target.value)))}
           style={{ padding: "6px 10px", borderRadius: 6 }}
         >
           {poems.map((p) => (
@@ -131,31 +118,16 @@ export default function TestPage() {
         </select>
       </label>
 
-      {/* --- diagnostics --- */}
-      <pre
-        style={{
-          background: "#f3f3f3",
-          padding: 10,
-          fontSize: 11,
-          borderRadius: 6,
-          overflowX: "auto",
-        }}
-      >
-{JSON.stringify(
-  {
-    poemId: poem.id,
-    language: poem.language,
-    script: poem.script,
-    contentLen: poem.content?.length,
-    SUPPORTED_SCRIPTS: R.SUPPORTED_SCRIPTS,
-    SUPPORTED_GOOGLE_LANGS: ["hi","ur","ar","fa","ps","bn","pa","gu","ta","te","kn","ml","or","en","fr","de","es","tr","ru","ja","ko","zh"],
-  },
-  null,
-  2,
-)}
+      <pre style={{ background: "#f3f3f3", padding: 10, fontSize: 11, borderRadius: 6, overflowX: "auto" }}>
+{JSON.stringify({
+  poemId: poem.id,
+  language: poem.language,
+  script: poem.script,
+  contentLen: poem.content?.length,
+  SUPPORTED_SCRIPTS: R.SUPPORTED_SCRIPTS,
+}, null, 2)}
       </pre>
 
-      {/* --- views --- */}
       <Section title="1. Original">
         <div dir={poem.script === "Arabic" ? "rtl" : "ltr"} style={{ fontSize: 18, lineHeight: 1.8 }}>
           {poem.content}
@@ -167,47 +139,30 @@ export default function TestPage() {
       </Section>
 
       <Section title="3. Roman (ASCII pivot)">
-        <div style={{ fontFamily: "monospace", fontSize: 15, lineHeight: 1.6 }}>
-          {ascii}
-        </div>
+        <div style={{ fontFamily: "monospace", fontSize: 15, lineHeight: 1.6 }}>{ascii}</div>
       </Section>
 
-      {/* --- transliteration controls --- */}
       <Section title="4. Transliterate to…">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
           <label>
             Script:{" "}
-            <select
-              value={targetScript}
-              onChange={(e) => setTargetScript(e.target.value)}
-              style={{ padding: "6px 10px", borderRadius: 6 }}
-            >
-              {R.SUPPORTED_SCRIPTS.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
+            <select value={targetScript} onChange={(e) => setTargetScript(e.target.value)}
+              style={{ padding: "6px 10px", borderRadius: 6 }}>
+              {R.SUPPORTED_SCRIPTS.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </label>
 
           <label>
             Language:{" "}
-            <select
-              value={targetLang}
-              onChange={(e) => setTargetLang(e.target.value)}
-              style={{ padding: "6px 10px", borderRadius: 6 }}
-            >
+            <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)}
+              style={{ padding: "6px 10px", borderRadius: 6 }}>
               {languagesForScript.map((l) => (
-                <option key={l.code} value={l.code}>
-                  {l.native} — {l.name}
-                </option>
+                <option key={l.code} value={l.code}>{l.native} — {l.name}</option>
               ))}
             </select>
           </label>
 
-          <button
-            onClick={runTranslit}
-            disabled={status === "loading"}
+          <button onClick={runTranslit} disabled={status === "loading"}
             style={{
               padding: "6px 16px",
               borderRadius: 6,
@@ -215,14 +170,18 @@ export default function TestPage() {
               background: status === "loading" ? "#eee" : "#111",
               color: status === "loading" ? "#666" : "#fff",
               cursor: status === "loading" ? "wait" : "pointer",
-            }}
-          >
+            }}>
             {status === "loading" ? "…" : "Run"}
           </button>
         </div>
 
-        <div
-          dir={target?.dir}
+        {isIdentity && (
+          <p style={{ fontSize: 12, color: "#888" }}>
+            Same script + same language → identity (returns input unchanged)
+          </p>
+        )}
+
+        <div dir={target?.dir}
           style={{
             border: "1px solid #ddd",
             borderRadius: 6,
@@ -230,45 +189,34 @@ export default function TestPage() {
             minHeight: 60,
             fontSize: 20,
             lineHeight: 2,
-            fontFamily:
-              target?.script === "Arabic"
-                ? "'Noto Nastaliq Urdu', 'Amiri', serif"
-                : undefined,
+            fontFamily: target?.script === "Arabic" ? "'Noto Nastaliq Urdu', 'Amiri', serif" : undefined,
             background: status === "error" ? "#fff5f5" : "white",
-          }}
-        >
+          }}>
           {out || <span style={{ color: "#999", fontSize: 14 }}>(not yet run)</span>}
         </div>
 
-        {status === "ok" && (
-          <p style={{ fontSize: 12, color: "#080" }}>
-            ✓ {poem.script} → {target.script} ({target.name})
-          </p>
-        )}
-        {status === "error" && (
-          <p style={{ fontSize: 12, color: "#c33" }}>✗ failed</p>
-        )}
+        {status === "ok" && <p style={{ fontSize: 12, color: "#080" }}>✓ {poem.script} → {target.script}</p>}
+        {status === "error" && <p style={{ fontSize: 12, color: "#c33" }}>✗ failed</p>}
       </Section>
 
-      {/* --- quick matrix: same text to every Arabic-family language --- */}
       <Section title="5. Same script, different language (Arabic family)">
         <QuickMatrix
           text={poem.content}
           fromScript={poem.script}
+          fromLanguage={poem.language}
           langs={["ur", "ar", "fa", "ps"]}
         />
       </Section>
 
-      {/* --- quick matrix: same script, various Indic languages --- */}
       <Section title="6. Same script, different Indic language">
         <QuickMatrix
           text={poem.content}
           fromScript={poem.script}
+          fromLanguage={poem.language}
           langs={["hi", "bn", "pa", "gu", "ta", "te", "kn", "ml", "or"]}
         />
       </Section>
 
-      {/* --- full language list --- */}
       <Section title="7. All supported languages">
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
@@ -299,8 +247,6 @@ export default function TestPage() {
   );
 }
 
-/* ---------------- helpers ---------------- */
-
 function Section({ title, children }) {
   return (
     <section style={{ marginBottom: 32 }}>
@@ -310,7 +256,7 @@ function Section({ title, children }) {
   );
 }
 
-function QuickMatrix({ text, fromScript, langs }) {
+function QuickMatrix({ text, fromScript, fromLanguage, langs }) {
   const [results, setResults] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -326,11 +272,11 @@ function QuickMatrix({ text, fromScript, langs }) {
           fromScript,
           l.script,
           l.googleLang,
+          fromLanguage,
         );
       } catch (e) {
         next[code] = "⚠ " + e.message;
       }
-      // update progressively
       setResults({ ...next });
     }
     setLoading(false);
@@ -338,9 +284,7 @@ function QuickMatrix({ text, fromScript, langs }) {
 
   return (
     <div>
-      <button
-        onClick={runAll}
-        disabled={loading}
+      <button onClick={runAll} disabled={loading}
         style={{
           padding: "6px 16px",
           borderRadius: 6,
@@ -348,8 +292,7 @@ function QuickMatrix({ text, fromScript, langs }) {
           background: loading ? "#eee" : "#fff",
           cursor: loading ? "wait" : "pointer",
           marginBottom: 12,
-        }}
-      >
+        }}>
         {loading ? "Running…" : "Run matrix"}
       </button>
 
@@ -357,23 +300,13 @@ function QuickMatrix({ text, fromScript, langs }) {
         <tbody>
           {langs.map((code) => {
             const l = LANGUAGES[code];
+            const isSelf = l.script === fromScript && l.code === fromLanguage;
             return (
               <tr key={code} style={{ borderBottom: "1px solid #eee" }}>
-                <td
-                  style={{
-                    padding: 8,
-                    width: 160,
-                    fontFamily: "monospace",
-                    fontSize: 12,
-                    color: "#666",
-                    verticalAlign: "top",
-                  }}
-                >
-                  {l.native} ({code})
+                <td style={{ padding: 8, width: 170, fontFamily: "monospace", fontSize: 12, color: "#666", verticalAlign: "top" }}>
+                  {l.native} ({code}){isSelf && <span style={{ color: "#0a0" }}> •same</span>}
                 </td>
-                <td
-                  style={{ padding: 8, direction: l.dir, fontSize: 18, lineHeight: 1.8 }}
-                >
+                <td style={{ padding: 8, direction: l.dir, fontSize: 18, lineHeight: 1.8 }}>
                   {results[code] ?? <span style={{ color: "#999" }}>—</span>}
                 </td>
               </tr>
