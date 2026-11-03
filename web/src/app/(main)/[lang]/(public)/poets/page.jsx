@@ -182,7 +182,7 @@ export default function PoetsPage() {
         );
         break;
       default:
-        break;;
+        break;
     }
 
     setFilteredPoets(filtered);
