@@ -30,6 +30,7 @@
     "@remotion/lottie": "^4.0.518",
     "@remotion/player": "^4.0.518",
     "@remotion/renderer": "^4.0.518",
+    "better-sqlite3": "^12.11.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.4",
