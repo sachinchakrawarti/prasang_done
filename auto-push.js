@@ -6,6 +6,7 @@ const notifier = require('node-notifier');
 const cliProgress = require('cli-progress');
 const chalk = require('chalk');
 const ora = require('ora');
+const readline = require('readline');
 
 const git = simpleGit();
 
@@ -13,6 +14,11 @@ const git = simpleGit();
 const DEBOUNCE_MS = 5000;
 const BATCH_INTERVAL_MS = 60000;
 const FORCE_PUSH_INTERVAL = 120000;
+
+// ===== BRANCH CONFIG =====
+const BRANCHES = ['main', 'dev', 'test'];
+const DEFAULT_BRANCH = 'dev';               // always pushed here
+const AUTO_BRANCH_TIMEOUT_MS = 60 * 1000;   // 60s then auto dev
 
 let timeoutId = null;
 let isPushing = false;
@@ -24,6 +30,7 @@ let xpPoints = 0;
 let achievements = [];
 let pendingChanges = new Set();
 let isProcessing = false;
+let lastPushTime = Date.now();
 
 // Color-coded logging
 const log = {
@@ -34,6 +41,87 @@ const log = {
     highlight: (msg) => console.log(chalk.magenta(`✨ ${msg}`)),
     dim: (msg) => console.log(chalk.dim(msg))
 };
+
+// ============ ASK BRANCH (with 60s auto-dev fallback) ============
+function askBranch(reason = 'auto push') {
+    return new Promise((resolve) => {
+        // Non-interactive: go straight to default
+        if (!process.stdin.isTTY) {
+            log.warning(`Non-interactive terminal — using default branch: ${DEFAULT_BRANCH}`);
+            return resolve(DEFAULT_BRANCH);
+        }
+
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
+        let answered = false;
+
+        const timer = setTimeout(() => {
+            if (answered) return;
+            answered = true;
+            rl.close();
+            console.log();
+            log.warning(`⏰ No answer in ${AUTO_BRANCH_TIMEOUT_MS / 1000}s — auto-pushing to ${DEFAULT_BRANCH}`);
+            resolve(DEFAULT_BRANCH);
+        }, AUTO_BRANCH_TIMEOUT_MS);
+
+        const promptText =
+            chalk.cyan(`\n🌿 Branch for ${reason} `) +
+            chalk.dim(`[${BRANCHES.join(' / ')}]`) +
+            chalk.yellow(` (auto -> ${DEFAULT_BRANCH} in ${AUTO_BRANCH_TIMEOUT_MS / 1000}s): `);
+
+        rl.question(promptText, (answer) => {
+            if (answered) return;
+            answered = true;
+            clearTimeout(timer);
+            rl.close();
+
+            const clean = (answer || '').trim().toLowerCase();
+            if (!clean) {
+                log.warning(`Empty answer — using ${DEFAULT_BRANCH}`);
+                return resolve(DEFAULT_BRANCH);
+            }
+            if (BRANCHES.includes(clean)) return resolve(clean);
+
+            log.warning(`Unknown branch "${clean}" — using ${DEFAULT_BRANCH}`);
+            resolve(DEFAULT_BRANCH);
+        });
+    });
+}
+
+// ============ SWITCH BRANCH ============
+async function switchBranch(branch) {
+    try {
+        const current = await git.revparse(['--abbrev-ref', 'HEAD']);
+        if (current.trim() === branch) return true;
+
+        // Check for uncommitted changes that might block checkout
+        const status = await git.status();
+        if (status.files.length > 0) {
+            log.warning(`You have uncommitted changes. Stashing before switching to ${branch}...`);
+            await git.stash(['push', '-u', '-m', `auto-stash before switch to ${branch}`]);
+        }
+
+        await git.checkout(branch);
+        log.success(`Switched to branch: ${chalk.cyan(branch)}`);
+
+        // Restore stashed changes (if we stashed)
+        try {
+            const stashList = await git.stashList();
+            if (stashList.total > 0 && stashList.all[0] && stashList.all[0].message.includes('auto-stash before switch')) {
+                await git.stash(['pop']);
+                log.info('Restored stashed changes');
+            }
+        } catch (e) { /* nothing to pop */ }
+
+        return true;
+    } catch (err) {
+        log.error(`Failed to switch to ${branch}: ${err.message}`);
+        return false;
+    }
+}
 
 // ============ AUTO COMMIT MESSAGE GENERATOR ============
 function generateCommitMessage(files, pushNumber) {
@@ -75,10 +163,9 @@ function generateCommitMessage(files, pushNumber) {
         'README.md': '📖 Update README'
     };
 
-    // Count file types
     const types = {};
     const fileNames = [];
-    
+
     files.forEach(file => {
         const ext = path.extname(file);
         const base = path.basename(file);
@@ -87,105 +174,34 @@ function generateCommitMessage(files, pushNumber) {
         fileNames.push(base);
     });
 
-    // Find most common type
     let maxCount = 0;
     let mainType = '📁 Update files';
-    let mainExt = '';
     for (const [ext, count] of Object.entries(types)) {
         if (count > maxCount) {
             maxCount = count;
-            mainExt = ext;
             mainType = fileTypes[ext] || `📁 Update ${ext || 'files'}`;
         }
     }
 
-    // Generate message
     const total = files.length;
     let message = '';
 
     if (total === 1) {
-        // Single file: detailed message
         const singleFile = fileNames[0];
         const ext = path.extname(singleFile);
-        const type = fileTypes[ext] || `📁 Update ${singleFile}`;
-        message = `${type}`;
+        message = fileTypes[ext] || `📁 Update ${singleFile}`;
+    } else if (total >= 10) {
+        message = `📦 Bulk update ${total} files`;
+    } else if (total >= 5) {
+        message = `📚 Update ${total} files`;
     } else {
-        // Multiple files: summary
         const countText = ` (${total} files)`;
-        const typeText = mainType.includes('Update') ? 
-            mainType.replace('Update', `Update ${total}`) : 
-            `${mainType}${countText}`;
-        message = typeText;
-        
-        // Add emoji for variety based on file count
-        if (total >= 10) {
-            message = `📦 Bulk update ${total} files`;
-        } else if (total >= 5) {
-            message = `📚 Update ${total} files`;
-        }
+        message = mainType.includes('Update')
+            ? mainType.replace('Update', `Update ${total}`)
+            : `${mainType}${countText}`;
     }
 
-    // Add push number for tracking
     return `[#${pushNumber}] ${message}`;
-}
-
-// ============ GENERATE COMMIT MESSAGE WITH EMOJIS ============
-function generateEmojiCommit(files, pushNumber) {
-    const emojis = {
-        '.md': '📝',
-        '.js': '⚡',
-        '.jsx': '⚛️',
-        '.ts': '📘',
-        '.tsx': '⚛️',
-        '.css': '🎨',
-        '.scss': '🎨',
-        '.html': '🌐',
-        '.json': '📦',
-        '.yml': '🔧',
-        '.yaml': '🔧',
-        '.py': '🐍',
-        '.java': '☕',
-        '.cpp': '⚙️',
-        '.c': '⚙️',
-        '.go': '🐹',
-        '.rs': '🦀',
-        '.rb': '💎',
-        '.php': '🐘',
-        '.sh': '🐚',
-        '.ps1': '🖥️',
-        '.png': '🖼️',
-        '.jpg': '🖼️',
-        '.svg': '🎨',
-        '.txt': '📄',
-        '.env': '🔐',
-        'package.json': '📦',
-        'README.md': '📖',
-        'Dockerfile': '🐳'
-    };
-
-    const types = {};
-    files.forEach(file => {
-        const ext = path.extname(file);
-        const base = path.basename(file);
-        const key = ext || base;
-        types[key] = (types[key] || 0) + 1;
-    });
-
-    let mainExt = '';
-    let maxCount = 0;
-    for (const [ext, count] of Object.entries(types)) {
-        if (count > maxCount) {
-            maxCount = count;
-            mainExt = ext;
-        }
-    }
-
-    const emoji = emojis[mainExt] || '📁';
-    const total = files.length;
-    const fileCount = total > 1 ? ` (${total} files)` : '';
-    const action = total > 1 ? 'Update' : 'Update';
-    
-    return `[#${pushNumber}] ${emoji} ${action} ${path.extname(files[0]) || 'files'}${fileCount}`;
 }
 
 // Achievements configuration
@@ -199,7 +215,6 @@ const ACHIEVEMENTS = {
     PRODUCTIVE_DAY: { id: 'productive_day', name: 'Productive Day', icon: '📈', condition: (count, hour, todayCount) => todayCount >= 10 },
 };
 
-// Ignored paths
 const IGNORED_PATHS = [
     /(^|[\/\\])\../,
     /node_modules/,
@@ -214,41 +229,25 @@ const IGNORED_PATHS = [
     /reports/
 ];
 
-// Function to get formatted date and time
 function getFormattedDateTime() {
     const now = new Date();
-    const date = now.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    });
-    const time = now.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-    });
+    const date = now.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
     return { date, time, full: `${date} ${time}`, hour: now.getHours() };
 }
 
-// Function to print separator line
 function printSeparator(char = '═', length = 70) {
     console.log(chalk.dim(char.repeat(length)));
 }
 
-// Show achievements
-function checkAchievements(count, hour, todayCount, daysActive) {
+function checkAchievements(count, hour, todayCount) {
     const unlocked = [];
     for (const [key, achievement] of Object.entries(ACHIEVEMENTS)) {
         if (!achievements.includes(key)) {
             let condition = false;
-            if (key === 'NIGHT_OWL' || key === 'EARLY_BIRD') {
-                condition = achievement.condition(count, hour);
-            } else if (key === 'PRODUCTIVE_DAY') {
-                condition = achievement.condition(count, hour, todayCount);
-            } else {
-                condition = achievement.condition(count);
-            }
+            if (key === 'NIGHT_OWL' || key === 'EARLY_BIRD') condition = achievement.condition(count, hour);
+            else if (key === 'PRODUCTIVE_DAY') condition = achievement.condition(count, hour, todayCount);
+            else condition = achievement.condition(count);
             if (condition) {
                 achievements.push(key);
                 unlocked.push(achievement);
@@ -258,54 +257,45 @@ function checkAchievements(count, hour, todayCount, daysActive) {
     return unlocked;
 }
 
-// Send Windows notification
-function sendNotification(title, message, icon = null) {
+function sendNotification(title, message) {
     try {
-        notifier.notify({
-            title: title,
-            message: message,
-            sound: true,
-            wait: false
-        });
-    } catch (error) {}
+        notifier.notify({ title, message, sound: true, wait: false });
+    } catch (e) {}
 }
 
-// Save to log file
 function saveToLog(data) {
     try {
         const logDir = path.join(__dirname, 'logs');
         if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
-        
+
         const logFile = path.join(logDir, `push-log-${new Date().toISOString().split('T')[0]}.txt`);
-        const logEntry = `${new Date().toISOString()} | Push #${pushCount} | ${data.filesChanged} files | ${data.commitHash} | ${data.commitMessage}\n`;
+        const logEntry = `${new Date().toISOString()} | Push #${pushCount} | ${data.branch} | ${data.filesChanged} files | ${data.commitHash} | ${data.commitMessage}\n`;
         fs.appendFileSync(logFile, logEntry);
-        
+
         const jsonLog = path.join(logDir, 'push-history.json');
         let history = [];
-        if (fs.existsSync(jsonLog)) {
-            history = JSON.parse(fs.readFileSync(jsonLog, 'utf8'));
-        }
+        if (fs.existsSync(jsonLog)) history = JSON.parse(fs.readFileSync(jsonLog, 'utf8'));
         history.push({
             timestamp: new Date().toISOString(),
             pushNumber: pushCount,
+            branch: data.branch,
             filesChanged: data.filesChanged || 0,
             commitHash: data.commitHash || '',
             commitMessage: data.commitMessage || '',
             xpEarned: data.xpEarned || 0
         });
         fs.writeFileSync(jsonLog, JSON.stringify(history, null, 2));
-    } catch (error) {}
+    } catch (e) {}
 }
 
-// Generate report
 function generateReport() {
     const { date, time } = getFormattedDateTime();
     const uptime = Math.floor((new Date() - startTime) / 1000);
     const hours = Math.floor(uptime / 3600);
     const minutes = Math.floor((uptime % 3600) / 60);
     const seconds = uptime % 60;
-    
-    const report = `
+
+    return `
 ╔═══════════════════════════════════════════════════════════════╗
 ║                    📊 PUSH REPORT                           ║
 ╚═══════════════════════════════════════════════════════════════╝
@@ -313,6 +303,7 @@ function generateReport() {
 📅 Date: ${date}
 ⏰ Time: ${time}
 ⏱️  Uptime: ${hours}h ${minutes}m ${seconds}s
+🌿 Default Branch: ${DEFAULT_BRANCH}
 
 📊 Statistics:
    • Total Pushes: ${pushCount}
@@ -329,20 +320,19 @@ function generateReport() {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `;
-    return report;
 }
 
 // ============ MAIN PUSH FUNCTION ============
-async function pushChanges(trigger = 'auto') {
+async function pushChanges(trigger = 'auto', forcedBranch = null) {
     if (isPushing || isProcessing) {
         log.warning('Already pushing, skipping...');
         return;
     }
     isProcessing = true;
-    
+
     try {
         const status = await git.status();
-        
+
         if (status.files.length === 0 && status.staging.length === 0) {
             const { time } = getFormattedDateTime();
             log.warning(`No changes to commit (${time})`);
@@ -350,8 +340,24 @@ async function pushChanges(trigger = 'auto') {
             return;
         }
 
+        // ===== ASK FOR BRANCH =====
+        const triggerText =
+            trigger === 'timer' ? '⏰ Scheduled' :
+            trigger === 'force' ? '💪 Force' :
+            trigger === 'final' ? '🛑 Final' :
+            trigger === 'initial' ? '🚀 Initial' : '📦 Batch';
+
+        const chosenBranch = forcedBranch || await askBranch(triggerText);
+
+        const switched = await switchBranch(chosenBranch);
+        if (!switched) {
+            log.error(`Cannot push — failed to switch to ${chosenBranch}`);
+            isProcessing = false;
+            return;
+        }
+
         isPushing = true;
-        
+
         const progressBar = new cliProgress.SingleBar({
             format: '📤 Push Progress |' + chalk.cyan('{bar}') + '| {percentage}% | {value}/{total} steps',
             barCompleteChar: '\u2588',
@@ -360,30 +366,26 @@ async function pushChanges(trigger = 'auto') {
             clearOnComplete: true
         });
 
-        // Get file paths from status
-        const filePaths = status.files.map(f => f.path);
+        // Re-check status after checkout (branch may have different state)
+        const status2 = await git.status();
+        const filePaths = status2.files.map(f => f.path);
         const uniqueFiles = pendingChanges.size || filePaths.length;
-        const triggerText = trigger === 'timer' ? '⏰ Scheduled' : 
-                           trigger === 'force' ? '💪 Force' : '📦 Batch';
-        
+
         pushCount++;
         todayPushes++;
         totalFilesChanged += filePaths.length;
-        
-        const { date, time, full, hour } = getFormattedDateTime();
-        
-        // ============ GENERATE AUTO COMMIT MESSAGE ============
+
+        const { full, hour } = getFormattedDateTime();
         const commitMessage = generateCommitMessage(filePaths, pushCount);
-        // Alternative: const commitMessage = generateEmojiCommit(filePaths, pushCount);
-        
+
         printSeparator('═');
-        log.highlight(`📦 BATCH PUSH #${pushCount} - ${triggerText} - ${full}`);
+        log.highlight(`📦 BATCH PUSH #${pushCount} — ${triggerText} — ${full}`);
         printSeparator('─');
+        log.info(`🌿 Branch: ${chalk.cyan(chosenBranch)}`);
         log.info(`📄 Total files changed: ${filePaths.length}`);
         log.info(`📄 Unique files: ${uniqueFiles}`);
         log.info(`📝 Commit message: ${chalk.yellow(commitMessage)}`);
-        
-        // Show changed files (limit to 20)
+
         if (filePaths.length > 0 && filePaths.length <= 20) {
             filePaths.forEach(file => {
                 if (!file.includes('logs/') && !file.includes('reports/')) {
@@ -401,51 +403,44 @@ async function pushChanges(trigger = 'auto') {
             });
             log.dim(`   ... and ${filePaths.length - count} more`);
         }
-        
+
         printSeparator('─');
-        
-        // Start progress
         progressBar.start(4, 0);
-        
+
         progressBar.update(1);
         log.info('📤 Staging all files...');
         await git.add('.');
-        
+
         progressBar.update(2);
         log.info('📝 Committing batch...');
         const commitResult = await git.commit(commitMessage);
-        
+
         if (commitResult.commit) {
             progressBar.update(3);
-            log.info('📤 Pushing batch to remote...');
-            await git.push();
-            
+            log.info(`📤 Pushing ${chosenBranch} to origin/${chosenBranch}...`);
+            await git.push('origin', chosenBranch);
+
             progressBar.update(4);
             progressBar.stop();
-            
-            // Calculate XP
+
             const xpEarned = Math.floor(filePaths.length * 2) + 15;
             xpPoints += xpEarned;
-            
+
             log.success(`✅ Batch push #${pushCount} successful!`);
+            log.success(`✅ Branch: ${chosenBranch}`);
             log.success(`✅ Committed: ${commitResult.commit.substring(0, 7)}`);
-            log.success(`✅ Message: ${chalk.yellow(commitMessage)}`);
             console.log(chalk.magenta(`⭐ +${xpEarned} XP (Total: ${xpPoints} XP)`));
-            
-            // Reset pending changes
+
             pendingChanges.clear();
             lastPushTime = Date.now();
-            
-            // Calculate uptime
+
             const uptime = Math.floor((new Date() - startTime) / 1000);
             const hours = Math.floor(uptime / 3600);
             const minutes = Math.floor((uptime % 3600) / 60);
             const seconds = uptime % 60;
             log.info(`⏱️  Uptime: ${hours}h ${minutes}m ${seconds}s`);
-            
-            // Check achievements
-            const daysActive = 1;
-            const unlockedAchievements = checkAchievements(pushCount, hour, todayPushes, daysActive);
+
+            const unlockedAchievements = checkAchievements(pushCount, hour, todayPushes);
             if (unlockedAchievements.length > 0) {
                 printSeparator('─');
                 log.highlight('🏆 ACHIEVEMENT UNLOCKED! 🏆');
@@ -454,33 +449,32 @@ async function pushChanges(trigger = 'auto') {
                     sendNotification(`🏆 Achievement Unlocked!`, `${ach.icon} ${ach.name}`);
                 });
             }
-            
+
             sendNotification(
-                `✅ Batch Push #${pushCount} Successful`,
+                `✅ Push #${pushCount} → ${chosenBranch}`,
                 `${filePaths.length} files pushed | ⭐ +${xpEarned} XP`
             );
-            
+
             saveToLog({
+                branch: chosenBranch,
                 filesChanged: filePaths.length,
                 commitHash: commitResult.commit.substring(0, 7),
-                commitMessage: commitMessage,
-                xpEarned: xpEarned
+                commitMessage,
+                xpEarned
             });
-            
+
             printSeparator('═');
             log.highlight(`✨ Batch #${pushCount} complete!\n`);
-            
         } else {
             progressBar.stop();
             log.warning('Nothing to commit');
             printSeparator('─');
         }
-        
     } catch (error) {
         log.error(`Error: ${error.message}`);
         if (error.message.includes('Authentication failed')) {
             log.warning('💡 Please check your Git credentials');
-            sendNotification('❌ Push Failed', 'Authentication error - check Git credentials');
+            sendNotification('❌ Push Failed', 'Authentication error');
         }
         printSeparator('─');
     } finally {
@@ -489,70 +483,42 @@ async function pushChanges(trigger = 'auto') {
     }
 }
 
-// Show daily stats
-function showDailyStats() {
-    const { date } = getFormattedDateTime();
-    printSeparator('─');
-    log.info(`📊 Today's Stats (${date}):`);
-    log.info(`   Batch Pushes: ${todayPushes}`);
-    log.info(`   Total Files: ${totalFilesChanged}`);
-    log.info(`   XP Earned: ${xpPoints} ⭐`);
-    log.info(`   Achievements: ${achievements.length}`);
-    printSeparator('─');
-}
-
 // ============ FILE WATCHER ============
 const watcher = chokidar.watch('.', {
-    ignored: (path) => {
-        for (const pattern of IGNORED_PATHS) {
-            if (pattern.test(path)) return true;
-        }
-        return false;
-    },
+    ignored: (p) => IGNORED_PATHS.some(rx => rx.test(p)),
     persistent: true,
     ignoreInitial: true,
-    awaitWriteFinish: {
-        stabilityThreshold: 500,
-        pollInterval: 100
-    }
+    awaitWriteFinish: { stabilityThreshold: 500, pollInterval: 100 }
 });
 
-// Animated spinner
 const spinner = ora({
     text: 'Watching for file changes...',
     color: 'cyan',
     spinner: 'dots12'
 }).start();
 
-// File change handler
 watcher
     .on('change', (filePath) => {
         if (filePath.includes('logs/') || filePath.includes('reports/')) return;
-        
         const { time } = getFormattedDateTime();
-        const fileName = path.basename(filePath);
         pendingChanges.add(filePath);
-        spinner.text = `📝 Collecting: ${fileName} (${pendingChanges.size} files) (${time})`;
+        spinner.text = `📝 Collecting: ${path.basename(filePath)} (${pendingChanges.size} files) (${time})`;
         spinner.color = 'yellow';
         schedulePush();
     })
     .on('add', (filePath) => {
         if (filePath.includes('logs/') || filePath.includes('reports/')) return;
-        
         const { time } = getFormattedDateTime();
-        const fileName = path.basename(filePath);
         pendingChanges.add(filePath);
-        spinner.text = `➕ Added: ${fileName} (${pendingChanges.size} files) (${time})`;
+        spinner.text = `➕ Added: ${path.basename(filePath)} (${pendingChanges.size} files) (${time})`;
         spinner.color = 'green';
         schedulePush();
     })
     .on('unlink', (filePath) => {
         if (filePath.includes('logs/') || filePath.includes('reports/')) return;
-        
         const { time } = getFormattedDateTime();
-        const fileName = path.basename(filePath);
         pendingChanges.add(filePath);
-        spinner.text = `➖ Deleted: ${fileName} (${pendingChanges.size} files) (${time})`;
+        spinner.text = `➖ Deleted: ${path.basename(filePath)} (${pendingChanges.size} files) (${time})`;
         spinner.color = 'red';
         schedulePush();
     })
@@ -561,7 +527,6 @@ watcher
         spinner.color = 'red';
     });
 
-// Debounce function
 function schedulePush() {
     if (timeoutId) clearTimeout(timeoutId);
     spinner.text = `⏳ Waiting for changes to settle... (${pendingChanges.size} files collected)`;
@@ -577,7 +542,7 @@ function schedulePush() {
     }, DEBOUNCE_MS);
 }
 
-// ============ TIME-BASED BATCH PUSH ============
+// Scheduled batch
 setInterval(async () => {
     try {
         const status = await git.status();
@@ -587,72 +552,68 @@ setInterval(async () => {
             await pushChanges('timer');
             spinner.start();
         }
-    } catch (error) {}
+    } catch (e) {}
 }, BATCH_INTERVAL_MS);
 
-// ============ FORCE PUSH ============
+// Force push
 setInterval(async () => {
     try {
         const status = await git.status();
         if (status.files.length > 0) {
             spinner.stop();
-            log.warning('💪 Force push triggered - pushing all changes');
+            log.warning('💪 Force push triggered');
             await pushChanges('force');
             spinner.start();
         }
-    } catch (error) {}
+    } catch (e) {}
 }, FORCE_PUSH_INTERVAL);
 
-// ============ GRACEFUL SHUTDOWN ============
+// Graceful shutdown
 process.on('SIGINT', async () => {
     spinner.stop();
     printSeparator('═');
     log.info('\n👋 Shutting down auto-push...');
-    const { full } = getFormattedDateTime();
-    log.info(`📅 Stopped at: ${full}`);
+    log.info(`📅 Stopped at: ${getFormattedDateTime().full}`);
     log.info(`📊 Total batch pushes: ${pushCount}`);
     log.info(`📊 Total files pushed: ${totalFilesChanged}`);
     log.info(`⭐ Total XP: ${xpPoints}`);
     log.info(`🏆 Achievements: ${achievements.length}`);
-    
+
     try {
         const status = await git.status();
         if (status.files.length > 0) {
-            log.info('📤 Pushing final batch...');
+            log.info('📤 Final push — choosing branch...');
             await pushChanges('final');
         }
-    } catch (error) {}
-    
+    } catch (e) {}
+
     const report = generateReport();
     console.log(report);
-    
+
     const reportDir = path.join(__dirname, 'reports');
     if (!fs.existsSync(reportDir)) fs.mkdirSync(reportDir);
     const reportFile = path.join(reportDir, `report-${new Date().toISOString().split('T')[0]}.txt`);
     fs.writeFileSync(reportFile, report);
-    log.info(`📊 Report saved to: ${reportFile}`);
-    
+    log.info(`📊 Report saved: ${reportFile}`);
+
     await watcher.close();
     log.success('✅ Auto-push stopped');
     printSeparator('═');
     process.exit(0);
 });
 
-// ============ STARTUP ============
+// Startup
 console.log(chalk.bold.cyan('╔═══════════════════════════════════════════════════════════════════╗'));
 console.log(chalk.bold.cyan('║   📦 BATCH AUTO-PUSH WATCHER STARTED                             ║'));
 console.log(chalk.bold.cyan('╚═══════════════════════════════════════════════════════════════════╝'));
 console.log(`\n📁 Root: ${chalk.cyan(process.cwd())}`);
-console.log(`⏱️  Debounce: ${chalk.yellow(DEBOUNCE_MS/1000)} seconds`);
-console.log(`⏰ Scheduled Batch: ${chalk.yellow(BATCH_INTERVAL_MS/60000)} minutes`);
-console.log(`💪 Force Push: ${chalk.yellow(FORCE_PUSH_INTERVAL/60000)} minutes`);
+console.log(`🌿 Branches: ${chalk.cyan(BRANCHES.join(' / '))}`);
+console.log(`🎯 Default: ${chalk.green(DEFAULT_BRANCH)}`);
+console.log(`⏰ Auto-answer timeout: ${chalk.yellow(AUTO_BRANCH_TIMEOUT_MS / 1000)}s`);
+console.log(`⏱️  Debounce: ${chalk.yellow(DEBOUNCE_MS / 1000)}s`);
+console.log(`⏰ Scheduled Batch: ${chalk.yellow(BATCH_INTERVAL_MS / 60000)} min`);
+console.log(`💪 Force Push: ${chalk.yellow(FORCE_PUSH_INTERVAL / 60000)} min`);
 console.log(`📅 Started: ${chalk.green(getFormattedDateTime().full)}`);
-console.log(`🤖 Auto Commit Messages: ${chalk.magenta('ENABLED')}`);
-console.log(`🏆 Achievements: ${chalk.magenta('Enabled')}`);
-console.log(`⭐ XP System: ${chalk.magenta('Enabled')}`);
-console.log(`🔔 Notifications: ${chalk.magenta('Enabled')}`);
-console.log(`📦 Batch Mode: ${chalk.magenta('ALL CHANGES BATCHED TOGETHER')}`);
-console.log(`🚫 Ignored: ${chalk.dim('logs/, reports/, node_modules/, .git/')}`);
 console.log('🔒 Press Ctrl+C to stop\n');
 printSeparator('─');
 
@@ -670,5 +631,5 @@ setTimeout(async () => {
             log.success('✅ Repository clean');
             printSeparator('─');
         }
-    } catch (error) {}
+    } catch (e) {}
 }, 1000);
