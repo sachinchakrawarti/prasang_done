@@ -5,20 +5,26 @@
  * READ-ONLY — never commits, stages, or pushes anything.
  *
  * Usage:
- *   node find-unpushed.js              # full report
- *   node find-unpushed.js --json       # machine-readable output
- *   node find-unpushed.js --short      # compact summary
+ *   node find-unpushed.js              # asks where to check, then full report
+ *   node find-unpushed.js --short      # asks, then compact summary
+ *   node find-unpushed.js --json       # no prompt, JSON output
  */
 
 const simpleGit = require('simple-git');
 const chalk = require('chalk');
-const path = require('path');
+const readline = require('readline');
 
 const args = process.argv.slice(2);
 const AS_JSON = args.includes('--json');
 const SHORT = args.includes('--short');
 
 const git = simpleGit();
+
+// ===== CONFIG =====
+const BRANCHES = ['main', 'dev', 'test'];
+const DEFAULT_BRANCH = 'dev';
+const AUTO_SCOPE_TIMEOUT_MS = 60 * 1000; // 60s
+const SCOPES = [...BRANCHES, 'all'];
 
 const log = {
     header: (m) => console.log(chalk.bold.cyan(`\n${m}`)),
@@ -31,11 +37,61 @@ const log = {
     file: (m) => console.log(chalk.cyan(`    📄 ${m}`)),
 };
 
+// ============ ASK WHICH SCOPE / BRANCH TO CHECK ============
+function askScope() {
+    return new Promise((resolve) => {
+        if (!process.stdin.isTTY) {
+            log.warn(`No interactive terminal — using default scope: ${DEFAULT_BRANCH}`);
+            return resolve(DEFAULT_BRANCH);
+        }
+
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
+        let answered = false;
+
+        const timer = setTimeout(() => {
+            if (answered) return;
+            answered = true;
+            rl.close();
+            console.log();
+            log.warn(`⏰ No answer in ${AUTO_SCOPE_TIMEOUT_MS / 1000}s — using ${DEFAULT_BRANCH}`);
+            resolve(DEFAULT_BRANCH);
+        }, AUTO_SCOPE_TIMEOUT_MS);
+
+        const promptText =
+            chalk.cyan(`\n🔍 Where should I check? `) +
+            chalk.dim(`[${SCOPES.join(' / ')}]`) +
+            chalk.yellow(` (auto -> ${DEFAULT_BRANCH} in ${AUTO_SCOPE_TIMEOUT_MS / 1000}s)`) +
+            chalk.cyan(' → ');
+
+        rl.question(promptText, (answer) => {
+            if (answered) return;
+            answered = true;
+            clearTimeout(timer);
+            rl.close();
+
+            const clean = (answer || '').trim().toLowerCase();
+            if (!clean) {
+                log.warn(`Empty answer — using ${DEFAULT_BRANCH}`);
+                return resolve(DEFAULT_BRANCH);
+            }
+            if (SCOPES.includes(clean)) return resolve(clean);
+
+            log.warn(`Unknown scope "${clean}" — using ${DEFAULT_BRANCH}`);
+            resolve(DEFAULT_BRANCH);
+        });
+    });
+}
+
+// ============ MAIN ============
 async function run() {
     const report = {
         cwd: process.cwd(),
-        branch: null,
-        upstream: null,
+        scope: null,
+        currentBranch: null,
         uncommitted: { modified: [], staged: [], untracked: [], deleted: [], renamed: [] },
         unpushedCommits: [],
         branches: [],
@@ -45,112 +101,182 @@ async function run() {
     };
 
     try {
-        // ---------- Basic info ----------
-        const branch = (await git.revparse(['--abbrev-ref', 'HEAD'])).trim();
-        report.branch = branch;
-
-        let upstream = null;
-        try {
-            upstream = (await git.revparse(['--abbrev-ref', '--symbolic-full-name', '@{u}'])).trim();
-        } catch {
-            upstream = null;
-        }
-        report.upstream = upstream;
-
-        if (!AS_JSON) {
+        // ---------- Determine scope (ask first) ----------
+        let scope;
+        if (AS_JSON) {
+            scope = DEFAULT_BRANCH; // no prompt for machine output
+        } else {
             log.header('🔍 UNPUSHED FINDER');
             log.dim(`Repo: ${process.cwd()}`);
-            log.dim(`Branch: ${branch}`);
-            log.dim(`Upstream: ${upstream || chalk.yellow('(none)')}`);
+            scope = await askScope();
+        }
+        report.scope = scope;
+
+        // ---------- Basic info ----------
+        const currentBranch = (await git.revparse(['--abbrev-ref', 'HEAD'])).trim();
+        report.currentBranch = currentBranch;
+
+        if (!AS_JSON) {
+            log.section(`🎯 SCOPE: ${scope.toUpperCase()}`);
+            log.dim(`Current branch: ${currentBranch}`);
+            if (scope !== 'all' && scope !== currentBranch) {
+                log.warn(`You're currently on "${currentBranch}" but checking "${scope}".`);
+                log.dim(`(read-only — nothing will be switched)`);
+            }
         }
 
         // ---------- 1. Uncommitted changes ----------
-        const status = await git.status();
-        report.uncommitted.modified = status.modified || [];
-        report.uncommitted.staged = status.staged || [];
-        report.uncommitted.untracked = status.not_added || [];
-        report.uncommitted.deleted = status.deleted || [];
-        report.uncommitted.renamed = (status.renamed || []).map(r => `${r.from} → ${r.to}`);
+        // Uncommitted changes are always relative to the CURRENT working tree.
+        // Only show them if the scope is the current branch or 'all'.
+        const showUncommitted = (scope === 'all') || (scope === currentBranch);
 
-        if (!AS_JSON) {
+        if (showUncommitted) {
+            const status = await git.status();
+            report.uncommitted.modified = status.modified || [];
+            report.uncommitted.staged = status.staged || [];
+            report.uncommitted.untracked = status.not_added || [];
+            report.uncommitted.deleted = status.deleted || [];
+            report.uncommitted.renamed = (status.renamed || []).map(r => `${r.from} → ${r.to}`);
+
+            if (!AS_JSON) {
+                log.section(`📝 UNCOMMITTED CHANGES (working tree)`);
+                const anyUncommitted =
+                    report.uncommitted.modified.length ||
+                    report.uncommitted.staged.length ||
+                    report.uncommitted.untracked.length ||
+                    report.uncommitted.deleted.length ||
+                    report.uncommitted.renamed.length;
+
+                if (!anyUncommitted) {
+                    log.success('Working tree is clean');
+                } else {
+                    if (report.uncommitted.staged.length) {
+                        log.item(chalk.green(`Staged (${report.uncommitted.staged.length}):`));
+                        report.uncommitted.staged.forEach(f => log.file(f));
+                    }
+                    if (report.uncommitted.modified.length) {
+                        log.item(chalk.yellow(`Modified (${report.uncommitted.modified.length}):`));
+                        report.uncommitted.modified.forEach(f => log.file(f));
+                    }
+                    if (report.uncommitted.deleted.length) {
+                        log.item(chalk.red(`Deleted (${report.uncommitted.deleted.length}):`));
+                        report.uncommitted.deleted.forEach(f => log.file(f));
+                    }
+                    if (report.uncommitted.renamed.length) {
+                        log.item(chalk.blue(`Renamed (${report.uncommitted.renamed.length}):`));
+                        report.uncommitted.renamed.forEach(f => log.file(f));
+                    }
+                    if (report.uncommitted.untracked.length) {
+                        log.item(chalk.magenta(`Untracked (${report.uncommitted.untracked.length}):`));
+                        report.uncommitted.untracked.forEach(f => log.file(f));
+                    }
+                }
+            }
+        } else if (!AS_JSON) {
             log.section('📝 UNCOMMITTED CHANGES');
-            const anyUncommitted =
-                report.uncommitted.modified.length ||
-                report.uncommitted.staged.length ||
-                report.uncommitted.untracked.length ||
-                report.uncommitted.deleted.length ||
-                report.uncommitted.renamed.length;
+            log.dim(`Skipped — you're on "${currentBranch}", checking "${scope}".`);
+        }
 
-            if (!anyUncommitted) {
-                log.success('Working tree is clean');
+        // ---------- 2. Unpushed commits ----------
+        const branchesToCheck = scope === 'all' ? null : [scope];
+
+        const collectUnpushedFor = async (branchName) => {
+            const out = [];
+            let upstream = null;
+            try {
+                upstream = (await git.revparse(['--abbrev-ref', '--symbolic-full-name', `${branchName}@{u}`])).trim();
+            } catch {
+                upstream = null;
+            }
+
+            if (upstream) {
+                try {
+                    const logOut = await git.log({ from: `${upstream}..${branchName}`, '--max-count': 100 });
+                    logOut.all.forEach(c => out.push({
+                        branch: branchName,
+                        hash: c.hash.substring(0, 7),
+                        date: c.date,
+                        message: c.message,
+                        author: c.author_name,
+                        upstream,
+                    }));
+                } catch (e) {}
             } else {
-                if (report.uncommitted.staged.length) {
-                    log.item(chalk.green(`Staged (${report.uncommitted.staged.length}):`));
-                    report.uncommitted.staged.forEach(f => log.file(f));
+                try {
+                    const all = await git.log({ maxCount: 20, from: branchName });
+                    all.all.forEach(c => out.push({
+                        branch: branchName,
+                        hash: c.hash.substring(0, 7),
+                        date: c.date,
+                        message: c.message,
+                        author: c.author_name,
+                        upstream: null,
+                        note: 'no upstream',
+                    }));
+                } catch (e) {}
+            }
+            return out;
+        };
+
+        if (branchesToCheck) {
+            for (const b of branchesToCheck) {
+                // Skip if branch doesn't exist
+                const list = await git.branchLocal();
+                if (!list.all.includes(b)) {
+                    if (!AS_JSON) {
+                        log.section(`⬆️  UNPUSHED COMMITS (${b})`);
+                        log.warn(`Branch "${b}" does not exist locally`);
+                    }
+                    continue;
                 }
-                if (report.uncommitted.modified.length) {
-                    log.item(chalk.yellow(`Modified (${report.uncommitted.modified.length}):`));
-                    report.uncommitted.modified.forEach(f => log.file(f));
+                const commits = await collectUnpushedFor(b);
+                report.unpushedCommits.push(...commits);
+
+                if (!AS_JSON) {
+                    log.section(`⬆️  UNPUSHED COMMITS (${b})`);
+                    if (commits.length === 0) {
+                        log.success('No unpushed commits');
+                    } else {
+                        log.item(chalk.yellow(`${commits.length} commit(s) not on remote:`));
+                        commits.forEach(c => {
+                            log.dim(`${c.hash}  ${c.date}  ${c.author}`);
+                            log.dim(`         ${c.message}`);
+                            if (c.note) log.dim(`         (${c.note})`);
+                        });
+                    }
                 }
-                if (report.uncommitted.deleted.length) {
-                    log.item(chalk.red(`Deleted (${report.uncommitted.deleted.length}):`));
-                    report.uncommitted.deleted.forEach(f => log.file(f));
-                }
-                if (report.uncommitted.renamed.length) {
-                    log.item(chalk.blue(`Renamed (${report.uncommitted.renamed.length}):`));
-                    report.uncommitted.renamed.forEach(f => log.file(f));
-                }
-                if (report.uncommitted.untracked.length) {
-                    log.item(chalk.magenta(`Untracked (${report.uncommitted.untracked.length}):`));
-                    report.uncommitted.untracked.forEach(f => log.file(f));
+            }
+        } else {
+            // 'all' — iterate local branches
+            const list = await git.branchLocal();
+            for (const b of list.all) {
+                const commits = await collectUnpushedFor(b);
+                report.unpushedCommits.push(...commits);
+            }
+
+            if (!AS_JSON) {
+                log.section('⬆️  UNPUSHED COMMITS (all branches)');
+                if (report.unpushedCommits.length === 0) {
+                    log.success('No unpushed commits in any branch');
+                } else {
+                    const grouped = {};
+                    report.unpushedCommits.forEach(c => {
+                        (grouped[c.branch] = grouped[c.branch] || []).push(c);
+                    });
+                    Object.entries(grouped).forEach(([br, arr]) => {
+                        log.item(chalk.yellow(`${br} — ${arr.length} commit(s):`));
+                        arr.forEach(c => {
+                            log.dim(`${c.hash}  ${c.date}  ${c.author}`);
+                            log.dim(`         ${c.message}`);
+                        });
+                    });
                 }
             }
         }
 
-        // ---------- 2. Unpushed commits on current branch ----------
-        if (upstream) {
-            try {
-                const logOut = await git.log({ from: `${upstream}..${branch}`, '--max-count': 100 });
-                report.unpushedCommits = logOut.all.map(c => ({
-                    hash: c.hash.substring(0, 7),
-                    date: c.date,
-                    message: c.message,
-                    author: c.author_name,
-                }));
-            } catch (e) { /* branch has no remote counterpart yet */ }
-        }
-
-        // If no upstream, treat all local commits as "unpushed candidates"
-        if (!upstream) {
-            try {
-                const all = await git.log({ maxCount: 20 });
-                report.unpushedCommits = all.all.map(c => ({
-                    hash: c.hash.substring(0, 7),
-                    date: c.date,
-                    message: c.message,
-                    author: c.author_name,
-                    note: 'no upstream'
-                }));
-            } catch (e) {}
-        }
-
-        if (!AS_JSON) {
-            log.section(`⬆️  UNPUSHED COMMITS (${branch})`);
-            if (report.unpushedCommits.length === 0) {
-                log.success('No unpushed commits');
-            } else {
-                log.item(chalk.yellow(`${report.unpushedCommits.length} commit(s) not on remote:`));
-                report.unpushedCommits.forEach(c => {
-                    log.dim(`${c.hash}  ${c.date}  ${c.author}`);
-                    log.dim(`         ${c.message}`);
-                });
-            }
-        }
-
-        // ---------- 3. All local branches vs their remotes ----------
+        // ---------- 3. Branches vs remote ----------
         const branchSummary = await git.branch(['-vv']);
-        report.branches = branchSummary.all.map(line => {
-            // Format from simple-git like: "* dev   abc1234 [origin/dev: ahead 2] msg"
+        const parsedBranches = branchSummary.all.map(line => {
             const isCurrent = line.startsWith('*');
             const rest = isCurrent ? line.slice(2) : line;
             const parts = rest.split(/\s+/);
@@ -178,27 +304,33 @@ async function run() {
             };
         });
 
+        // Filter branches by scope
+        if (scope === 'all') {
+            report.branches = parsedBranches;
+        } else {
+            report.branches = parsedBranches.filter(b => b.name === scope);
+        }
+
         if (!AS_JSON) {
-            log.section('🌿 BRANCHES vs REMOTE');
-            const pendingBranches = report.branches.filter(b => b.ahead > 0 || !b.hasUpstream);
-            if (pendingBranches.length === 0) {
-                log.success('All branches up to date with remote');
+            log.section(`🌿 BRANCHES vs REMOTE${scope === 'all' ? '' : ` (${scope})`}`);
+            if (report.branches.length === 0) {
+                log.warn(`No matching branch "${scope}" found locally`);
             } else {
                 report.branches.forEach(b => {
                     if (b.ahead > 0 && b.hasUpstream) {
-                        log.warn(`${b.name}  →  ahead ${b.ahead} commit(s) of ${b.track}`);
+                        log.warn(`${b.name}${b.isCurrent ? ' *' : ''}  →  ahead ${b.ahead} commit(s) of ${b.track}`);
                     } else if (!b.hasUpstream) {
-                        log.warn(`${b.name}  →  no upstream (never pushed)`);
+                        log.warn(`${b.name}${b.isCurrent ? ' *' : ''}  →  no upstream (never pushed)`);
                     } else if (b.behind > 0) {
-                        log.dim(`${b.name}  →  behind ${b.behind} (incoming)`);
+                        log.dim(`${b.name}${b.isCurrent ? ' *' : ''}  →  behind ${b.behind} (incoming)`);
                     } else {
-                        log.dim(`${b.name}  →  up to date`);
+                        log.success(`${b.name}${b.isCurrent ? ' *' : ''}  →  up to date`);
                     }
                 });
             }
         }
 
-        // ---------- 4. Stashes ----------
+        // ---------- 4. Stashes (always shown — they're global, not per-branch) ----------
         try {
             const stashList = await git.stashList();
             report.stashes = stashList.all.map(s => ({
@@ -241,19 +373,21 @@ async function run() {
         }
 
         // ---------- Summary ----------
-        const totalUncommitted =
-            report.uncommitted.modified.length +
-            report.uncommitted.staged.length +
-            report.uncommitted.untracked.length +
-            report.uncommitted.deleted.length +
-            report.uncommitted.renamed.length;
+        const totalUncommitted = showUncommitted
+            ? report.uncommitted.modified.length +
+              report.uncommitted.staged.length +
+              report.uncommitted.untracked.length +
+              report.uncommitted.deleted.length +
+              report.uncommitted.renamed.length
+            : 0;
 
         const branchesAhead = report.branches.filter(b => b.ahead > 0).length;
         const branchesNoUpstream = report.branches.filter(b => !b.hasUpstream).length;
 
         report.summary = {
+            scope,
             totalUncommitted,
-            unpushedCommitsCurrent: report.unpushedCommits.length,
+            unpushedCommits: report.unpushedCommits.length,
             branchesAhead,
             branchesNoUpstream,
             stashes: report.stashes.length,
@@ -266,9 +400,9 @@ async function run() {
         }
 
         if (SHORT) {
-            console.log(chalk.bold.cyan('\n📊 SUMMARY'));
+            console.log(chalk.bold.cyan(`\n📊 SUMMARY (scope: ${scope})`));
             console.log(`  Uncommitted:      ${totalUncommitted}`);
-            console.log(`  Unpushed commits: ${report.unpushedCommits.length} (${branch})`);
+            console.log(`  Unpushed commits: ${report.unpushedCommits.length}`);
             console.log(`  Branches ahead:   ${branchesAhead}`);
             console.log(`  No-upstream:      ${branchesNoUpstream}`);
             console.log(`  Stashes:          ${report.stashes.length}`);
@@ -277,7 +411,7 @@ async function run() {
         }
 
         console.log(chalk.bold.cyan('\n═══════════════════════════════════════════════════════════════════════'));
-        console.log(chalk.bold.cyan('                       📊 SUMMARY                                       '));
+        console.log(chalk.bold.cyan(`                     📊 SUMMARY (scope: ${scope})`.padEnd(71) + ' '));
         console.log(chalk.bold.cyan('═══════════════════════════════════════════════════════════════════════'));
         console.log(`  📝 Uncommitted files:     ${totalUncommitted > 0 ? chalk.yellow(totalUncommitted) : chalk.green('0')}`);
         console.log(`  ⬆️  Unpushed commits:      ${report.unpushedCommits.length > 0 ? chalk.yellow(report.unpushedCommits.length) : chalk.green('0')}`);
