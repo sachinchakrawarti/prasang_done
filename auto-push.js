@@ -17,8 +17,8 @@ const FORCE_PUSH_INTERVAL = 120000;
 
 // ===== BRANCH CONFIG =====
 const BRANCHES = ['main', 'dev', 'test'];
-const DEFAULT_BRANCH = 'dev';               // always pushed here
-const AUTO_BRANCH_TIMEOUT_MS = 60 * 1000;   // 60s then auto dev
+const DEFAULT_BRANCH = 'dev';               // used when no answer in 60s
+const AUTO_BRANCH_TIMEOUT_MS = 60 * 1000;   // 60 seconds
 
 let timeoutId = null;
 let isPushing = false;
@@ -42,12 +42,12 @@ const log = {
     dim: (msg) => console.log(chalk.dim(msg))
 };
 
-// ============ ASK BRANCH (with 60s auto-dev fallback) ============
-function askBranch(reason = 'auto push') {
+// ============ ASK BRANCH (always asked, 60s -> dev) ============
+function askBranch(reason = 'push') {
     return new Promise((resolve) => {
-        // Non-interactive: go straight to default
+        // Safety fallback only when there is no interactive terminal
         if (!process.stdin.isTTY) {
-            log.warning(`Non-interactive terminal — using default branch: ${DEFAULT_BRANCH}`);
+            log.warning(`No interactive terminal — using default branch: ${DEFAULT_BRANCH}`);
             return resolve(DEFAULT_BRANCH);
         }
 
@@ -58,19 +58,22 @@ function askBranch(reason = 'auto push') {
 
         let answered = false;
 
+        // 60s auto-answer -> dev
         const timer = setTimeout(() => {
             if (answered) return;
             answered = true;
             rl.close();
             console.log();
-            log.warning(`⏰ No answer in ${AUTO_BRANCH_TIMEOUT_MS / 1000}s — auto-pushing to ${DEFAULT_BRANCH}`);
+            log.warning(`⏰ No answer in ${AUTO_BRANCH_TIMEOUT_MS / 1000}s — using ${DEFAULT_BRANCH}`);
             resolve(DEFAULT_BRANCH);
         }, AUTO_BRANCH_TIMEOUT_MS);
 
         const promptText =
-            chalk.cyan(`\n🌿 Branch for ${reason} `) +
+            chalk.cyan(`\n🌿 Which branch should I push to? `) +
             chalk.dim(`[${BRANCHES.join(' / ')}]`) +
-            chalk.yellow(` (auto -> ${DEFAULT_BRANCH} in ${AUTO_BRANCH_TIMEOUT_MS / 1000}s): `);
+            chalk.yellow(` (auto -> ${DEFAULT_BRANCH} in ${AUTO_BRANCH_TIMEOUT_MS / 1000}s) `) +
+            chalk.dim(`(${reason})`) +
+            chalk.cyan(' → ');
 
         rl.question(promptText, (answer) => {
             if (answered) return;
@@ -97,24 +100,29 @@ async function switchBranch(branch) {
         const current = await git.revparse(['--abbrev-ref', 'HEAD']);
         if (current.trim() === branch) return true;
 
-        // Check for uncommitted changes that might block checkout
+        // Stash uncommitted changes so checkout doesn't fail
         const status = await git.status();
+        let stashed = false;
         if (status.files.length > 0) {
-            log.warning(`You have uncommitted changes. Stashing before switching to ${branch}...`);
+            log.warning(`Uncommitted changes detected — stashing before switching to ${branch}...`);
             await git.stash(['push', '-u', '-m', `auto-stash before switch to ${branch}`]);
+            stashed = true;
         }
 
         await git.checkout(branch);
         log.success(`Switched to branch: ${chalk.cyan(branch)}`);
 
-        // Restore stashed changes (if we stashed)
-        try {
-            const stashList = await git.stashList();
-            if (stashList.total > 0 && stashList.all[0] && stashList.all[0].message.includes('auto-stash before switch')) {
-                await git.stash(['pop']);
-                log.info('Restored stashed changes');
-            }
-        } catch (e) { /* nothing to pop */ }
+        // Restore the stash we just created
+        if (stashed) {
+            try {
+                const stashList = await git.stashList();
+                if (stashList.total > 0 && stashList.all[0] &&
+                    stashList.all[0].message.includes('auto-stash before switch')) {
+                    await git.stash(['pop']);
+                    log.info('Restored stashed changes');
+                }
+            } catch (e) { /* nothing to pop */ }
+        }
 
         return true;
     } catch (err) {
@@ -204,7 +212,7 @@ function generateCommitMessage(files, pushNumber) {
     return `[#${pushNumber}] ${message}`;
 }
 
-// Achievements configuration
+// ============ ACHIEVEMENTS ============
 const ACHIEVEMENTS = {
     FIRST_PUSH: { id: 'first_push', name: 'First Push', icon: '🏆', condition: (count) => count === 1 },
     TEN_PUSHES: { id: 'ten_pushes', name: '10 Pushes', icon: '🥈', condition: (count) => count === 10 },
@@ -322,8 +330,8 @@ function generateReport() {
 `;
 }
 
-// ============ MAIN PUSH FUNCTION ============
-async function pushChanges(trigger = 'auto', forcedBranch = null) {
+// ============ MAIN PUSH FUNCTION (ALWAYS ASKS BRANCH) ============
+async function pushChanges(trigger = 'auto') {
     if (isPushing || isProcessing) {
         log.warning('Already pushing, skipping...');
         return;
@@ -340,18 +348,20 @@ async function pushChanges(trigger = 'auto', forcedBranch = null) {
             return;
         }
 
-        // ===== ASK FOR BRANCH =====
+        // ===== ALWAYS ASK BRANCH BEFORE PUSHING =====
         const triggerText =
             trigger === 'timer' ? '⏰ Scheduled' :
             trigger === 'force' ? '💪 Force' :
             trigger === 'final' ? '🛑 Final' :
             trigger === 'initial' ? '🚀 Initial' : '📦 Batch';
 
-        const chosenBranch = forcedBranch || await askBranch(triggerText);
+        spinner.stop();
+        const chosenBranch = await askBranch(triggerText);
 
         const switched = await switchBranch(chosenBranch);
         if (!switched) {
             log.error(`Cannot push — failed to switch to ${chosenBranch}`);
+            spinner.start();
             isProcessing = false;
             return;
         }
@@ -379,7 +389,7 @@ async function pushChanges(trigger = 'auto', forcedBranch = null) {
         const commitMessage = generateCommitMessage(filePaths, pushCount);
 
         printSeparator('═');
-        log.highlight(`📦 BATCH PUSH #${pushCount} — ${triggerText} — ${full}`);
+        log.highlight(`📦 PUSH #${pushCount} — ${triggerText} — ${full}`);
         printSeparator('─');
         log.info(`🌿 Branch: ${chalk.cyan(chosenBranch)}`);
         log.info(`📄 Total files changed: ${filePaths.length}`);
@@ -417,7 +427,7 @@ async function pushChanges(trigger = 'auto', forcedBranch = null) {
 
         if (commitResult.commit) {
             progressBar.update(3);
-            log.info(`📤 Pushing ${chosenBranch} to origin/${chosenBranch}...`);
+            log.info(`📤 Pushing ${chosenBranch} → origin/${chosenBranch}...`);
             await git.push('origin', chosenBranch);
 
             progressBar.update(4);
@@ -426,9 +436,9 @@ async function pushChanges(trigger = 'auto', forcedBranch = null) {
             const xpEarned = Math.floor(filePaths.length * 2) + 15;
             xpPoints += xpEarned;
 
-            log.success(`✅ Batch push #${pushCount} successful!`);
+            log.success(`✅ Push #${pushCount} successful!`);
             log.success(`✅ Branch: ${chosenBranch}`);
-            log.success(`✅ Committed: ${commitResult.commit.substring(0, 7)}`);
+            log.success(`✅ Commit: ${commitResult.commit.substring(0, 7)}`);
             console.log(chalk.magenta(`⭐ +${xpEarned} XP (Total: ${xpPoints} XP)`));
 
             pendingChanges.clear();
@@ -464,7 +474,7 @@ async function pushChanges(trigger = 'auto', forcedBranch = null) {
             });
 
             printSeparator('═');
-            log.highlight(`✨ Batch #${pushCount} complete!\n`);
+            log.highlight(`✨ Push #${pushCount} complete!\n`);
         } else {
             progressBar.stop();
             log.warning('Nothing to commit');
@@ -480,6 +490,7 @@ async function pushChanges(trigger = 'auto', forcedBranch = null) {
     } finally {
         isPushing = false;
         isProcessing = false;
+        if (!spinner.isSpinning) spinner.start();
     }
 }
 
@@ -536,45 +547,48 @@ function schedulePush() {
         if (pendingChanges.size > 0) {
             log.info(`📦 Pushing all ${pendingChanges.size} files together...`);
             pushChanges('batch');
+        } else {
+            spinner.start();
         }
-        spinner.start();
         timeoutId = null;
     }, DEBOUNCE_MS);
 }
 
-// Scheduled batch
+// ============ TIME-BASED BATCH PUSH ============
 setInterval(async () => {
     try {
+        if (isPushing || isProcessing) return;
         const status = await git.status();
         if (status.files.length > 0) {
             spinner.stop();
             log.info('⏰ Scheduled batch push triggered');
             await pushChanges('timer');
-            spinner.start();
+            if (!spinner.isSpinning) spinner.start();
         }
     } catch (e) {}
 }, BATCH_INTERVAL_MS);
 
-// Force push
+// ============ FORCE PUSH ============
 setInterval(async () => {
     try {
+        if (isPushing || isProcessing) return;
         const status = await git.status();
         if (status.files.length > 0) {
             spinner.stop();
             log.warning('💪 Force push triggered');
             await pushChanges('force');
-            spinner.start();
+            if (!spinner.isSpinning) spinner.start();
         }
     } catch (e) {}
 }, FORCE_PUSH_INTERVAL);
 
-// Graceful shutdown
+// ============ GRACEFUL SHUTDOWN ============
 process.on('SIGINT', async () => {
     spinner.stop();
     printSeparator('═');
     log.info('\n👋 Shutting down auto-push...');
     log.info(`📅 Stopped at: ${getFormattedDateTime().full}`);
-    log.info(`📊 Total batch pushes: ${pushCount}`);
+    log.info(`📊 Total pushes: ${pushCount}`);
     log.info(`📊 Total files pushed: ${totalFilesChanged}`);
     log.info(`⭐ Total XP: ${xpPoints}`);
     log.info(`🏆 Achievements: ${achievements.length}`);
@@ -602,7 +616,7 @@ process.on('SIGINT', async () => {
     process.exit(0);
 });
 
-// Startup
+// ============ STARTUP ============
 console.log(chalk.bold.cyan('╔═══════════════════════════════════════════════════════════════════╗'));
 console.log(chalk.bold.cyan('║   📦 BATCH AUTO-PUSH WATCHER STARTED                             ║'));
 console.log(chalk.bold.cyan('╚═══════════════════════════════════════════════════════════════════╝'));
@@ -614,6 +628,12 @@ console.log(`⏱️  Debounce: ${chalk.yellow(DEBOUNCE_MS / 1000)}s`);
 console.log(`⏰ Scheduled Batch: ${chalk.yellow(BATCH_INTERVAL_MS / 60000)} min`);
 console.log(`💪 Force Push: ${chalk.yellow(FORCE_PUSH_INTERVAL / 60000)} min`);
 console.log(`📅 Started: ${chalk.green(getFormattedDateTime().full)}`);
+console.log(`🤖 Auto Commit Messages: ${chalk.magenta('ENABLED')}`);
+console.log(`🏆 Achievements: ${chalk.magenta('Enabled')}`);
+console.log(`⭐ XP System: ${chalk.magenta('Enabled')}`);
+console.log(`🔔 Notifications: ${chalk.magenta('Enabled')}`);
+console.log(`📦 Batch Mode: ${chalk.magenta('ALL CHANGES BATCHED')}`);
+console.log(`🚫 Ignored: ${chalk.dim('logs/, reports/, node_modules/, .git/')}`);
 console.log('🔒 Press Ctrl+C to stop\n');
 printSeparator('─');
 
@@ -626,7 +646,7 @@ setTimeout(async () => {
             log.info(`📄 Found ${status.files.length} uncommitted changes at ${full}`);
             spinner.stop();
             await pushChanges('initial');
-            spinner.start();
+            if (!spinner.isSpinning) spinner.start();
         } else {
             log.success('✅ Repository clean');
             printSeparator('─');
