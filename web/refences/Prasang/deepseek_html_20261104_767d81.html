@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhakti Movement · Era | Prasang</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Editorial Mix -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Nastaliq+Urdu&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#fdfaf5', 100: '#f9f2e9', 200: '#f1e6d6', 300: '#e5d3b8',
+                            400: '#d4b894', 500: '#c09a6b', 600: '#a87d4a', 700: '#8a6238',
+                            800: '#6b4a2a', 900: '#4c3420',
+                        },
+                        ink: { 50: '#f6f6f7', 800: '#1e1b18', 900: '#141210' },
+                        accent: { gold: '#b8860b', wine: '#8b3a3a', sage: '#5c7a6b' }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        poetic: ['"Rozha One"', 'Georgia', 'serif'],
+                        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
+                        'glow': '0 0 25px -5px rgba(184,134,11,0.35)',
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c09a6b; border-radius: 99px; }
+        .dark ::-webkit-scrollbar-thumb { background: #6b4a2a; }
+
+        /* Sepia theme */
+        .theme-sepia {
+            background-color: #f4ebd0 !important;
+            color: #433422 !important;
+        }
+        .theme-sepia .glass-panel {
+            background-color: rgba(244, 235, 208, 0.9) !important;
+            border-color: #d3c39c !important;
+        }
+        .theme-sepia .bg-card-theme { background-color: #ebdcb9 !important; border-color: #d8c69d !important; }
+        .theme-sepia .text-muted-theme { color: #70583b !important; }
+        .theme-sepia .accent-theme { color: #8c4227 !important; }
+
+        /* Glassmorphism */
+        .glass-panel {
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background-color: rgba(253, 250, 245, 0.88);
+            border: 1px solid rgba(192, 154, 107, 0.2);
+        }
+        .dark .glass-panel {
+            background-color: rgba(20, 18, 16, 0.88);
+            border-color: rgba(107, 74, 42, 0.3);
+        }
+
+        /* Era hero gradient */
+        .era-hero-bg {
+            background: linear-gradient(135deg, #4c3420 0%, #6b4a2a 40%, #8a6238 70%, #4c3420 100%);
+        }
+        .dark .era-hero-bg {
+            background: linear-gradient(135deg, #141210 0%, #1e1b18 40%, #2a2521 70%, #141210 100%);
+        }
+
+        /* Timeline horizontal */
+        .timeline-track {
+            position: relative;
+            height: 3px;
+            background: linear-gradient(90deg, #e5d3b8 0%, #c09a6b 50%, #e5d3b8 100%);
+            border-radius: 99px;
+        }
+        .dark .timeline-track {
+            background: linear-gradient(90deg, #4c3420 0%, #8a6238 50%, #4c3420 100%);
+        }
+        .timeline-node {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .timeline-node:hover .node-dot {
+            transform: scale(1.4);
+            box-shadow: 0 0 0 6px rgba(184, 134, 11, 0.15);
+        }
+        .node-dot {
+            transition: all 0.3s ease;
+        }
+        .timeline-node.active .node-dot {
+            background: #b8860b;
+            box-shadow: 0 0 0 6px rgba(184, 134, 11, 0.2);
+            transform: scale(1.3);
+        }
+
+        /* Poet card hover */
+        .poet-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .poet-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px -8px rgba(107, 74, 42, 0.28);
+            border-color: rgba(184, 134, 11, 0.45);
+        }
+        .dark .poet-card:hover {
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
+            border-color: rgba(184, 134, 11, 0.55);
+        }
+
+        /* Work card */
+        .work-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .work-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px -8px rgba(107, 74, 42, 0.22);
+            border-color: rgba(184, 134, 11, 0.4);
+        }
+
+        /* Theme tag */
+        .theme-tag {
+            transition: all 0.2s ease;
+        }
+        .theme-tag:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px -4px rgba(184, 134, 11, 0.3);
+        }
+
+        /* Map marker pulse */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        .map-marker-ring {
+            animation: pulse-ring 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Word dictionary trigger */
+        .dict-word {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: #b8860b;
+            text-underline-offset: 5px;
+            transition: all 0.2s ease;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+        .dict-word:hover {
+            background-color: rgba(184, 134, 11, 0.18);
+            text-decoration-style: solid;
+        }
+
+        /* Ornamental divider */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #c09a6b;
+        }
+        .ornament-divider::before,
+        .ornament-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e5d3b8, transparent);
+        }
+        .dark .ornament-divider::before,
+        .dark .ornament-divider::after {
+            background: linear-gradient(90deg, transparent, #4c3420, transparent);
+        }
+
+        /* Reading progress bar */
+        .top-progress {
+            height: 2px;
+            background: linear-gradient(90deg, #b8860b, #d4b894);
+            width: 0%;
+            transition: width 0.15s ease-out;
+        }
+
+        /* Map container */
+        .map-container {
+            background: radial-gradient(circle at 50% 50%, rgba(241, 230, 214, 0.4), rgba(229, 211, 184, 0.15));
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .dark .map-container {
+            background: radial-gradient(circle at 50% 50%, rgba(30, 27, 24, 0.4), rgba(20, 18, 16, 0.15));
+        }
+
+        /* Syllabus item */
+        .syllabus-item {
+            transition: all 0.2s ease;
+        }
+        .syllabus-item:hover {
+            background: rgba(184, 134, 11, 0.05);
+            border-color: rgba(184, 134, 11, 0.3);
+        }
+
+        /* Reduce motion */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-parchment-50 text-ink-900 font-sans antialiased transition-colors duration-300 min-h-screen selection:bg-accent-gold/20">
+
+    <!-- Reading progress bar -->
+    <div class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-parchment-200/50 dark:bg-ink-800">
+        <div id="reading-progress" class="top-progress h-full"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-parchment-300/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
+            <!-- Brand -->
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center shadow-md text-white font-poetic text-xl pb-0.5">
+                    प्र
+                </div>
+                <div class="leading-tight">
+                    <span class="font-serif text-xl font-bold tracking-wide text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                        PRASANG
+                        <span class="text-[9px] tracking-wider font-sans bg-accent-gold/15 text-accent-gold px-1.5 py-0.5 rounded-full uppercase font-semibold border border-accent-gold/20">AI</span>
+                    </span>
+                    <p class="text-[9px] text-parchment-600 dark:text-parchment-400 uppercase tracking-[0.2em] hidden sm:block">Literature Discovery</p>
+                </div>
+            </a>
+
+            <!-- Breadcrumb -->
+            <nav class="hidden lg:flex items-center gap-2 text-[11px] text-parchment-500 dark:text-parchment-400 font-medium">
+                <a href="#" class="hover:text-accent-gold transition">Home</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <a href="#" class="hover:text-accent-gold transition">Eras</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <span class="text-ink-900 dark:text-parchment-200 font-semibold">Bhakti Movement</span>
+            </nav>
+
+            <!-- Theme + CTA -->
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center p-0.5 bg-parchment-200/70 dark:bg-ink-800 rounded-lg border border-parchment-300 dark:border-parchment-700">
+                    <button onclick="setTheme('light')" id="btn-light" class="px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-800 shadow-sm text-[11px] font-medium transition" title="Light">
+                        <i class="fa-regular fa-sun text-amber-500 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('sepia')" id="btn-sepia" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-700 hover:text-parchment-900 text-[11px] font-medium transition" title="Sepia">
+                        <i class="fa-regular fa-file-lines text-amber-700 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-500 hover:text-parchment-200 text-[11px] font-medium transition" title="Dark">
+                        <i class="fa-regular fa-moon text-indigo-400 text-[11px]"></i>
+                    </button>
+                </div>
+                <button class="hidden sm:inline-flex items-center px-4 py-2 text-[12px] font-semibold rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white transition shadow-sm">
+                    <i class="fa-solid fa-arrow-left text-[10px] mr-1.5"></i> All Eras
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== ERA HERO ===== -->
+    <section class="relative overflow-hidden">
+        <div class="era-hero-bg absolute inset-0"></div>
+        <div class="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:18px_18px]"></div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+
+                <!-- Era identity -->
+                <div class="max-w-2xl">
+                    <div class="flex flex-wrap items-center gap-2 mb-4">
+                        <span class="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-parchment-200 text-[10px] font-bold uppercase tracking-[0.15em] border border-white/15">
+                            <i class="fa-solid fa-clock-rotate-left text-[8px] mr-1"></i> 7th – 17th Century
+                        </span>
+                        <span class="px-2.5 py-1 rounded-full bg-accent-gold/25 text-accent-gold text-[10px] font-semibold border border-accent-gold/30">
+                            <i class="fa-solid fa-location-dot text-[8px] mr-1"></i> Pan-India
+                        </span>
+                        <span class="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-parchment-200 text-[10px] font-semibold border border-white/15">
+                            <i class="fa-solid fa-language text-[8px] mr-1"></i> 12+ Languages
+                        </span>
+                    </div>
+
+                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-none mb-3">
+                        The Bhakti <br class="hidden sm:block"><span class="text-accent-gold">Movement</span>
+                    </h1>
+                    <p class="font-poetic text-xl sm:text-2xl text-parchment-300/90 mb-4">
+                        भक्ति आन्दोलन
+                    </p>
+                    <p class="text-[13px] sm:text-sm text-parchment-200/80 max-w-xl leading-relaxed">
+                        A thousand-year devotional revolution that democratized spirituality across the Indian subcontinent — shifting from Sanskrit scripture to vernacular song, from temple ritual to personal love, from priestly mediation to direct experience of the Divine.
+                    </p>
+                </div>
+
+                <!-- Era stats -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3 w-full lg:w-auto">
+                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/15">
+                        <p class="font-serif text-2xl font-bold text-white">40+</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-300/70 font-semibold">Major Poets</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/15">
+                        <p class="font-serif text-2xl font-bold text-white">12</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-300/70 font-semibold">Languages</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/15">
+                        <p class="font-serif text-2xl font-bold text-white">1000+</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-300/70 font-semibold">Works</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/15">
+                        <p class="font-serif text-2xl font-bold text-white">1000</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-300/70 font-semibold">Years</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick actions -->
+            <div class="flex flex-wrap items-center gap-2.5 mt-8">
+                <button onclick="scrollTo('overview')" class="px-4 py-2 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[12px] font-semibold flex items-center gap-1.5 transition shadow-md">
+                    <i class="fa-solid fa-compass text-[10px]"></i> Explore the Era
+                </button>
+                <button onclick="scrollTo('poets')" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-[12px] font-semibold flex items-center gap-1.5 transition border border-white/20">
+                    <i class="fa-solid fa-feather-pointed text-[10px]"></i> Key Poets
+                </button>
+                <button onclick="scrollTo('timeline')" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-[12px] font-semibold flex items-center gap-1.5 transition border border-white/20">
+                    <i class="fa-solid fa-timeline text-[10px]"></i> Timeline
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== OVERVIEW + QUICK FACTS ===== -->
+    <section id="overview" class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- Overview (2/3) -->
+                <div class="lg:col-span-2 bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-6 sm:p-8">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-scroll"></i>
+                        </div>
+                        <h2 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100">What Was the Bhakti Movement?</h2>
+                    </div>
+                    <div class="space-y-3 text-[13px] text-parchment-700 dark:text-parchment-300 leading-relaxed">
+                        <p>
+                            The <strong class="text-ink-900 dark:text-parchment-100">Bhakti movement</strong> was a devotional revolution that swept across the Indian subcontinent roughly between the 7th and 17th centuries CE. At its heart was a radical idea: that the Divine could be reached not through priestly mediation, Sanskrit scholarship, or elaborate ritual, but through <strong class="text-ink-900 dark:text-parchment-100">pure, personal love and devotion</strong> (<span class="dict-word" onclick="showWordModal('भक्ति (Bhakti)', 'N. Devotion', 'From Sanskrit bhaj — to share, to love, to worship. Refers to loving devotion to a personal god.', 'Sanskrit: bhaj (to share)')">bhakti</span>).
+                        </p>
+                        <p>
+                            Beginning with the <strong>Tamil Alvars and Nayanars</strong> in South India (c. 7th–9th century), the movement spread north through the <strong>Virashaiva</strong> saints of Karnataka, the <strong>Varkari</strong> poets of Maharashtra, and the <strong>Nirguna</strong> and <strong>Saguna</strong> poets of North India. It crossed religious boundaries, influencing Hindus, Muslims, and Sikhs alike.
+                        </p>
+                        <p>
+                            Bhakti poets wrote in <strong class="text-ink-900 dark:text-parchment-100">regional vernaculars</strong> — Hindi, Marathi, Bengali, Tamil, Kannada, Punjabi — rather than Sanskrit. This democratized spiritual knowledge, making it accessible to farmers, weavers, and women who had been excluded from elite religious learning. Their songs (<em>bhajans</em>, <em>abhangs</em>, <em>vachanas</em>, <em>dohas</em>) were transmitted orally for centuries before being written down.
+                        </p>
+                        <p>
+                            The movement produced some of South Asia's most beloved poetry — <strong>Kabir's piercing dohas</strong>, <strong>Mirabai's ecstatic bhajans</strong>, <strong>Tulsidas's epic Ramcharitmanas</strong>, and <strong>Surdas's Krishna lyrics</strong>. Its emphasis on love over ritual, equality over hierarchy, and experience over scholarship continues to resonate today.
+                        </p>
+                    </div>
+
+                    <!-- Signature verse -->
+                    <div class="mt-5 p-4 rounded-xl bg-parchment-100/70 dark:bg-ink-800/60 border-l-4 border-accent-gold">
+                        <p class="font-poetic text-lg text-parchment-900 dark:text-parchment-100 leading-relaxed">
+                            "नाम देव कबीर की, उत्तम बंदी छोड़।<br>मीरा रेणुका सहित, जिन के जग में थोड़॥"
+                        </p>
+                        <p class="text-[11px] text-parchment-600 dark:text-parchment-400 italic mt-1.5">
+                            "Namdev, Kabir, and the great ones who broke bonds; with Mira and Renuka, who cared little for the world's opinion."
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quick facts + branches (1/3) -->
+                <div class="space-y-5">
+                    <!-- Quick facts -->
+                    <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                        <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-circle-info text-accent-gold text-[12px]"></i> At a Glance
+                        </h3>
+                        <div class="space-y-2.5 text-[12px]">
+                            <div class="flex justify-between py-1 border-b border-parchment-200/60 dark:border-parchment-700/30">
+                                <span class="text-parchment-500 font-medium">Period</span>
+                                <span class="font-semibold text-ink-900 dark:text-parchment-200">c. 600 – 1700 CE</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-parchment-200/60 dark:border-parchment-700/30">
+                                <span class="text-parchment-500 font-medium">Origin</span>
+                                <span class="font-semibold text-ink-900 dark:text-parchment-200">Tamil South India</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-parchment-200/60 dark:border-parchment-700/30">
+                                <span class="text-parchment-500 font-medium">Core Idea</span>
+                                <span class="font-semibold text-ink-900 dark:text-parchment-200">Devotional Love</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-parchment-200/60 dark:border-parchment-700/30">
+                                <span class="text-parchment-500 font-medium">Languages</span>
+                                <span class="font-semibold text-ink-900 dark:text-parchment-200">12+ Vernaculars</span>
+                            </div>
+                            <div class="flex justify-between py-1">
+                                <span class="text-parchment-500 font-medium">Major Forms</span>
+                                <span class="font-semibold text-ink-900 dark:text-parchment-200">Doha, Bhajan, Abhang</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Two branches -->
+                    <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                        <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-code-branch text-accent-gold text-[12px]"></i> Two Great Currents
+                        </h3>
+                        <div class="space-y-2.5">
+                            <button onclick="showWordModal('Saguna Bhakti', 'N. · Devotional path', 'Worship of a personal god with form and attributes — most commonly Vishnu, Krishna, or Rama. Poets: Tulsidas, Surdas, Mirabai.', 'Sanskrit: sa (with) + guna (attributes)')" class="w-full text-left p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 hover:border-accent-gold/40 transition group">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[12px] font-bold text-ink-900 dark:text-parchment-200">Saguna <span class="text-parchment-400 font-normal">· सगुण</span></p>
+                                        <p class="text-[10px] text-parchment-500 mt-0.5">Divine <em>with</em> form</p>
+                                    </div>
+                                    <i class="fa-solid fa-arrow-right text-[9px] text-parchment-400 group-hover:text-accent-gold transition"></i>
+                                </div>
+                            </button>
+                            <button onclick="showWordModal('Nirguna Bhakti', 'N. · Devotional path', 'Worship of a formless, attribute-less Divine. Poets: Kabir, Nanak, Ravidas. Critiqued ritual and caste.', 'Sanskrit: nir (without) + guna (attributes)')" class="w-full text-left p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 hover:border-accent-gold/40 transition group">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[12px] font-bold text-ink-900 dark:text-parchment-200">Nirguna <span class="text-parchment-400 font-normal">· निर्गुण</span></p>
+                                        <p class="text-[10px] text-parchment-500 mt-0.5">Divine <em>without</em> form</p>
+                                    </div>
+                                    <i class="fa-solid fa-arrow-right text-[9px] text-parchment-400 group-hover:text-accent-gold transition"></i>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CTA -->
+                    <div class="bg-gradient-to-br from-parchment-800 to-parchment-900 dark:from-ink-800 dark:to-ink-900 rounded-2xl p-5 text-white shadow-soft">
+                        <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-accent-gold mb-2">Reading Path</p>
+                        <h4 class="font-serif text-base font-bold mb-1">Bhakti in 7 Days</h4>
+                        <p class="text-[11px] text-parchment-200/75 leading-relaxed mb-3">A guided journey through the movement's greatest voices.</p>
+                        <button class="w-full py-2 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[11px] font-semibold transition">
+                            <i class="fa-solid fa-play text-[9px] mr-1.5"></i> Start Learning Path
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== INTERACTIVE TIMELINE ===== -->
+    <section id="timeline" class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Chronology</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">A Thousand-Year Journey</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">Click any milestone to explore that moment in the movement's evolution.</p>
+            </div>
+
+            <!-- Horizontal timeline -->
+            <div class="relative py-8">
+                <!-- Track -->
+                <div class="timeline-track absolute left-0 right-0 top-1/2 -translate-y-1/2 mx-8"></div>
+
+                <!-- Nodes -->
+                <div id="timeline-nodes" class="relative flex justify-between items-center px-4 sm:px-8">
+                    <!-- injected by JS -->
+                </div>
+
+                <!-- Detail panel -->
+                <div id="timeline-detail" class="mt-10 bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5 sm:p-6 min-h-[140px] transition-all">
+                    <!-- injected by JS -->
+                </div>
+            </div>
+
+            <!-- Era bar (span indicator) -->
+            <div class="mt-6 flex items-center justify-center gap-2 text-[10px] text-parchment-500">
+                <span class="w-2 h-2 rounded-full bg-accent-gold"></span>
+                <span>Movement active</span>
+                <span class="w-px h-3 bg-parchment-300 dark:bg-parchment-700 mx-2"></span>
+                <span class="w-2 h-2 rounded-full bg-parchment-300 dark:bg-parchment-700"></span>
+                <span>Precursor / Post-movement</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== KEY FIGURES ===== -->
+    <section id="poets" class="py-14">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-3">
+                <div>
+                    <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Voices of the Movement</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Key Figures</h2>
+                </div>
+                <a href="#" class="text-[11px] font-semibold text-accent-gold hover:underline flex items-center gap-1">
+                    View All 40+ Poets <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                </a>
+            </div>
+
+            <!-- Poet cards grid -->
+            <div id="poets-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== DEFINING WORKS ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-3">
+                <div>
+                    <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Essential Reading</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Defining Works</h2>
+                </div>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 max-w-sm">
+                    The texts that shaped the movement and continue to be recited today.
+                </p>
+            </div>
+
+            <div id="works-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== THEMES & MOTIFS ===== -->
+    <section class="py-14">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Recurring Ideas</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Themes & Motifs</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">The symbolic language shared across Bhakti poetry's many traditions.</p>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-2.5 max-w-4xl mx-auto">
+                <button onclick="showWordModal('Divine Love (Prem)', 'Theme · Core', 'The central theme of Bhakti poetry — a selfless, all-consuming love for the Divine that transcends ritual and scholarship.', 'Sanskrit: preman')" class="theme-tag px-4 py-2 rounded-full bg-accent-gold/10 border border-accent-gold/20 text-accent-gold text-[12px] font-semibold hover:bg-accent-gold/20">
+                    <i class="fa-solid fa-heart text-[10px] mr-1.5"></i> Divine Love
+                </button>
+                <button onclick="showWordModal('Viraha (Separation)', 'Theme · Core', 'The pain of separation from the Beloved — a central Bhakti and Sufi metaphor for the soul\'s longing for God.', 'Sanskrit: vi + rah (without)')" class="theme-tag px-4 py-2 rounded-full bg-accent-wine/10 border border-accent-wine/20 text-accent-wine text-[12px] font-semibold hover:bg-accent-wine/20">
+                    <i class="fa-solid fa-droplet text-[10px] mr-1.5"></i> Viraha (Separation)
+                </button>
+                <button onclick="showWordModal('Surrender (Sharanagati)', 'Theme · Core', 'Complete surrender of the self to the Divine will — the ultimate act of Bhakti.', 'Sanskrit: śaraṇa (refuge) + āgati (coming)')" class="theme-tag px-4 py-2 rounded-full bg-accent-sage/10 border border-accent-sage/20 text-accent-sage text-[12px] font-semibold hover:bg-accent-sage/20">
+                    <i class="fa-solid fa-hands-praying text-[10px] mr-1.5"></i> Surrender
+                </button>
+                <button onclick="showWordModal('Anti-Ritualism', 'Theme · Polemic', 'The Bhakti poets\' rejection of empty ritual, pilgrimage, and caste hierarchy — especially among Nirguna poets like Kabir.', 'Bhakti polemical tradition')" class="theme-tag px-4 py-2 rounded-full bg-parchment-300/40 border border-parchment-300/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300 text-[12px] font-semibold hover:bg-parchment-300/60">
+                    <i class="fa-solid fa-ban text-[10px] mr-1.5"></i> Anti-Ritualism
+                </button>
+                <button onclick="showWordModal('Sahaj (Spontaneous State)', 'Theme · Mystical', 'The natural, effortless state of spiritual awakening — a key concept in Sant Mat and Sikh poetry.', 'Sanskrit: sahaja (born together, natural)')" class="theme-tag px-4 py-2 rounded-full bg-accent-gold/10 border border-accent-gold/20 text-accent-gold text-[12px] font-semibold hover:bg-accent-gold/20">
+                    <i class="fa-solid fa-wind text-[10px] mr-1.5"></i> Sahaj
+                </button>
+                <button onclick="showWordModal('The Name (Naam)', 'Theme · Practice', 'Repetition of the Divine Name as a path to liberation — central to Sikh, Kabir Panthi, and Dadu Panthi traditions.', 'Sanskrit: nāman (name)')" class="theme-tag px-4 py-2 rounded-full bg-accent-wine/10 border border-accent-wine/20 text-accent-wine text-[12px] font-semibold hover:bg-accent-wine/20">
+                    <i class="fa-solid fa-repeat text-[10px] mr-1.5"></i> The Name (Naam)
+                </button>
+                <button onclick="showWordModal('The Guru', 'Theme · Structure', 'The spiritual master as the conduit of grace — found across Bhakti, Sufi, and Sikh traditions.', 'Sanskrit: guru (dispeller of darkness)')" class="theme-tag px-4 py-2 rounded-full bg-accent-sage/10 border border-accent-sage/20 text-accent-sage text-[12px] font-semibold hover:bg-accent-sage/20">
+                    <i class="fa-solid fa-user-tie text-[10px] mr-1.5"></i> The Guru
+                </button>
+                <button onclick="showWordModal('Impermanence', 'Theme · Philosophical', 'The fleeting nature of worldly life — a reminder to turn toward the eternal.', 'Shared across Indian philosophies')" class="theme-tag px-4 py-2 rounded-full bg-parchment-300/40 border border-parchment-300/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300 text-[12px] font-semibold hover:bg-parchment-300/60">
+                    <i class="fa-solid fa-hourglass-half text-[10px] mr-1.5"></i> Impermanence
+                </button>
+                <button onclick="showWordModal('Equality', 'Theme · Social', 'The radical assertion that all beings are equal regardless of caste, gender, or creed — a defining Bhakti stance.', 'Bhakti social philosophy')" class="theme-tag px-4 py-2 rounded-full bg-accent-gold/10 border border-accent-gold/20 text-accent-gold text-[12px] font-semibold hover:bg-accent-gold/20">
+                    <i class="fa-solid fa-equals text-[10px] mr-1.5"></i> Equality
+                </button>
+                <button onclick="showWordModal('The Body as Temple', 'Theme · Metaphor', 'The body as the true site of worship — you need not go to a temple when the Divine dwells within.', 'Bhakti & Sufi metaphor')" class="theme-tag px-4 py-2 rounded-full bg-accent-wine/10 border border-accent-wine/20 text-accent-wine text-[12px] font-semibold hover:bg-accent-wine/20">
+                    <i class="fa-solid fa-mosque text-[10px] mr-1.5"></i> Body as Temple
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== GEOGRAPHIC SPREAD (MAP) ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-8">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Geography</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">A Pan-Indian Movement</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">From the Tamil south to the Punjabi north — the Bhakti wave reached every corner of the subcontinent.</p>
+            </div>
+
+            <!-- Stylized map -->
+            <div class="map-container p-6 sm:p-10 border border-parchment-200/70 dark:border-parchment-700/40">
+                <div class="relative aspect-[16/10] max-w-3xl mx-auto">
+                    <!-- Simplified India outline (stylized) -->
+                    <svg viewBox="0 0 400 300" class="w-full h-full opacity-30 dark:opacity-20" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M160 40 L200 30 L240 45 L260 70 L280 90 L290 130 L280 170 L260 200 L230 240 L200 270 L170 250 L140 220 L110 190 L90 160 L80 130 L90 100 L120 70 Z" stroke="#b8860b" fill="rgba(184,134,11,0.05)" stroke-linejoin="round"/>
+                    </svg>
+
+                    <!-- Markers -->
+                    <div class="absolute inset-0">
+                        <!-- Tamil Nadu (Alvars/Nayanars) -->
+                        <div class="absolute group" style="top: 75%; left: 55%;">
+                            <div class="map-marker-ring absolute inset-0 w-3 h-3 rounded-full bg-accent-gold/40"></div>
+                            <div class="w-3 h-3 rounded-full bg-accent-gold border-2 border-white shadow cursor-pointer"></div>
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-md bg-ink-900 text-white text-[9px] font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                                Tamil Nadu · Alvars & Nayanars
+                            </div>
+                        </div>
+                        <!-- Karnataka (Virashaiva) -->
+                        <div class="absolute group" style="top: 62%; left: 40%;">
+                            <div class="map-marker-ring absolute inset-0 w-3 h-3 rounded-full bg-accent-wine/40" style="animation-delay: 0.4s;"></div>
+                            <div class="w-3 h-3 rounded-full bg-accent-wine border-2 border-white shadow cursor-pointer"></div>
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-md bg-ink-900 text-white text-[9px] font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                                Karnataka · Virashaiva
+                            </div>
+                        </div>
+                        <!-- Maharashtra (Varkari) -->
+                        <div class="absolute group" style="top: 50%; left: 33%;">
+                            <div class="map-marker-ring absolute inset-0 w-3 h-3 rounded-full bg-accent-sage/40" style="animation-delay: 0.8s;"></div>
+                            <div class="w-3 h-3 rounded-full bg-accent-sage border-2 border-white shadow cursor-pointer"></div>
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-md bg-ink-900 text-white text-[9px] font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                                Maharashtra · Varkari
+                            </div>
+                        </div>
+                        <!-- North India (Nirguna/Saguna) -->
+                        <div class="absolute group" style="top: 28%; left: 42%;">
+                            <div class="map-marker-ring absolute inset-0 w-4 h-4 rounded-full bg-accent-gold/40" style="animation-delay: 1.2s;"></div>
+                            <div class="w-4 h-4 rounded-full bg-accent-gold border-2 border-white shadow cursor-pointer"></div>
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-md bg-ink-900 text-white text-[9px] font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                                North India · Kabir, Tulsidas, Surdas
+                            </div>
+                        </div>
+                        <!-- Punjab (Sikh) -->
+                        <div class="absolute group" style="top: 22%; left: 32%;">
+                            <div class="map-marker-ring absolute inset-0 w-3 h-3 rounded-full bg-accent-wine/40" style="animation-delay: 1.6s;"></div>
+                            <div class="w-3 h-3 rounded-full bg-accent-wine border-2 border-white shadow cursor-pointer"></div>
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-md bg-ink-900 text-white text-[9px] font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                                Punjab · Sikh Gurus
+                            </div>
+                        </div>
+                        <!-- Bengal (Vaishnava) -->
+                        <div class="absolute group" style="top: 42%; left: 68%;">
+                            <div class="map-marker-ring absolute inset-0 w-3 h-3 rounded-full bg-accent-sage/40" style="animation-delay: 2s;"></div>
+                            <div class="w-3 h-3 rounded-full bg-accent-sage border-2 border-white shadow cursor-pointer"></div>
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-md bg-ink-900 text-white text-[9px] font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                                Bengal · Chaitanya & Vaishnava
+                            </div>
+                        </div>
+                        <!-- Gujarat (Narsinh Mehta) -->
+                        <div class="absolute group" style="top: 38%; left: 22%;">
+                            <div class="map-marker-ring absolute inset-0 w-3 h-3 rounded-full bg-accent-gold/40" style="animation-delay: 2.4s;"></div>
+                            <div class="w-3 h-3 rounded-full bg-accent-gold border-2 border-white shadow cursor-pointer"></div>
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-md bg-ink-900 text-white text-[9px] font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                                Gujarat · Narsinh Mehta
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="flex flex-wrap items-center justify-center gap-4 mt-4 text-[10px]">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-accent-gold"></span> Nirguna / North</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-accent-wine"></span> Sufi / Virashaiva</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-accent-sage"></span> Varkari / Vaishnava</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CROSS-CULTURAL COMPARISON ===== -->
+    <section class="py-14">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-8">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Comparative</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Parallel Traditions</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">The Bhakti movement echoed — and was echoed by — devotional revolutions across the world.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Sufi comparison -->
+                <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-moon"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">Bhakti & Sufism</h3>
+                            <p class="text-[10px] text-parchment-500">c. 11th – 17th century · South Asia</p>
+                        </div>
+                    </div>
+                    <p class="text-[12px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-3">
+                        Both movements emphasized <strong>love over law</strong>, <strong>experience over doctrine</strong>, and <strong>vernacular over classical language</strong>. Kabir and Rumi, though separated by language and religion, share a strikingly similar vocabulary of longing and surrender.
+                    </p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                            <p class="text-[9px] font-bold uppercase tracking-wider text-accent-gold mb-1">Bhakti</p>
+                            <p class="font-poetic text-[13px] text-parchment-800 dark:text-parchment-200 leading-relaxed">"ढाई आखर प्रेम का"</p>
+                            <p class="text-[9px] text-parchment-500 mt-1">Kabir</p>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                            <p class="text-[9px] font-bold uppercase tracking-wider text-accent-wine mb-1">Sufi</p>
+                            <p class="font-serif italic text-[13px] text-parchment-800 dark:text-parchment-200 leading-relaxed">"You are the ocean in a drop."</p>
+                            <p class="text-[9px] text-parchment-500 mt-1">Rumi</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Christian mysticism comparison -->
+                <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-8 h-8 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-cross"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">Bhakti & Christian Mysticism</h3>
+                            <p class="text-[10px] text-parchment-500">c. 13th – 16th century · Europe</p>
+                        </div>
+                    </div>
+                    <p class="text-[12px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-3">
+                        Medieval Christian mystics like <strong>Meister Eckhart</strong> and <strong>Julian of Norwich</strong> echoed Bhakti's emphasis on direct, unmediated experience of the Divine. Both traditions used <strong>bridal mysticism</strong> — the soul as lover longing for union.
+                    </p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                            <p class="text-[9px] font-bold uppercase tracking-wider text-accent-sage mb-1">Bhakti</p>
+                            <p class="font-poetic text-[13px] text-parchment-800 dark:text-parchment-200 leading-relaxed">"मैं तो प्रेम दीवानी"</p>
+                            <p class="text-[9px] text-parchment-500 mt-1">Mirabai</p>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                            <p class="text-[9px] font-bold uppercase tracking-wider text-accent-gold mb-1">Christian</p>
+                            <p class="font-serif italic text-[13px] text-parchment-800 dark:text-parchment-200 leading-relaxed">"Love is a fruit in season at all times."</p>
+                            <p class="text-[9px] text-parchment-500 mt-1">Mother Teresa</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== READING LIST / SYLLABUS ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-8">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Study Guide</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Reading List</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">A structured introduction to the movement — start anywhere, go deeper.</p>
+            </div>
+
+            <div class="space-y-2">
+                <!-- Syllabus item -->
+                <div class="syllabus-item p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 flex items-center gap-3 cursor-pointer" onclick="showWordModal('The Alvars & Nayanars', 'Suggested reading · Week 1', 'Begin with the Tamil saints — the earliest Bhakti poets. Their hymns to Vishnu (Alvars) and Shiva (Nayanars) established the template for devotional poetry across India.', 'Tamil Bhakti tradition')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-[11px] font-bold flex-shrink-0">1</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">The Alvars & Nayanars</p>
+                        <p class="text-[10px] text-parchment-500">Tamil Bhakti saints · 7th–9th century</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-parchment-400"></i>
+                </div>
+
+                <div class="syllabus-item p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 flex items-center gap-3 cursor-pointer" onclick="showWordModal('Basava & the Virashaivas', 'Suggested reading · Week 2', 'Explore the radical Kannada vachana poets who rejected caste and temple worship in the 12th century.', 'Virashaiva tradition')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-[11px] font-bold flex-shrink-0">2</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Basava & the Virashaivas</p>
+                        <p class="text-[10px] text-parchment-500">Kannada vachana movement · 12th century</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-parchment-400"></i>
+                </div>
+
+                <div class="syllabus-item p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 flex items-center gap-3 cursor-pointer" onclick="showWordModal('Dnyaneshwar & the Varkaris', 'Suggested reading · Week 3', 'The Marathi Bhakti tradition — Dnyaneshwar, Namdev, Eknath, and Tukaram.', 'Varkari tradition')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-[11px] font-bold flex-shrink-0">3</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Dnyaneshwar & the Varkaris</p>
+                        <p class="text-[10px] text-parchment-500">Marathi Bhakti · 13th–17th century</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-parchment-400"></i>
+                </div>
+
+                <div class="syllabus-item p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 flex items-center gap-3 cursor-pointer" onclick="showWordModal('Kabir & Nirguna Poetry', 'Suggested reading · Week 4', 'The sharp, iconoclastic dohas of Kabir — the movement\'s most radical voice. Compare with Nanak and Ravidas.', 'Nirguna Sant tradition')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-[11px] font-bold flex-shrink-0">4</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Kabir & Nirguna Poetry</p>
+                        <p class="text-[10px] text-parchment-500">North Indian Sant tradition · 15th–16th century</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-parchment-400"></i>
+                </div>
+
+                <div class="syllabus-item p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 flex items-center gap-3 cursor-pointer" onclick="showWordModal('Saguna Poets: Tulsidas & Surdas', 'Suggested reading · Week 5', 'The devotional poetry of Rama and Krishna — Tulsidas\'s Ramcharitmanas and Surdas\'s Krishna lyrics.', 'Saguna Bhakti tradition')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-[11px] font-bold flex-shrink-0">5</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Saguna: Tulsidas & Surdas</p>
+                        <p class="text-[10px] text-parchment-500">Rama & Krishna devotion · 16th century</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-parchment-400"></i>
+                </div>
+
+                <div class="syllabus-item p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 flex items-center gap-3 cursor-pointer" onclick="showWordModal('Mirabai & the Female Voice', 'Suggested reading · Week 6', 'Mirabai\'s ecstatic bhajans — the most beloved female voice in Bhakti poetry, and a model of defiant devotion.', 'Rajput Bhakti tradition')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-[11px] font-bold flex-shrink-0">6</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Mirabai & the Female Voice</p>
+                        <p class="text-[10px] text-parchment-500">Rajput devotion · 16th century</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-parchment-400"></i>
+                </div>
+
+                <div class="syllabus-item p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 flex items-center gap-3 cursor-pointer" onclick="showWordModal('The Sikh Gurus & the Bhakti Legacy', 'Suggested reading · Week 7', 'How Bhakti ideas entered the Guru Granth Sahib — and how the movement shaped Sikh, Kabir Panthi, and Dadu Panthi communities.', 'Sikh & Sant traditions')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-[11px] font-bold flex-shrink-0">7</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">The Sikh Gurus & the Legacy</p>
+                        <p class="text-[10px] text-parchment-500">Continuity into the modern era · 16th–17th century</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-[10px] text-parchment-400"></i>
+                </div>
+            </div>
+
+            <div class="text-center mt-6">
+                <button onclick="showWordModal('Download Syllabus', 'PDF · Study Guide', 'A 12-page illustrated PDF with an introduction, timeline, key poets, sample verses, and discussion questions for each week.', 'Prasang Learning')" class="px-5 py-2.5 rounded-lg bg-ink-900 dark:bg-accent-gold text-white text-[12px] font-semibold hover:bg-ink-800 dark:hover:bg-accent-gold/90 transition shadow-md inline-flex items-center gap-2">
+                    <i class="fa-solid fa-download text-[10px]"></i> Download Full Syllabus (PDF)
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTINUE EXPLORING ===== -->
+    <section class="py-14">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Continue</span>
+                    <h2 class="font-serif text-2xl font-bold text-ink-900 dark:text-parchment-100 mt-0.5">Explore Other Eras</h2>
+                </div>
+                <a href="#" class="text-[11px] font-semibold text-accent-gold hover:underline flex items-center gap-1">
+                    All Eras <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <a href="#" class="group bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-wine/40 transition">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-[11px]">
+                            <i class="fa-solid fa-moon"></i>
+                        </div>
+                        <span class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">13th c.</span>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-wine transition mb-1">Persian Sufi Mysticism</h3>
+                    <p class="text-[10px] text-parchment-500 leading-relaxed">Rumi, Attar, Hafez — divine love and the soul's longing.</p>
+                </a>
+
+                <a href="#" class="group bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-gold/40 transition">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-[11px]">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                        <span class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">19th c.</span>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-gold transition mb-1">Golden Era of Ghazals</h3>
+                    <p class="text-[10px] text-parchment-500 leading-relaxed">Ghalib, Mir, Zauq — the refinement of Urdu poetry.</p>
+                </a>
+
+                <a href="#" class="group bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-sage/40 transition">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-[11px]">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                        <span class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">20th c.</span>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-sage transition mb-1">Bengal Renaissance</h3>
+                    <p class="text-[10px] text-parchment-500 leading-relaxed">Tagore, Nazrul, and the making of modern South Asian poetry.</p>
+                </a>
+
+                <a href="#" class="group bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-wine/40 transition">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-[11px]">
+                            <i class="fa-solid fa-landmark"></i>
+                        </div>
+                        <span class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">c. 400 CE</span>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-wine transition mb-1">Classical Sanskrit</h3>
+                    <p class="text-[10px] text-parchment-500 leading-relaxed">Kalidasa, Bhasa — the golden age of Sanskrit drama and verse.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-parchment-900 dark:bg-ink-900 text-parchment-300/60 py-10 border-t border-parchment-800/40 text-[11px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-md bg-accent-gold text-white flex items-center justify-center font-poetic text-base">प्र</div>
+                    <div>
+                        <span class="font-serif text-base font-bold tracking-wide text-parchment-100">PRASANG</span>
+                        <p class="text-[9px] text-parchment-400/70">Multilingual Literature & Poetry</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-5 font-medium text-parchment-200/70">
+                    <a href="#" class="hover:text-accent-gold transition">Rail</a>
+                    <a href="#" class="hover:text-accent-gold transition">Features</a>
+                    <a href="#" class="hover:text-accent-gold transition">Reader</a>
+                    <a href="#" class="hover:text-accent-gold transition">Eras</a>
+                    <a href="#" class="hover:text-accent-gold transition">Lexicon</a>
+                </div>
+                <p class="text-parchment-400/50">&copy; 2026 Prasang Platform.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== DICTIONARY MODAL ===== -->
+    <div id="dict-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-sm w-full shadow-2xl relative animate-fade-up overflow-hidden">
+            <div class="h-1 bg-gradient-to-r from-accent-gold to-parchment-500"></div>
+            <button onclick="closeWordModal()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-5">
+                <div class="flex items-center gap-1.5 text-accent-gold text-[9px] font-bold uppercase tracking-[0.15em] mb-2">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> Lexicon
+                </div>
+                <h3 id="modal-word" class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-0.5">Prem</h3>
+                <p id="modal-type" class="text-[10px] text-accent-gold font-semibold mb-2">N. Love, Compassion</p>
+                <p id="modal-desc" class="text-[12px] text-parchment-600 dark:text-parchment-300 leading-relaxed mb-2">
+                    Derived from Sanskrit 'Preman'. Refers to selfless divine love.
+                </p>
+                <div class="p-2 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 mb-3">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Etymology</p>
+                    <p id="modal-etymology" class="text-[10px] text-parchment-600 dark:text-parchment-400 italic">Sanskrit Preman → Prakrit → Sadhukkadi</p>
+                </div>
+                <button onclick="closeWordModal()" class="w-full py-1.5 bg-parchment-800 hover:bg-parchment-900 dark:bg-accent-gold dark:hover:bg-accent-gold/90 text-white rounded-lg text-[11px] font-semibold transition">
+                    Close & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ========== DATA ==========
+        const timelineData = [
+            { year: 'c. 600', title: 'Tamil Alvars & Nayanars', desc: 'The earliest Bhakti poets emerge in South India. The Alvars sing to Vishnu, the Nayanars to Shiva — establishing the template for devotional poetry across the subcontinent.', lang: 'Tamil', active: true },
+            { year: 'c. 1130', title: 'Virashaiva Movement', desc: 'Basava and the Virashaiva saints in Karnataka produce the vachanas — radical, caste-rejecting devotional poetry in Kannada.', lang: 'Kannada', active: true },
+            { year: 'c. 1270', title: 'Varkari Tradition', desc: 'Dnyaneshwar writes the Dnyaneshwari at age 16. The Marathi Varkari movement takes root, producing Namdev, Eknath, and later Tukaram.', lang: 'Marathi', active: true },
+            { year: 'c. 1440', title: 'Kabir & Nirguna Bhakti', desc: 'Kabir is born in Varanasi. His sharp dohas challenge both Hindu and Muslim orthodoxy, becoming the most quoted verses in North Indian literature.', lang: 'Hindi', active: true },
+            { year: 'c. 1498', title: 'Mirabai', desc: 'Mirabai is born in Rajasthan. Her ecstatic bhajans to Krishna become the most beloved female voice in the Bhakti tradition.', lang: 'Rajasthani', active: true },
+            { year: 'c. 1532', title: 'Tulsidas & Saguna Poetry', desc: 'Tulsidas begins the Ramcharitmanas, retelling the Ramayana in Awadhi. Surdas composes his Krishna lyrics in Braj.', lang: 'Hindi / Braj', active: true },
+            { year: 'c. 1550', title: 'Sikh Gurus & the Granth', desc: 'Bhakti and Sufi verses are compiled into the Guru Granth Sahib, cementing the movement\'s influence on Sikh tradition.', lang: 'Punjabi', active: true },
+            { year: 'c. 1600', title: 'Tukaram', desc: 'The greatest of the Varkari poet-saints composes thousands of abhangs that are still sung across Maharashtra today.', lang: 'Marathi', active: true },
+        ];
+
+        const poetsData = [
+            { name: 'Kabir Das', script: 'कबीर दास', era: '15th c.', lang: 'Hindi', works: 218, bio: 'Mystic weaver-poet who challenged ritual and caste through piercing dohas.', color: 'gold' },
+            { name: 'Mirabai', script: 'मीराबाई', era: '16th c.', lang: 'Rajasthani', works: 145, bio: 'Rajput princess turned devotee, whose bhajans express ecstatic love for Krishna.', color: 'wine' },
+            { name: 'Tulsidas', script: 'तुलसीदास', era: '16th c.', lang: 'Hindi', works: 12, bio: 'Author of the Ramcharitmanas, retelling the Ramayana in Awadhi vernacular.', color: 'sage' },
+            { name: 'Surdas', script: 'सूरदास', era: '16th c.', lang: 'Braj', works: 100, bio: 'Blind poet-saint, the foremost singer of Krishna\'s childhood in the Braj dialect.', color: 'gold' },
+            { name: 'Basava', script: 'ಬಸವಣ್ಣ', era: '12th c.', lang: 'Kannada', works: 100, bio: 'Founder of the Virashaiva movement, whose vachanas critiqued caste and ritual.', color: 'wine' },
+            { name: 'Akka Mahadevi', script: 'ಅಕ್ಕ ಮಹಾದೇವಿ', era: '12th c.', lang: 'Kannada', works: 70, bio: 'Female saint-poet who renounced the world for Shiva, author of intense vachanas.', color: 'sage' },
+            { name: 'Tukaram', script: 'तुकाराम', era: '17th c.', lang: 'Marathi', works: 300, bio: 'Greatest of the Varkari poet-saints, whose abhangs express humble devotion.', color: 'gold' },
+            { name: 'Narsinh Mehta', script: 'નરસિંહ મહેતા', era: '15th c.', lang: 'Gujarati', works: 80, bio: 'Adi Kavi of Gujarati literature, celebrated for his Krishna bhajans.', color: 'wine' },
+        ];
+
+        const worksData = [
+            { title: 'Bijak', poet: 'Kabir', type: 'Collection · Dohas', desc: 'The largest collection of Kabir\'s verses — sakhis, sabads, and ramainis that challenge orthodoxy and celebrate divine love.', color: 'gold' },
+            { title: 'Ramcharitmanas', poet: 'Tulsidas', type: 'Epic · Awadhi', desc: 'A retelling of the Ramayana in vernacular Awadhi, one of the most widely read texts in North India.', color: 'wine' },
+            { title: 'Gita Govinda', poet: 'Jayadeva', type: 'Lyric · Sanskrit', desc: 'An erotic-mystical poem on Radha and Krishna, a masterpiece of Sanskrit devotional poetry.', color: 'sage' },
+            { title: 'Sur Sagar', poet: 'Surdas', type: 'Collection · Braj', desc: 'Thousands of Krishna bhajans depicting his childhood, love, and divine play (lila).', color: 'gold' },
+            { title: 'Tirukkural', poet: 'Thiruvalluvar', type: 'Couplets · Tamil', desc: '1,330 couplets on ethics, politics, and love — the Tamil Bhakti tradition\'s ethical foundation.', color: 'wine' },
+            { title: 'Dnyaneshwari', poet: 'Dnyaneshwar', type: 'Commentary · Marathi', desc: 'A Marathi verse commentary on the Bhagavad Gita, written at age 16 — the first great Marathi literary work.', color: 'sage' },
+        ];
+
+        const colorMap = {
+            gold: { bg: 'from-accent-gold/20 to-accent-gold/5', text: 'text-accent-gold', border: 'border-accent-gold/20', bar: 'from-accent-gold to-parchment-500' },
+            wine: { bg: 'from-accent-wine/20 to-accent-wine/5', text: 'text-accent-wine', border: 'border-accent-wine/20', bar: 'from-accent-wine to-parchment-500' },
+            sage: { bg: 'from-accent-sage/20 to-accent-sage/5', text: 'text-accent-sage', border: 'border-accent-sage/20', bar: 'from-accent-sage to-parchment-500' },
+        };
+
+        // ========== TIMELINE ==========
+        let activeTimelineIndex = 0;
+
+        function renderTimeline() {
+            const container = document.getElementById('timeline-nodes');
+            container.innerHTML = timelineData.map((item, idx) => `
+                <div class="timeline-node ${idx === activeTimelineIndex ? 'active' : ''} flex flex-col items-center" onclick="selectTimelineNode(${idx})">
+                    <div class="node-dot w-4 h-4 rounded-full bg-parchment-300 dark:bg-parchment-700 border-2 border-white dark:border-ink-900 shadow mb-3"></div>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-parchment-600 dark:text-parchment-400 whitespace-nowrap">${item.year}</span>
+                </div>
+            `).join('');
+
+            renderTimelineDetail(activeTimelineIndex);
+        }
+
+        function selectTimelineNode(idx) {
+            activeTimelineIndex = idx;
+            document.querySelectorAll('.timeline-node').forEach((node, i) => {
+                node.classList.toggle('active', i === idx);
+            });
+            renderTimelineDetail(idx);
+        }
+
+        function renderTimelineDetail(idx) {
+            const item = timelineData[idx];
+            document.getElementById('timeline-detail').innerHTML = `
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-accent-gold/10 text-accent-gold flex items-center justify-center text-sm flex-shrink-0">
+                        <i class="fa-solid fa-landmark"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <span class="text-[10px] font-bold text-accent-gold uppercase tracking-wider">${item.year}</span>
+                            <span class="text-parchment-300 dark:text-parchment-700">·</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 font-medium">${item.lang}</span>
+                        </div>
+                        <h3 class="font-serif text-lg font-bold text-ink-900 dark:text-parchment-100 mb-1">${item.title}</h3>
+                        <p class="text-[12px] text-parchment-600 dark:text-parchment-400 leading-relaxed">${item.desc}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== POETS ==========
+        function renderPoets() {
+            const container = document.getElementById('poets-grid');
+            container.innerHTML = poetsData.map(p => {
+                const c = colorMap[p.color] || colorMap.gold;
+                return `
+                    <a href="#" class="poet-card block bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 group">
+                        <div class="flex items-start gap-3">
+                            <div class="w-12 h-12 rounded-lg bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} font-poetic text-xl border ${c.border} flex-shrink-0">
+                                ${p.name.charAt(0)}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-gold transition leading-tight">${p.name}</h3>
+                                <p class="text-[10px] text-parchment-500 dark:text-parchment-400 truncate">${p.script}</p>
+                                <div class="flex flex-wrap items-center gap-1 mt-1">
+                                    <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[8px] font-medium">${p.era}</span>
+                                    <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[8px] font-medium">${p.lang}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed mt-2 line-clamp-2">${p.bio}</p>
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-parchment-200/60 dark:border-parchment-700/30">
+                            <span class="text-[9px] text-parchment-500"><i class="fa-solid fa-book-open text-[8px] mr-1"></i>${p.works} works</span>
+                            <span class="text-[9px] font-semibold text-accent-gold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                                View <i class="fa-solid fa-arrow-right text-[7px]"></i>
+                            </span>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        // ========== WORKS ==========
+        function renderWorks() {
+            const container = document.getElementById('works-grid');
+            container.innerHTML = worksData.map(w => {
+                const c = colorMap[w.color] || colorMap.gold;
+                return `
+                    <div class="work-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 overflow-hidden cursor-pointer" onclick="showWordModal('${w.title}', '${w.type}', '${w.desc}', 'Bhakti literary canon')">
+                        <div class="h-1 bg-gradient-to-r ${c.bar}"></div>
+                        <div class="p-4">
+                            <div class="flex items-center gap-1.5 mb-2">
+                                <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[8px] font-semibold">${w.type}</span>
+                            </div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-0.5">${w.title}</h3>
+                            <p class="text-[10px] text-accent-gold font-semibold mb-2">by ${w.poet}</p>
+                            <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed">${w.desc}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== SCROLL ==========
+        function scrollTo(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ========== THEME ==========
+        function setTheme(theme) {
+            const body = document.getElementById('app-body');
+            const btnLight = document.getElementById('btn-light');
+            const btnSepia = document.getElementById('btn-sepia');
+            const btnDark = document.getElementById('btn-dark');
+
+            body.classList.remove('dark', 'theme-sepia');
+            [btnLight, btnSepia, btnDark].forEach(btn => {
+                btn.className = 'px-2 py-1 rounded-md flex items-center gap-1 text-parchment-600 dark:text-parchment-400 hover:text-parchment-900 dark:hover:text-parchment-200 text-[11px] font-medium transition';
+            });
+
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                btnDark.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-ink-700 text-white shadow-sm text-[11px] font-medium transition';
+            } else if (theme === 'sepia') {
+                body.classList.add('theme-sepia');
+                btnSepia.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-parchment-800 text-white shadow-sm text-[11px] font-medium transition';
+            } else {
+                btnLight.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-900 shadow-sm text-[11px] font-medium transition';
+            }
+        }
+
+        // ========== DICTIONARY ==========
+        function showWordModal(word, type, desc, etymology) {
+            document.getElementById('modal-word').innerText = word;
+            document.getElementById('modal-type').innerText = type;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-etymology').innerText = etymology || '—';
+            document.getElementById('dict-modal').classList.remove('hidden');
+        }
+
+        function closeWordModal() {
+            document.getElementById('dict-modal').classList.add('hidden');
+        }
+
+        // ========== READING PROGRESS ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('reading-progress').style.width = progress + '%';
+        });
+
+        // ========== KEYBOARD ==========
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeWordModal();
+            if (e.key === 'ArrowLeft' && activeTimelineIndex > 0) {
+                selectTimelineNode(activeTimelineIndex - 1);
+            }
+            if (e.key === 'ArrowRight' && activeTimelineIndex < timelineData.length - 1) {
+                selectTimelineNode(activeTimelineIndex + 1);
+            }
+        });
+
+        document.getElementById('dict-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeWordModal();
+        });
+
+        // ========== BOOT ==========
+        window.onload = function() {
+            renderTimeline();
+            renderPoets();
+            renderWorks();
+        };
+    </script>
+</body>
+</html>

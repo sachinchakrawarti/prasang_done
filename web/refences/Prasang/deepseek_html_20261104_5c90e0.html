@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Themes & Motifs · Prasang</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Editorial Mix -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Nastaliq+Urdu&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#fdfaf5', 100: '#f9f2e9', 200: '#f1e6d6', 300: '#e5d3b8',
+                            400: '#d4b894', 500: '#c09a6b', 600: '#a87d4a', 700: '#8a6238',
+                            800: '#6b4a2a', 900: '#4c3420',
+                        },
+                        ink: { 50: '#f6f6f7', 800: '#1e1b18', 900: '#141210' },
+                        accent: { gold: '#b8860b', wine: '#8b3a3a', sage: '#5c7a6b' }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        poetic: ['"Rozha One"', 'Georgia', 'serif'],
+                        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
+                        'glow': '0 0 25px -5px rgba(184,134,11,0.35)',
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c09a6b; border-radius: 99px; }
+        .dark ::-webkit-scrollbar-thumb { background: #6b4a2a; }
+
+        /* Sepia theme */
+        .theme-sepia {
+            background-color: #f4ebd0 !important;
+            color: #433422 !important;
+        }
+        .theme-sepia .glass-panel {
+            background-color: rgba(244, 235, 208, 0.9) !important;
+            border-color: #d3c39c !important;
+        }
+        .theme-sepia .bg-card-theme { background-color: #ebdcb9 !important; border-color: #d8c69d !important; }
+        .theme-sepia .text-muted-theme { color: #70583b !important; }
+        .theme-sepia .accent-theme { color: #8c4227 !important; }
+
+        /* Glassmorphism */
+        .glass-panel {
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background-color: rgba(253, 250, 245, 0.88);
+            border: 1px solid rgba(192, 154, 107, 0.2);
+        }
+        .dark .glass-panel {
+            background-color: rgba(20, 18, 16, 0.88);
+            border-color: rgba(107, 74, 42, 0.3);
+        }
+
+        /* Theme card */
+        .theme-card {
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .theme-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(184, 134, 11, 0.03), transparent);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+        .theme-card:hover::before {
+            opacity: 1;
+        }
+        .theme-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -16px rgba(107, 74, 42, 0.3);
+            border-color: rgba(184, 134, 11, 0.45);
+        }
+        .dark .theme-card:hover {
+            box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.7);
+            border-color: rgba(184, 134, 11, 0.55);
+        }
+
+        /* Mood filter chip */
+        .mood-chip {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .mood-chip.active {
+            background-color: #b8860b;
+            color: #fff;
+            border-color: #b8860b;
+            transform: scale(1.02);
+        }
+        .mood-chip:not(.active):hover {
+            background-color: rgba(192, 154, 107, 0.15);
+            border-color: rgba(192, 154, 107, 0.5);
+        }
+
+        /* Word dictionary trigger */
+        .dict-word {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: #b8860b;
+            text-underline-offset: 5px;
+            transition: all 0.2s ease;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+        .dict-word:hover {
+            background-color: rgba(184, 134, 11, 0.18);
+            text-decoration-style: solid;
+        }
+
+        /* Constellation node */
+        .constellation-node {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .constellation-node:hover {
+            transform: scale(1.1);
+            filter: brightness(1.1);
+        }
+
+        /* Theme detail expand */
+        .theme-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        .theme-card.expanded .theme-detail {
+            max-height: 400px;
+            opacity: 1;
+        }
+        .theme-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Emotion ring */
+        .emotion-ring {
+            background: conic-gradient(#b8860b 0% 25%, #8b3a3a 25% 50%, #5c7a6b 50% 75%, #c09a6b 75% 100%);
+            border-radius: 50%;
+            position: relative;
+        }
+        .emotion-ring::after {
+            content: '';
+            position: absolute;
+            inset: 20%;
+            background: #fdfaf5;
+            border-radius: 50%;
+        }
+        .dark .emotion-ring::after {
+            background: #141210;
+        }
+
+        /* Timeline theme evolution */
+        .theme-evolution-track {
+            position: relative;
+            height: 3px;
+            background: linear-gradient(90deg, #e5d3b8 0%, #c09a6b 100%);
+            border-radius: 99px;
+        }
+        .dark .theme-evolution-track {
+            background: linear-gradient(90deg, #4c3420 0%, #8a6238 100%);
+        }
+
+        /* Ornamental divider */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #c09a6b;
+        }
+        .ornament-divider::before,
+        .ornament-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e5d3b8, transparent);
+        }
+        .dark .ornament-divider::before,
+        .dark .ornament-divider::after {
+            background: linear-gradient(90deg, transparent, #4c3420, transparent);
+        }
+
+        /* Reading progress */
+        .top-progress {
+            height: 2px;
+            background: linear-gradient(90deg, #b8860b, #d4b894);
+            width: 0%;
+            transition: width 0.15s ease-out;
+        }
+
+        /* Theme pill scroll */
+        .pill-scroll {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .pill-scroll::-webkit-scrollbar { display: none; }
+
+        /* Reduce motion */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-parchment-50 text-ink-900 font-sans antialiased transition-colors duration-300 min-h-screen selection:bg-accent-gold/20">
+
+    <!-- Reading progress bar -->
+    <div class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-parchment-200/50 dark:bg-ink-800">
+        <div id="reading-progress" class="top-progress h-full"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-parchment-300/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
+            <!-- Brand -->
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center shadow-md text-white font-poetic text-xl pb-0.5">
+                    प्र
+                </div>
+                <div class="leading-tight">
+                    <span class="font-serif text-xl font-bold tracking-wide text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                        PRASANG
+                        <span class="text-[9px] tracking-wider font-sans bg-accent-gold/15 text-accent-gold px-1.5 py-0.5 rounded-full uppercase font-semibold border border-accent-gold/20">AI</span>
+                    </span>
+                    <p class="text-[9px] text-parchment-600 dark:text-parchment-400 uppercase tracking-[0.2em] hidden sm:block">Literature Discovery</p>
+                </div>
+            </a>
+
+            <!-- Breadcrumb -->
+            <nav class="hidden lg:flex items-center gap-2 text-[11px] text-parchment-500 dark:text-parchment-400 font-medium">
+                <a href="#" class="hover:text-accent-gold transition">Home</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <span class="text-ink-900 dark:text-parchment-200 font-semibold">Themes & Motifs</span>
+            </nav>
+
+            <!-- Theme + CTA -->
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center p-0.5 bg-parchment-200/70 dark:bg-ink-800 rounded-lg border border-parchment-300 dark:border-parchment-700">
+                    <button onclick="setTheme('light')" id="btn-light" class="px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-800 shadow-sm text-[11px] font-medium transition" title="Light">
+                        <i class="fa-regular fa-sun text-amber-500 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('sepia')" id="btn-sepia" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-700 hover:text-parchment-900 text-[11px] font-medium transition" title="Sepia">
+                        <i class="fa-regular fa-file-lines text-amber-700 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-500 hover:text-parchment-200 text-[11px] font-medium transition" title="Dark">
+                        <i class="fa-regular fa-moon text-indigo-400 text-[11px]"></i>
+                    </button>
+                </div>
+                <button class="hidden sm:inline-flex items-center px-4 py-2 text-[12px] font-semibold rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white transition shadow-sm">
+                    <i class="fa-solid fa-arrow-left text-[10px] mr-1.5"></i> Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="relative pt-12 pb-10 overflow-hidden">
+        <div class="absolute inset-0 -z-10">
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-accent-gold/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-[420px] h-[420px] bg-accent-wine/5 rounded-full blur-3xl"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-sage/3 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
+                <div class="max-w-2xl">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-gold/10 border border-accent-gold/20 text-accent-gold text-[10px] font-bold uppercase tracking-[0.15em] mb-4">
+                        <i class="fa-solid fa-shapes text-[9px]"></i> Universal Ideas Across Literature
+                    </div>
+                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink-900 dark:text-parchment-100 tracking-tight leading-none mb-3">
+                        Themes & <span class="text-accent-gold">Motifs</span>
+                    </h1>
+                    <p class="text-[13px] sm:text-sm text-parchment-600 dark:text-parchment-400 max-w-xl leading-relaxed">
+                        Love, death, longing, freedom — explore how humanity's deepest questions have been voiced across languages, eras, and traditions. Discover the symbolic language that connects poets across millennia.
+                    </p>
+                </div>
+
+                <!-- Quick stats -->
+                <div class="flex items-center gap-5 sm:gap-7">
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">48</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Themes</p>
+                    </div>
+                    <div class="w-px h-10 bg-parchment-300 dark:bg-parchment-700"></div>
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">2.4k</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Poems</p>
+                    </div>
+                    <div class="w-px h-10 bg-parchment-300 dark:bg-parchment-700"></div>
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">14</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Languages</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mood filter bar -->
+            <div class="mt-10">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-parchment-500 dark:text-parchment-400">
+                        <i class="fa-solid fa-wand-magic-sparkles text-accent-gold text-[9px] mr-1.5"></i> Browse by Feeling
+                    </p>
+                    <button onclick="clearMoodFilter()" class="text-[10px] font-semibold text-accent-gold hover:underline">Clear</button>
+                </div>
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 pill-scroll" id="mood-filters">
+                    <!-- injected by JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURED THEME OF THE WEEK ===== -->
+    <section class="pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="relative rounded-2xl overflow-hidden shadow-glow border border-parchment-300/60 dark:border-parchment-700/40">
+                <div class="absolute inset-0 bg-gradient-to-br from-parchment-800 via-parchment-700 to-parchment-900 dark:from-ink-800 dark:via-ink-900 dark:to-ink-800"></div>
+                <div class="absolute inset-0 opacity-[0.06] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+                <div class="relative p-6 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                    <!-- Content -->
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="px-2.5 py-1 rounded-full bg-accent-gold/25 text-accent-gold text-[10px] font-bold uppercase tracking-wider border border-accent-gold/30">
+                                <i class="fa-solid fa-star text-[8px] mr-1"></i> Theme of the Week
+                            </span>
+                            <span class="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-parchment-200 text-[10px] font-semibold border border-white/15">
+                                <i class="fa-solid fa-fire text-[8px] mr-1"></i> Trending
+                            </span>
+                        </div>
+                        <h2 class="font-serif text-3xl sm:text-4xl font-bold text-white mb-2">
+                            Viraha — The Pain of Separation
+                        </h2>
+                        <p class="font-poetic text-lg text-parchment-300/90 mb-4">
+                            विरह · The soul's longing for the Beloved
+                        </p>
+                        <p class="text-[13px] text-parchment-200/80 leading-relaxed max-w-2xl mb-5">
+                            From Mirabai's pining for Krishna to Rumi's reed pipe crying for its reed-bed home, <em>viraha</em> is the shared heartbeat of Bhakti and Sufi poetry. It is the ache that opens the heart, the distance that intensifies love. Explore how separation became the most fertile metaphor in South Asian literature.
+                        </p>
+                        <div class="flex flex-wrap items-center gap-2 mb-5">
+                            <button onclick="showWordModal('Viraha (विरह)', 'N. · Sanskrit / Hindi', 'The pain of separation from the beloved — a central metaphor in Bhakti and Sufi poetry for the soul\'s longing for the Divine.', 'Sanskrit: vi (away) + rah (to remain)')" class="px-2.5 py-1 rounded-md bg-white/10 text-white text-[10px] font-semibold border border-white/20 hover:bg-white/20 transition backdrop-blur-sm">
+                                <i class="fa-solid fa-book-open text-[8px] mr-1"></i>Viraha
+                            </button>
+                            <button onclick="showWordModal('Mirabai', 'Poet · 16th century', 'Rajput princess turned Krishna devotee, whose bhajans express the most intense viraha in Indian literature.', 'Bhakti tradition')" class="px-2.5 py-1 rounded-md bg-white/10 text-white text-[10px] font-semibold border border-white/20 hover:bg-white/20 transition backdrop-blur-sm">
+                                <i class="fa-solid fa-feather text-[8px] mr-1"></i>Mirabai
+                            </button>
+                            <button onclick="showWordModal('Rumi', 'Poet · 13th century', 'Persian Sufi mystic whose Masnavi opens with the reed pipe\'s complaint of separation from its source.', 'Sufi tradition')" class="px-2.5 py-1 rounded-md bg-white/10 text-white text-[10px] font-semibold border border-white/20 hover:bg-white/20 transition backdrop-blur-sm">
+                                <i class="fa-solid fa-feather text-[8px] mr-1"></i>Rumi
+                            </button>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <button onclick="scrollToThemes()" class="px-5 py-2.5 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[12px] font-semibold flex items-center gap-1.5 transition shadow-md">
+                                <i class="fa-solid fa-compass text-[10px]"></i> Explore Theme
+                            </button>
+                            <button onclick="showWordModal('Viraha Reading Path', 'Curated collection', 'A 10-poem journey through the literature of separation — from Mirabai and Kabir to Rumi and Ghalib.', 'Prasang curation')" class="px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-[12px] font-semibold flex items-center gap-1.5 transition border border-white/20">
+                                <i class="fa-solid fa-list-check text-[10px]"></i> Reading Path
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Featured verse -->
+                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/15">
+                        <i class="fa-solid fa-quote-left text-2xl text-accent-gold/40 mb-2"></i>
+                        <p class="font-poetic text-lg text-parchment-100 leading-relaxed mb-3">
+                            मैं तो प्रेम दीवानी, मेरा दरद न जाणै कोय।
+                        </p>
+                        <p class="text-[11px] text-parchment-300/70 italic leading-relaxed mb-3">
+                            "I am mad with love, and no one understands my pain."
+                        </p>
+                        <div class="flex items-center gap-2 pt-3 border-t border-white/10">
+                            <div class="w-8 h-8 rounded-lg bg-accent-gold/20 flex items-center justify-center text-accent-gold font-poetic text-sm border border-accent-gold/30">मी</div>
+                            <div>
+                                <p class="text-[11px] font-bold text-white">Mirabai</p>
+                                <p class="text-[9px] text-parchment-300/70">16th century · Rajasthani</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MAIN THEME GRID ===== -->
+    <section id="themes" class="pb-14">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Toolbar -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+                <div>
+                    <h2 class="font-serif text-2xl font-bold text-ink-900 dark:text-parchment-100">All Themes</h2>
+                    <p class="text-[12px] text-parchment-500 dark:text-parchment-400 mt-0.5">
+                        Showing <span id="theme-count" class="font-bold text-ink-900 dark:text-parchment-200">16</span> themes
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Sort -->
+                    <div class="relative">
+                        <select id="theme-sort" onchange="applyThemeFilters()" class="appearance-none pl-3 pr-8 py-1.5 bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 rounded-lg text-[11px] font-medium text-ink-800 dark:text-parchment-300 focus:outline-none focus:ring-1 focus:ring-accent-gold cursor-pointer">
+                            <option value="popular">Most Popular</option>
+                            <option value="az">A → Z</option>
+                            <option value="poems">Most Poems</option>
+                            <option value="newest">Newest Added</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-parchment-400 text-[9px] pointer-events-none"></i>
+                    </div>
+                    <!-- View toggle -->
+                    <div class="flex items-center p-0.5 bg-parchment-200/60 dark:bg-ink-800 rounded-lg border border-parchment-300/60 dark:border-parchment-700/40">
+                        <button onclick="setThemeView('grid')" id="tv-grid" class="view-btn active px-2 py-1 rounded-md text-[11px] font-medium text-parchment-600 dark:text-parchment-400 transition" title="Grid view">
+                            <i class="fa-solid fa-grip text-[10px]"></i>
+                        </button>
+                        <button onclick="setThemeView('list')" id="tv-list" class="view-btn px-2 py-1 rounded-md text-[11px] font-medium text-parchment-600 dark:text-parchment-400 transition" title="List view">
+                            <i class="fa-solid fa-list text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme grid container -->
+            <div id="themes-container"></div>
+
+            <!-- Empty state -->
+            <div id="empty-state" class="hidden text-center py-16">
+                <div class="w-16 h-16 mx-auto rounded-full bg-parchment-200/60 dark:bg-ink-800 flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-shapes text-parchment-400 text-2xl"></i>
+                </div>
+                <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-1">No themes match your mood</h3>
+                <p class="text-[12px] text-parchment-500 mb-4">Try a different feeling or clear the filter.</p>
+                <button onclick="clearMoodFilter()" class="px-4 py-2 rounded-lg bg-accent-gold text-white text-[11px] font-semibold hover:bg-accent-gold/90 transition">
+                    Show All Themes
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CROSS-CULTURAL COMPARISON ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Compare</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">One Theme, Many Voices</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">How different traditions speak to the same human experience.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Comparison 1: Divine Love -->
+                <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-9 h-9 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">Divine Love</h3>
+                            <p class="text-[10px] text-parchment-500">3 traditions · 1 longing</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                            <p class="text-[8px] font-bold uppercase tracking-wider text-accent-gold mb-1">Bhakti</p>
+                            <p class="font-poetic text-[12px] text-parchment-800 dark:text-parchment-200 leading-relaxed">"ढाई आखर प्रेम का"</p>
+                            <p class="text-[8px] text-parchment-500 mt-1">Kabir</p>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                            <p class="text-[8px] font-bold uppercase tracking-wider text-accent-wine mb-1">Sufi</p>
+                            <p class="font-serif italic text-[12px] text-parchment-800 dark:text-parchment-200 leading-relaxed">"You are the ocean in a drop."</p>
+                            <p class="text-[8px] text-parchment-500 mt-1">Rumi</p>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                            <p class="text-[8px] font-bold uppercase tracking-wider text-accent-sage mb-1">Christian</p>
+                            <p class="font-serif italic text-[12px] text-parchment-800 dark:text-parchment-200 leading-relaxed">"Love is the fruit in season."</p>
+                            <p class="text-[8px] text-parchment-500 mt-1">Teresa</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison 2: Impermanence -->
+                <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-9 h-9 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">Impermanence</h3>
+                            <p class="text-[10px] text-parchment-500">3 traditions · 1 truth</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                            <p class="text-[8px] font-bold uppercase tracking-wider text-accent-gold mb-1">Bhakti</p>
+                            <p class="font-poetic text-[12px] text-parchment-800 dark:text-parchment-200 leading-relaxed">"काल करे सो आज कर"</p>
+                            <p class="text-[8px] text-parchment-500 mt-1">Kabir</p>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                            <p class="text-[8px] font-bold uppercase tracking-wider text-accent-wine mb-1">Urdu</p>
+                            <p class="font-serif italic text-[12px] text-parchment-800 dark:text-parchment-200 leading-relaxed">"हज़ारों ख़्वाहिशें ऐसी"</p>
+                            <p class="text-[8px] text-parchment-500 mt-1">Ghalib</p>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                            <p class="text-[8px] font-bold uppercase tracking-wider text-accent-sage mb-1">Japanese</p>
+                            <p class="font-serif italic text-[12px] text-parchment-800 dark:text-parchment-200 leading-relaxed">"The world of dew"</p>
+                            <p class="text-[8px] text-parchment-500 mt-1">Issa</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-6">
+                <button onclick="showWordModal('Cross-Cultural Comparison', 'Explore · Feature', 'Compare any two themes side-by-side across traditions. See how Bhakti, Sufi, Urdu, and world poets approach the same universal idea.', 'Prasang comparative tool')" class="px-5 py-2.5 rounded-lg bg-ink-900 dark:bg-accent-gold text-white text-[12px] font-semibold hover:bg-ink-800 dark:hover:bg-accent-gold/90 transition shadow-md inline-flex items-center gap-2">
+                    <i class="fa-solid fa-arrows-left-right text-[10px]"></i> Compare Any Two Themes
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== THEME EVOLUTION TIMELINE ===== -->
+    <section class="py-14">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Evolution</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">How Themes Evolve</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">Trace how a single theme transforms across centuries and traditions.</p>
+            </div>
+
+            <!-- Evolution selector -->
+            <div class="flex items-center justify-center gap-2 mb-8">
+                <button onclick="selectEvolution('love')" id="evo-love" class="evo-btn px-4 py-2 rounded-lg bg-accent-gold text-white text-[11px] font-semibold shadow-sm transition">Love</button>
+                <button onclick="selectEvolution('death')" id="evo-death" class="evo-btn px-4 py-2 rounded-lg bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 text-parchment-600 dark:text-parchment-400 text-[11px] font-semibold hover:bg-parchment-100 dark:hover:bg-ink-800 transition">Death</button>
+                <button onclick="selectEvolution('freedom')" id="evo-freedom" class="evo-btn px-4 py-2 rounded-lg bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 text-parchment-600 dark:text-parchment-400 text-[11px] font-semibold hover:bg-parchment-100 dark:hover:bg-ink-800 transition">Freedom</button>
+                <button onclick="selectEvolution('nature')" id="evo-nature" class="evo-btn px-4 py-2 rounded-lg bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 text-parchment-600 dark:text-parchment-400 text-[11px] font-semibold hover:bg-parchment-100 dark:hover:bg-ink-800 transition">Nature</button>
+            </div>
+
+            <!-- Evolution timeline -->
+            <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-6 sm:p-8">
+                <div class="theme-evolution-track mb-8 mx-4"></div>
+                <div id="evolution-content" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- injected by JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== THEME CONSTELLATION (CONNECTED CONCEPTS) ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Connections</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Thematic Constellation</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">Themes are never isolated — they cluster, overlap, and illuminate each other.</p>
+            </div>
+
+            <!-- Constellation map -->
+            <div class="relative bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-6 sm:p-10">
+                <div class="relative aspect-[16/9] max-w-3xl mx-auto">
+                    <!-- SVG connection lines -->
+                    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 600 340" preserveAspectRatio="xMidYMid meet">
+                        <!-- Lines connecting themes -->
+                        <line x1="300" y1="170" x2="150" y2="80" stroke="#e5d3b8" stroke-width="1.5" opacity="0.6" class="dark:stroke-parchment-700"/>
+                        <line x1="300" y1="170" x2="450" y2="80" stroke="#e5d3b8" stroke-width="1.5" opacity="0.6" class="dark:stroke-parchment-700"/>
+                        <line x1="300" y1="170" x2="150" y2="260" stroke="#e5d3b8" stroke-width="1.5" opacity="0.6" class="dark:stroke-parchment-700"/>
+                        <line x1="300" y1="170" x2="450" y2="260" stroke="#e5d3b8" stroke-width="1.5" opacity="0.6" class="dark:stroke-parchment-700"/>
+                        <line x1="300" y1="170" x2="300" y2="40" stroke="#e5d3b8" stroke-width="1.5" opacity="0.4" class="dark:stroke-parchment-700"/>
+                        <line x1="300" y1="170" x2="300" y2="300" stroke="#e5d3b8" stroke-width="1.5" opacity="0.4" class="dark:stroke-parchment-700"/>
+                        <line x1="150" y1="80" x2="450" y2="80" stroke="#e5d3b8" stroke-width="1" opacity="0.3" class="dark:stroke-parchment-700"/>
+                        <line x1="150" y1="260" x2="450" y2="260" stroke="#e5d3b8" stroke-width="1" opacity="0.3" class="dark:stroke-parchment-700"/>
+                        <line x1="150" y1="80" x2="150" y2="260" stroke="#e5d3b8" stroke-width="1" opacity="0.3" class="dark:stroke-parchment-700"/>
+                        <line x1="450" y1="80" x2="450" y2="260" stroke="#e5d3b8" stroke-width="1" opacity="0.3" class="dark:stroke-parchment-700"/>
+                    </svg>
+
+                    <!-- Central node -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 constellation-node" onclick="showWordModal('Divine Love', 'Central Theme', 'The gravitational center of Bhakti and Sufi poetry — all other themes orbit around this one.', 'Core Bhakti concept')">
+                        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-accent-gold to-accent-gold/70 flex items-center justify-center shadow-glow border-4 border-white dark:border-ink-900">
+                            <span class="font-serif text-sm sm:text-base font-bold text-white text-center leading-tight">Divine<br>Love</span>
+                        </div>
+                    </div>
+
+                    <!-- Surrounding nodes -->
+                    <div class="absolute top-[14%] left-[20%] constellation-node" onclick="showWordModal('Viraha', 'Linked Theme', 'Separation intensifies love — the ache of distance from the Beloved.', 'Connected to Divine Love')">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-accent-wine to-accent-wine/70 flex items-center justify-center shadow-md border-2 border-white dark:border-ink-900">
+                            <span class="text-[10px] sm:text-xs font-bold text-white text-center leading-tight px-1">Viraha</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-[14%] right-[20%] constellation-node" onclick="showWordModal('Surrender', 'Linked Theme', 'Complete surrender of the self — the response to divine love.', 'Connected to Divine Love')">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-accent-sage to-accent-sage/70 flex items-center justify-center shadow-md border-2 border-white dark:border-ink-900">
+                            <span class="text-[10px] sm:text-xs font-bold text-white text-center leading-tight px-1">Surrender</span>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-[14%] left-[20%] constellation-node" onclick="showWordModal('The Name', 'Linked Theme', 'Repetition of the Divine Name as a practice of love.', 'Connected to Divine Love')">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-parchment-600 to-parchment-500 flex items-center justify-center shadow-md border-2 border-white dark:border-ink-900">
+                            <span class="text-[10px] sm:text-xs font-bold text-white text-center leading-tight px-1">The Name</span>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-[14%] right-[20%] constellation-node" onclick="showWordModal('Union', 'Linked Theme', 'The ultimate goal — merging with the Beloved, the end of separation.', 'Connected to Divine Love')">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-accent-gold to-parchment-500 flex items-center justify-center shadow-md border-2 border-white dark:border-ink-900">
+                            <span class="text-[10px] sm:text-xs font-bold text-white text-center leading-tight px-1">Union</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-[4%] left-1/2 -translate-x-1/2 constellation-node" onclick="showWordModal('Longing', 'Linked Theme', 'The perpetual reaching toward the Divine — never fully satisfied.', 'Connected to Divine Love')">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-accent-wine to-parchment-600 flex items-center justify-center shadow-md border-2 border-white dark:border-ink-900">
+                            <span class="text-[9px] sm:text-[10px] font-bold text-white text-center leading-tight px-1">Longing</span>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-[4%] left-1/2 -translate-x-1/2 constellation-node" onclick="showWordModal('Grace', 'Linked Theme', 'The unearned gift of divine presence — the beloved\'s response to longing.', 'Connected to Divine Love')">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-accent-sage to-accent-gold flex items-center justify-center shadow-md border-2 border-white dark:border-ink-900">
+                            <span class="text-[9px] sm:text-[10px] font-bold text-white text-center leading-tight px-1">Grace</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-center text-[10px] text-parchment-500 mt-4 italic">
+                    <i class="fa-solid fa-circle-info text-[9px] mr-1"></i> Click any node to explore how themes connect
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURED POEMS BY THEME ===== -->
+    <section class="py-14">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-3">
+                <div>
+                    <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Reading List</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Featured Poems by Theme</h2>
+                </div>
+                <a href="#" class="text-[11px] font-semibold text-accent-gold hover:underline flex items-center gap-1">
+                    Browse All Poems <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Poem card 1 -->
+                <a href="#" class="group bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-gold/40 transition">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <span class="px-2 py-0.5 rounded-full bg-accent-gold/10 text-accent-gold text-[9px] font-bold uppercase tracking-wider">Love</span>
+                        <span class="px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">Bhakti</span>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-gold transition mb-1">Sakhi #4 — Dhai Akhar Prem Ka</h3>
+                    <p class="font-poetic text-[13px] text-parchment-700 dark:text-parchment-300 leading-relaxed line-clamp-2 mb-2">पोथी पढ़ि पढ़ि जग मुआ...</p>
+                    <p class="text-[10px] text-parchment-500">Kabir Das · 15th c.</p>
+                </a>
+
+                <!-- Poem card 2 -->
+                <a href="#" class="group bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-wine/40 transition">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <span class="px-2 py-0.5 rounded-full bg-accent-wine/10 text-accent-wine text-[9px] font-bold uppercase tracking-wider">Viraha</span>
+                        <span class="px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">Bhakti</span>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-wine transition mb-1">Mai To Prem Diwani</h3>
+                    <p class="font-poetic text-[13px] text-parchment-700 dark:text-parchment-300 leading-relaxed line-clamp-2 mb-2">मैं तो प्रेम दीवानी, मेरा दरद न जाणै कोय।</p>
+                    <p class="text-[10px] text-parchment-500">Mirabai · 16th c.</p>
+                </a>
+
+                <!-- Poem card 3 -->
+                <a href="#" class="group bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-sage/40 transition">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <span class="px-2 py-0.5 rounded-full bg-accent-sage/10 text-accent-sage text-[9px] font-bold uppercase tracking-wider">Freedom</span>
+                        <span class="px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">Modern</span>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-sage transition mb-1">Where the Mind is Without Fear</h3>
+                    <p class="font-serif italic text-[13px] text-parchment-700 dark:text-parchment-300 leading-relaxed line-clamp-2 mb-2">"Where the mind is without fear and the head is held high..."</p>
+                    <p class="text-[10px] text-parchment-500">Rabindranath Tagore · 20th c.</p>
+                </a>
+
+                <!-- Poem card 4 -->
+                <a href="#" class="group bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-gold/40 transition">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <span class="px-2 py-0.5 rounded-full bg-accent-gold/10 text-accent-gold text-[9px] font-bold uppercase tracking-wider">Impermanence</span>
+                        <span class="px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">Urdu</span>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-gold transition mb-1">Hazaron Khwahishen Aisi</h3>
+                    <p class="font-poetic text-[13px] text-parchment-700 dark:text-parchment-300 leading-relaxed line-clamp-2 mb-2">हज़ारों ख़्वाहिशें ऐसी कि हर ख़्वाहिश पे दम निकले</p>
+                    <p class="text-[10px] text-parchment-500">Mirza Ghalib · 19th c.</p>
+                </a>
+
+                <!-- Poem card 5 -->
+                <a href="#" class="group bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-wine/40 transition">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <span class="px-2 py-0.5 rounded-full bg-accent-wine/10 text-accent-wine text-[9px] font-bold uppercase tracking-wider">Longing</span>
+                        <span class="px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">Sufi</span>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-wine transition mb-1">Masnavi — The Reed's Complaint</h3>
+                    <p class="font-serif italic text-[13px] text-parchment-700 dark:text-parchment-300 leading-relaxed line-clamp-2 mb-2">"Listen to the reed pipe, how it complains of separation..."</p>
+                    <p class="text-[10px] text-parchment-500">Jalal al-Din Rumi · 13th c.</p>
+                </a>
+
+                <!-- Poem card 6 -->
+                <a href="#" class="group bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-sage/40 transition">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <span class="px-2 py-0.5 rounded-full bg-accent-sage/10 text-accent-sage text-[9px] font-bold uppercase tracking-wider">Nature</span>
+                        <span class="px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">Bengali</span>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-sage transition mb-1">Gitanjali — Song 35</h3>
+                    <p class="font-serif italic text-[13px] text-parchment-700 dark:text-parchment-300 leading-relaxed line-clamp-2 mb-2">"Where the world has not been broken up into fragments..."</p>
+                    <p class="text-[10px] text-parchment-500">Rabindranath Tagore · 20th c.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== EXPLORE BY EMOTION (RADIAL) ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Emotional Landscape</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Explore by Emotion</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">Poetry is, above all, feeling. Start with an emotion and let the themes follow.</p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                <!-- Emotion cards -->
+                <button onclick="filterByMood('love')" class="group p-5 rounded-2xl bg-gradient-to-br from-accent-gold/10 to-transparent border border-accent-gold/20 hover:border-accent-gold/40 transition text-center">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-accent-gold/20 flex items-center justify-center text-accent-gold mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-heart text-lg"></i>
+                    </div>
+                    <p class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100">Love</p>
+                    <p class="text-[10px] text-parchment-500">12 themes</p>
+                </button>
+
+                <button onclick="filterByMood('longing')" class="group p-5 rounded-2xl bg-gradient-to-br from-accent-wine/10 to-transparent border border-accent-wine/20 hover:border-accent-wine/40 transition text-center">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-accent-wine/20 flex items-center justify-center text-accent-wine mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-droplet text-lg"></i>
+                    </div>
+                    <p class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100">Longing</p>
+                    <p class="text-[10px] text-parchment-500">8 themes</p>
+                </button>
+
+                <button onclick="filterByMood('joy')" class="group p-5 rounded-2xl bg-gradient-to-br from-accent-sage/10 to-transparent border border-accent-sage/20 hover:border-accent-sage/40 transition text-center">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-accent-sage/20 flex items-center justify-center text-accent-sage mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-sun text-lg"></i>
+                    </div>
+                    <p class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100">Joy</p>
+                    <p class="text-[10px] text-parchment-500">6 themes</p>
+                </button>
+
+                <button onclick="filterByMood('grief')" class="group p-5 rounded-2xl bg-gradient-to-br from-parchment-500/10 to-transparent border border-parchment-500/20 hover:border-parchment-500/40 transition text-center">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-parchment-500/20 flex items-center justify-center text-parchment-700 dark:text-parchment-400 mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-cloud-rain text-lg"></i>
+                    </div>
+                    <p class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100">Grief</p>
+                    <p class="text-[10px] text-parchment-500">9 themes</p>
+                </button>
+
+                <button onclick="filterByMood('wonder')" class="group p-5 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 hover:border-indigo-500/40 transition text-center">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-star text-lg"></i>
+                    </div>
+                    <p class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100">Wonder</p>
+                    <p class="text-[10px] text-parchment-500">5 themes</p>
+                </button>
+
+                <button onclick="filterByMood('peace')" class="group p-5 rounded-2xl bg-gradient-to-br from-teal-500/10 to-transparent border border-teal-500/20 hover:border-teal-500/40 transition text-center">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-leaf text-lg"></i>
+                    </div>
+                    <p class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100">Peace</p>
+                    <p class="text-[10px] text-parchment-500">7 themes</p>
+                </button>
+
+                <button onclick="filterByMood('anger')" class="group p-5 rounded-2xl bg-gradient-to-br from-red-500/10 to-transparent border border-red-500/20 hover:border-red-500/40 transition text-center">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-red-500/20 flex items-center justify-center text-red-600 dark:text-red-400 mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-fire text-lg"></i>
+                    </div>
+                    <p class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100">Rebellion</p>
+                    <p class="text-[10px] text-parchment-500">4 themes</p>
+                </button>
+
+                <button onclick="filterByMood('mystery')" class="group p-5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/20 hover:border-purple-500/40 transition text-center">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-2 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-moon text-lg"></i>
+                    </div>
+                    <p class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100">Mystery</p>
+                    <p class="text-[10px] text-parchment-500">6 themes</p>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA: CREATE YOUR OWN COLLECTION ===== -->
+    <section class="py-14">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-br from-accent-gold/95 to-accent-wine/95 rounded-2xl p-8 sm:p-10 text-white shadow-glow relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 translate-x-10 translate-y-10 opacity-10 font-poetic text-[120px] pointer-events-none select-none">
+                    भाव
+                </div>
+                <div class="relative z-10 max-w-lg">
+                    <span class="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">Build Your Own</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold mt-1 mb-2">Curate a Theme Collection</h2>
+                    <p class="text-white/80 text-[13px] leading-relaxed mb-5">
+                        Create your own themed playlists of poems — "Poems for Rainy Days," "Midnight Ghazals," "First Love in Every Language." Follow themes, save poems, and share your collections with the community.
+                    </p>
+                    <div class="flex flex-wrap gap-2.5">
+                        <button class="px-5 py-2.5 rounded-lg bg-white text-accent-wine text-[12px] font-bold hover:bg-white/90 transition shadow-md">
+                            <i class="fa-solid fa-plus text-[10px] mr-1.5"></i> Create Collection
+                        </button>
+                        <button class="px-4 py-2.5 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[12px] font-semibold transition border border-white/20">
+                            <i class="fa-solid fa-compass text-[10px] mr-1.5"></i> Browse Collections
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-parchment-900 dark:bg-ink-900 text-parchment-300/60 py-10 border-t border-parchment-800/40 text-[11px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-md bg-accent-gold text-white flex items-center justify-center font-poetic text-base">प्र</div>
+                    <div>
+                        <span class="font-serif text-base font-bold tracking-wide text-parchment-100">PRASANG</span>
+                        <p class="text-[9px] text-parchment-400/70">Multilingual Literature & Poetry</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-5 font-medium text-parchment-200/70">
+                    <a href="#" class="hover:text-accent-gold transition">Rail</a>
+                    <a href="#" class="hover:text-accent-gold transition">Features</a>
+                    <a href="#" class="hover:text-accent-gold transition">Reader</a>
+                    <a href="#" class="hover:text-accent-gold transition">Eras</a>
+                    <a href="#" class="hover:text-accent-gold transition">Lexicon</a>
+                </div>
+                <p class="text-parchment-400/50">&copy; 2026 Prasang Platform.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== DICTIONARY MODAL ===== -->
+    <div id="dict-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-sm w-full shadow-2xl relative animate-fade-up overflow-hidden">
+            <div class="h-1 bg-gradient-to-r from-accent-gold to-parchment-500"></div>
+            <button onclick="closeWordModal()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-5">
+                <div class="flex items-center gap-1.5 text-accent-gold text-[9px] font-bold uppercase tracking-[0.15em] mb-2">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> Lexicon
+                </div>
+                <h3 id="modal-word" class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-0.5">Prem</h3>
+                <p id="modal-type" class="text-[10px] text-accent-gold font-semibold mb-2">N. Love, Compassion</p>
+                <p id="modal-desc" class="text-[12px] text-parchment-600 dark:text-parchment-300 leading-relaxed mb-2">
+                    Derived from Sanskrit 'Preman'. Refers to selfless divine love.
+                </p>
+                <div class="p-2 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 mb-3">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Etymology</p>
+                    <p id="modal-etymology" class="text-[10px] text-parchment-600 dark:text-parchment-400 italic">Sanskrit Preman → Prakrit → Sadhukkadi</p>
+                </div>
+                <button onclick="closeWordModal()" class="w-full py-1.5 bg-parchment-800 hover:bg-parchment-900 dark:bg-accent-gold dark:hover:bg-accent-gold/90 text-white rounded-lg text-[11px] font-semibold transition">
+                    Close & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ========== DATA =============
+        const moods = [
+            { id: 'all', label: 'All', icon: 'fa-shapes', color: 'gold' },
+            { id: 'love', label: 'Love', icon: 'fa-heart', color: 'gold' },
+            { id: 'longing', label: 'Longing', icon: 'fa-droplet', color: 'wine' },
+            { id: 'joy', label: 'Joy', icon: 'fa-sun', color: 'sage' },
+            { id: 'grief', label: 'Grief', icon: 'fa-cloud-rain', color: 'gold' },
+            { id: 'wonder', label: 'Wonder', icon: 'fa-star', color: 'wine' },
+            { id: 'peace', label: 'Peace', icon: 'fa-leaf', color: 'sage' },
+            { id: 'anger', label: 'Rebellion', icon: 'fa-fire', color: 'wine' },
+            { id: 'mystery', label: 'Mystery', icon: 'fa-moon', color: 'gold' },
+        ];
+
+        const themes = [
+            { name: 'Divine Love', script: 'प्रेम', mood: 'love', poems: 342, eras: ['Bhakti', 'Sufi', 'Urdu'], color: 'gold', icon: 'fa-heart', desc: 'The gravitational center of Bhakti and Sufi poetry — selfless, all-consuming love for the Divine.' },
+            { name: 'Viraha (Separation)', script: 'विरह', mood: 'longing', poems: 228, eras: ['Bhakti', 'Sufi'], color: 'wine', icon: 'fa-droplet', desc: 'The ache of distance from the Beloved — the soul\'s longing for union, the most fertile metaphor in South Asian poetry.' },
+            { name: 'Surrender', script: 'शरणागति', mood: 'peace', poems: 186, eras: ['Bhakti', 'Sufi'], color: 'sage', icon: 'fa-hands-praying', desc: 'Complete surrender of the self to the Divine will — the ultimate act of devotion and the path to peace.' },
+            { name: 'Impermanence', script: 'अनित्य', mood: 'grief', poems: 174, eras: ['Bhakti', 'Urdu', 'Modern'], color: 'gold', icon: 'fa-hourglass-half', desc: 'The fleeting nature of worldly life — a reminder to turn toward the eternal before it is too late.' },
+            { name: 'Longing', script: 'ललक', mood: 'longing', poems: 162, eras: ['Sufi', 'Urdu', 'Bhakti'], color: 'wine', icon: 'fa-fire-flame-curved', desc: 'The perpetual reaching toward the Divine — a holy dissatisfaction that fuels the spiritual journey.' },
+            { name: 'Freedom', script: 'स्वतंत्रता', mood: 'joy', poems: 148, eras: ['Modern', 'Bhakti'], color: 'sage', icon: 'fa-dove', desc: 'Liberation from bondage — social, political, and spiritual. The cry of the modern poet and the mystic alike.' },
+            { name: 'Nature', script: 'प्रकृति', mood: 'wonder', poems: 136, eras: ['Modern', 'Bhakti', 'Classical'], color: 'sage', icon: 'fa-leaf', desc: 'The natural world as mirror, metaphor, and manifestation of the Divine — from Tagore\'s skies to Kalidasa\'s clouds.' },
+            { name: 'The Guru', script: 'गुरु', mood: 'peace', poems: 128, eras: ['Bhakti', 'Sufi', 'Sikh'], color: 'gold', icon: 'fa-user-tie', desc: 'The spiritual master as the conduit of grace — a central figure across Bhakti, Sufi, and Sikh traditions.' },
+            { name: 'The Name', script: 'नाम', mood: 'peace', poems: 112, eras: ['Bhakti', 'Sikh'], color: 'sage', icon: 'fa-repeat', desc: 'Repetition of the Divine Name as a path to liberation — central to Kabir Panthi and Sikh practice.' },
+            { name: 'Equality', script: 'समता', mood: 'anger', poems: 98, eras: ['Bhakti', 'Modern'], color: 'wine', icon: 'fa-equals', desc: 'The radical assertion that all beings are equal regardless of caste, gender, or creed.' },
+            { name: 'Death', script: 'मृत्यु', mood: 'grief', poems: 94, eras: ['Urdu', 'Bhakti', 'Classical'], color: 'wine', icon: 'fa-skull', desc: 'The great equalizer — poets confront mortality with grief, defiance, and sometimes dark humor.' },
+            { name: 'The Body as Temple', script: 'देह मंदिर', mood: 'mystery', poems: 86, eras: ['Bhakti', 'Sufi'], color: 'gold', icon: 'fa-mosque', desc: 'The body as the true site of worship — you need not go to a temple when the Divine dwells within.' },
+            { name: 'Night', script: 'रात', mood: 'mystery', poems: 78, eras: ['Urdu', 'Sufi', 'Modern'], color: 'wine', icon: 'fa-moon', desc: 'The hour of longing, secrecy, and revelation — when the soul is most awake to the unseen.' },
+            { name: 'The Ocean', script: 'सागर', mood: 'wonder', poems: 72, eras: ['Sufi', 'Bhakti'], color: 'sage', icon: 'fa-water', desc: 'The infinite Divine as ocean, the individual soul as a drop — a shared metaphor across mystical traditions.' },
+            { name: 'Rain', script: 'वर्षा', mood: 'joy', poems: 68, eras: ['Classical', 'Bhakti'], color: 'sage', icon: 'fa-cloud-showers-heavy', desc: 'Monsoon as the season of love and longing — Kalidasa\'s Meghaduta to the folk songs of the rains.' },
+            { name: 'Wine & Intoxication', script: 'मदिरा', mood: 'joy', poems: 62, eras: ['Sufi', 'Urdu'], color: 'wine', icon: 'fa-wine-glass', desc: 'Divine intoxication — the Sufi metaphor of wine as spiritual ecstasy, the tavern as the house of love.' },
+        ];
+
+        const evolutionData = {
+            love: [
+                { era: 'Vedic', year: 'c. 1500 BCE', title: 'Cosmic Desire', desc: 'The Rigveda\'s Hymn of Creation describes desire (kama) as the first seed of the cosmos.', poet: 'Anonymous' },
+                { era: 'Classical', year: 'c. 400 CE', title: 'Erotic & Divine', desc: 'Kalidasa and Jayadeva fuse erotic love with devotion — the divine play of Radha and Krishna.', poet: 'Kalidasa / Jayadeva' },
+                { era: 'Bhakti', year: 'c. 1500 CE', title: 'Love as Path', desc: 'Kabir and Mirabai declare love the only true religion — beyond ritual and doctrine.', poet: 'Kabir / Mirabai' },
+                { era: 'Modern', year: 'c. 1950 CE', title: 'Love & Resistance', desc: 'Faiz and other modern poets link love with political freedom and social justice.', poet: 'Faiz Ahmed Faiz' },
+            ],
+            death: [
+                { era: 'Vedic', year: 'c. 1500 BCE', title: 'Ritual Death', desc: 'The Rigveda\'s funeral hymns contemplate the journey of the soul after death.', poet: 'Anonymous' },
+                { era: 'Classical', year: 'c. 400 CE', title: 'Death as Teacher', desc: 'Bhartrihari\'s verses on impermanence — the body as a fleeting guest-house.', poet: 'Bhartrihari' },
+                { era: 'Bhakti', year: 'c. 1500 CE', title: 'Death & Liberation', desc: 'Kabir mocks the fear of death — the one who remembers the Name dies without dying.', poet: 'Kabir' },
+                { era: 'Urdu', year: 'c. 1850 CE', title: 'Melancholy', desc: 'Ghalib turns death into a meditation on desire, loss, and the irony of existence.', poet: 'Mirza Ghalib' },
+            ],
+            freedom: [
+                { era: 'Upanishadic', year: 'c. 800 BCE', title: 'Inner Freedom', desc: 'The Upanishads describe moksha — liberation from the cycle of rebirth through self-knowledge.', poet: 'Anonymous' },
+                { era: 'Bhakti', year: 'c. 1500 CE', title: 'Freedom from Caste', desc: 'Kabir and Ravidas declare spiritual freedom independent of social hierarchy.', poet: 'Kabir / Ravidas' },
+                { era: 'Modern', year: 'c. 1900 CE', title: 'National Freedom', desc: 'Tagore and Bharati fuse spiritual liberation with political independence.', poet: 'Tagore / Bharati' },
+                { era: 'Contemporary', year: 'c. 1950 CE', title: 'Freedom as Resistance', desc: 'Faiz and Jaun Elia write of freedom under oppression — love as an act of defiance.', poet: 'Faiz / Elia' },
+            ],
+            nature: [
+                { era: 'Vedic', year: 'c. 1500 BCE', title: 'Nature as Divine', desc: 'The Rigveda personifies natural forces — dawn, rain, fire — as gods to be praised.', poet: 'Anonymous' },
+                { era: 'Classical', year: 'c. 400 CE', title: 'Nature as Mirror', desc: 'Kalidasa\'s Meghaduta — a cloud as messenger between separated lovers.', poet: 'Kalidasa' },
+                { era: 'Bhakti', year: 'c. 1500 CE', title: 'Nature as Playground', desc: 'Surdas and Mirabai locate Krishna\'s divine play (lila) in the forests of Vrindavan.', poet: 'Surdas / Mirabai' },
+                { era: 'Modern', year: 'c. 1910 CE', title: 'Nature & Nation', desc: 'Tagore\'s nature poetry becomes a meditation on beauty, freedom, and human unity.', poet: 'Rabindranath Tagore' },
+            ],
+        };
+
+        // ========== STATE ==========
+        let state = {
+            mood: 'all',
+            sort: 'popular',
+            view: 'grid',
+            evolution: 'love',
+        };
+
+        // ========== RENDER MOOD FILTERS ==========
+        function renderMoodFilters() {
+            const container = document.getElementById('mood-filters');
+            container.innerHTML = moods.map(m => {
+                const active = state.mood === m.id;
+                const colorMap = {
+                    gold: 'text-accent-gold',
+                    wine: 'text-accent-wine',
+                    sage: 'text-accent-sage'
+                };
+                return `
+                    <button onclick="filterByMood('${m.id}')" class="mood-chip ${active ? 'active' : ''} flex-shrink-0 px-3 py-1.5 rounded-full border border-parchment-300 dark:border-parchment-700 text-[11px] font-semibold text-parchment-700 dark:text-parchment-300 flex items-center gap-1.5">
+                        <i class="fa-solid ${m.icon} ${active ? '' : colorMap[m.color]} text-[10px]"></i>
+                        ${m.label}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // ========== FILTER BY MOOD ==========
+        function filterByMood(mood) {
+            state.mood = mood;
+            renderMoodFilters();
+            applyThemeFilters();
+        }
+
+        function clearMoodFilter() {
+            state.mood = 'all';
+            renderMoodFilters();
+            applyThemeFilters();
+        }
+
+        // ========== APPLY THEME FILTERS ==========
+        function applyThemeFilters() {
+            state.sort = document.getElementById('theme-sort').value;
+
+            let filtered = themes.filter(t => {
+                return state.mood === 'all' || t.mood === state.mood;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                switch (state.sort) {
+                    case 'az': return a.name.localeCompare(b.name);
+                    case 'poems': return b.poems - a.poems;
+                    case 'newest': return 0;
+                    case 'popular':
+                    default: return b.poems - a.poems;
+                }
+            });
+
+            document.getElementById('theme-count').textContent = filtered.length;
+
+            // Empty state
+            const emptyState = document.getElementById('empty-state');
+            const container = document.getElementById('themes-container');
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // Render
+            if (state.view === 'grid') {
+                container.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">${filtered.map(t => themeCardHTML(t)).join('')}</div>`;
+            } else {
+                container.innerHTML = `<div class="space-y-2">${filtered.map(t => themeListHTML(t)).join('')}</div>`;
+            }
+        }
+
+        // ========== THEME CARD (GRID) ==========
+        function themeCardHTML(t) {
+            const colorMap = {
+                gold: { bg: 'from-accent-gold/20 to-accent-gold/5', text: 'text-accent-gold', border: 'border-accent-gold/20' },
+                wine: { bg: 'from-accent-wine/20 to-accent-wine/5', text: 'text-accent-wine', border: 'border-accent-wine/20' },
+                sage: { bg: 'from-accent-sage/20 to-accent-sage/5', text: 'text-accent-sage', border: 'border-accent-sage/20' },
+            };
+            const c = colorMap[t.color] || colorMap.gold;
+            return `
+                <div class="theme-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4" onclick="showWordModal('${t.name}', 'Theme · ${t.mood.charAt(0).toUpperCase() + t.mood.slice(1)}', '${t.desc}', 'Prasang thematic index')">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} text-base border ${c.border}">
+                            <i class="fa-solid ${t.icon}"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-parchment-500">${t.poems} poems</span>
+                    </div>
+                    <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-0.5">${t.name}</h3>
+                    <p class="font-poetic text-sm text-parchment-600 dark:text-parchment-400 mb-2">${t.script}</p>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed line-clamp-2 mb-2.5">${t.desc}</p>
+                    <div class="flex flex-wrap items-center gap-1">
+                        ${t.eras.slice(0, 3).map(e => `<span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[8px] font-medium">${e}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== THEME LIST ==========
+        function themeListHTML(t) {
+            const colorMap = {
+                gold: 'text-accent-gold',
+                wine: 'text-accent-wine',
+                sage: 'text-accent-sage',
+            };
+            return `
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-3.5 hover:border-accent-gold/40 transition cursor-pointer group" onclick="showWordModal('${t.name}', 'Theme', '${t.desc}', 'Prasang thematic index')">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-parchment-100 to-parchment-200 dark:from-ink-800 dark:to-ink-700 flex items-center justify-center ${colorMap[t.color]} text-sm flex-shrink-0">
+                            <i class="fa-solid ${t.icon}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-gold transition">${t.name}</h3>
+                                <span class="text-[10px] text-parchment-400">·</span>
+                                <span class="font-poetic text-[11px] text-parchment-500">${t.script}</span>
+                            </div>
+                            <p class="text-[10px] text-parchment-500 dark:text-parchment-400 truncate">${t.desc}</p>
+                        </div>
+                        <div class="hidden sm:flex items-center gap-3 text-[10px] text-parchment-500 flex-shrink-0">
+                            <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 font-medium">${t.poems} poems</span>
+                            <i class="fa-solid fa-arrow-right text-[9px] text-accent-gold"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== VIEW TOGGLE ==========
+        function setThemeView(view) {
+            state.view = view;
+            ['grid', 'list'].forEach(v => {
+                const btn = document.getElementById(`tv-${v}`);
+                if (v === view) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            applyThemeFilters();
+        }
+
+        // ========== EVOLUTION SELECTOR ==========
+        function selectEvolution(theme) {
+            state.evolution = theme;
+
+            ['love', 'death', 'freedom', 'nature'].forEach(t => {
+                const btn = document.getElementById(`evo-${t}`);
+                if (t === theme) {
+                    btn.className = 'evo-btn px-4 py-2 rounded-lg bg-accent-gold text-white text-[11px] font-semibold shadow-sm transition';
+                } else {
+                    btn.className = 'evo-btn px-4 py-2 rounded-lg bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 text-parchment-600 dark:text-parchment-400 text-[11px] font-semibold hover:bg-parchment-100 dark:hover:bg-ink-800 transition';
+                }
+            });
+
+            renderEvolution();
+        }
+
+        function renderEvolution() {
+            const data = evolutionData[state.evolution];
+            const container = document.getElementById('evolution-content');
+            const colorMap = {
+                love: 'gold',
+                death: 'wine',
+                freedom: 'sage',
+                nature: 'sage'
+            };
+            const color = colorMap[state.evolution] || 'gold';
+            const bgMap = {
+                gold: 'from-accent-gold/10 to-transparent border-accent-gold/20',
+                wine: 'from-accent-wine/10 to-transparent border-accent-wine/20',
+                sage: 'from-accent-sage/10 to-transparent border-accent-sage/20',
+            };
+
+            container.innerHTML = data.map((d, i) => `
+                <div class="relative p-4 rounded-xl bg-gradient-to-br ${bgMap[color]} border">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[9px] font-bold uppercase tracking-wider text-accent-${color}">${d.era}</span>
+                        <span class="text-[9px] text-parchment-500">${d.year}</span>
+                    </div>
+                    <h4 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 mb-1">${d.title}</h4>
+                    <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-2">${d.desc}</p>
+                    <p class="text-[9px] text-parchment-500 italic">— ${d.poet}</p>
+                </div>
+            `).join('');
+        }
+
+        // ========== SCROLL ==========
+        function scrollToThemes() {
+            document.getElementById('themes').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ========== THEME ==========
+        function setTheme(theme) {
+            const body = document.getElementById('app-body');
+            const btnLight = document.getElementById('btn-light');
+            const btnSepia = document.getElementById('btn-sepia');
+            const btnDark = document.getElementById('btn-dark');
+
+            body.classList.remove('dark', 'theme-sepia');
+            [btnLight, btnSepia, btnDark].forEach(btn => {
+                btn.className = 'px-2 py-1 rounded-md flex items-center gap-1 text-parchment-600 dark:text-parchment-400 hover:text-parchment-900 dark:hover:text-parchment-200 text-[11px] font-medium transition';
+            });
+
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                btnDark.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-ink-700 text-white shadow-sm text-[11px] font-medium transition';
+            } else if (theme === 'sepia') {
+                body.classList.add('theme-sepia');
+                btnSepia.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-parchment-800 text-white shadow-sm text-[11px] font-medium transition';
+            } else {
+                btnLight.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-900 shadow-sm text-[11px] font-medium transition';
+            }
+        }
+
+        // ========== DICTIONARY ==========
+        function showWordModal(word, type, desc, etymology) {
+            document.getElementById('modal-word').innerText = word;
+            document.getElementById('modal-type').innerText = type;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-etymology').innerText = etymology || '—';
+            document.getElementById('dict-modal').classList.remove('hidden');
+        }
+
+        function closeWordModal() {
+            document.getElementById('dict-modal').classList.add('hidden');
+        }
+
+        // ========== READING PROGRESS ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('reading-progress').style.width = progress + '%';
+        });
+
+        // ========== KEYBOARD ==========
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeWordModal();
+        });
+
+        document.getElementById('dict-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeWordModal();
+        });
+
+        // ========== BOOT ==========
+        window.onload = function() {
+            renderMoodFilters();
+            applyThemeFilters();
+            renderEvolution();
+        };
+    </script>
+</body>
+</html>

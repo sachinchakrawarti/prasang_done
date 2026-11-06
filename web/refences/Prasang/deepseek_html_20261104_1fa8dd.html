@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poetry Map · Prasang</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Editorial Mix -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Nastaliq+Urdu&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#fdfaf5', 100: '#f9f2e9', 200: '#f1e6d6', 300: '#e5d3b8',
+                            400: '#d4b894', 500: '#c09a6b', 600: '#a87d4a', 700: '#8a6238',
+                            800: '#6b4a2a', 900: '#4c3420',
+                        },
+                        ink: { 50: '#f6f6f7', 800: '#1e1b18', 900: '#141210' },
+                        accent: { gold: '#b8860b', wine: '#8b3a3a', sage: '#5c7a6b' }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        poetic: ['"Rozha One"', 'Georgia', 'serif'],
+                        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
+                        'glow': '0 0 25px -5px rgba(184,134,11,0.35)',
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'pulse-ring': 'pulseRing 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        pulseRing: {
+                            '0%': { transform: 'scale(0.8)', opacity: '1' },
+                            '100%': { transform: 'scale(2.2)', opacity: '0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c09a6b; border-radius: 99px; }
+        .dark ::-webkit-scrollbar-thumb { background: #6b4a2a; }
+
+        /* Sepia theme */
+        .theme-sepia {
+            background-color: #f4ebd0 !important;
+            color: #433422 !important;
+        }
+        .theme-sepia .glass-panel {
+            background-color: rgba(244, 235, 208, 0.9) !important;
+            border-color: #d3c39c !important;
+        }
+        .theme-sepia .bg-card-theme { background-color: #ebdcb9 !important; border-color: #d8c69d !important; }
+        .theme-sepia .text-muted-theme { color: #70583b !important; }
+        .theme-sepia .accent-theme { color: #8c4227 !important; }
+
+        /* Glassmorphism */
+        .glass-panel {
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background-color: rgba(253, 250, 245, 0.88);
+            border: 1px solid rgba(192, 154, 107, 0.2);
+        }
+        .dark .glass-panel {
+            background-color: rgba(20, 18, 16, 0.88);
+            border-color: rgba(107, 74, 42, 0.3);
+        }
+
+        /* Map canvas */
+        .map-canvas {
+            background: radial-gradient(circle at 50% 45%, rgba(249, 242, 233, 0.6), rgba(241, 230, 214, 0.25));
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+        }
+        .dark .map-canvas {
+            background: radial-gradient(circle at 50% 45%, rgba(30, 27, 24, 0.6), rgba(20, 18, 16, 0.25));
+        }
+
+        /* Map region */
+        .map-region {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            fill: rgba(192, 154, 107, 0.15);
+            stroke: #c09a6b;
+            stroke-width: 1;
+        }
+        .dark .map-region {
+            fill: rgba(107, 74, 42, 0.2);
+            stroke: #8a6238;
+        }
+        .map-region:hover {
+            fill: rgba(184, 134, 11, 0.3);
+            stroke: #b8860b;
+            stroke-width: 1.5;
+        }
+        .map-region.active {
+            fill: rgba(184, 134, 11, 0.4);
+            stroke: #b8860b;
+            stroke-width: 2;
+        }
+
+        /* Map marker */
+        .map-marker {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .map-marker:hover {
+            transform: scale(1.3);
+        }
+        .map-marker-ring {
+            animation: pulseRing 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            transform-origin: center;
+        }
+
+        /* Heatmap legend */
+        .heatmap-legend {
+            background: linear-gradient(90deg, rgba(192, 154, 107, 0.2) 0%, rgba(184, 134, 11, 0.5) 50%, rgba(184, 134, 11, 0.9) 100%);
+            height: 8px;
+            border-radius: 99px;
+        }
+
+        /* Region info panel */
+        .region-panel {
+            transition: all 0.3s ease;
+        }
+
+        /* Poet marker */
+        .poet-marker {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .poet-marker:hover {
+            transform: scale(1.4);
+        }
+
+        /* Route line */
+        .route-line {
+            stroke-dasharray: 6 4;
+            animation: dashMove 20s linear infinite;
+        }
+        @keyframes dashMove {
+            to { stroke-dashoffset: -200; }
+        }
+
+        /* Filter chip */
+        .filter-chip {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .filter-chip.active {
+            background-color: #b8860b;
+            color: #fff;
+            border-color: #b8860b;
+        }
+        .filter-chip:not(.active):hover {
+            background-color: rgba(192, 154, 107, 0.15);
+            border-color: rgba(192, 154, 107, 0.5);
+        }
+
+        /* Region card */
+        .region-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .region-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px -8px rgba(107, 74, 42, 0.28);
+            border-color: rgba(184, 134, 11, 0.45);
+        }
+        .dark .region-card:hover {
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
+            border-color: rgba(184, 134, 11, 0.55);
+        }
+
+        /* Ornamental divider */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #c09a6b;
+        }
+        .ornament-divider::before,
+        .ornament-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e5d3b8, transparent);
+        }
+        .dark .ornament-divider::before,
+        .dark .ornament-divider::after {
+            background: linear-gradient(90deg, transparent, #4c3420, transparent);
+        }
+
+        /* Reading progress */
+        .top-progress {
+            height: 2px;
+            background: linear-gradient(90deg, #b8860b, #d4b894);
+            width: 0%;
+            transition: width 0.15s ease-out;
+        }
+
+        /* Tooltip */
+        .map-tooltip {
+            position: absolute;
+            background: #141210;
+            color: #fff;
+            font-size: 10px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 50;
+            transform: translate(-50%, -100%);
+            margin-top: -8px;
+        }
+        .map-tooltip.visible {
+            opacity: 1;
+        }
+        .map-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #141210;
+        }
+
+        /* Reduce motion */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-parchment-50 text-ink-900 font-sans antialiased transition-colors duration-300 min-h-screen selection:bg-accent-gold/20">
+
+    <!-- Reading progress bar -->
+    <div class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-parchment-200/50 dark:bg-ink-800">
+        <div id="reading-progress" class="top-progress h-full"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-parchment-300/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
+            <!-- Brand -->
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center shadow-md text-white font-poetic text-xl pb-0.5">
+                    प्र
+                </div>
+                <div class="leading-tight">
+                    <span class="font-serif text-xl font-bold tracking-wide text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                        PRASANG
+                        <span class="text-[9px] tracking-wider font-sans bg-accent-gold/15 text-accent-gold px-1.5 py-0.5 rounded-full uppercase font-semibold border border-accent-gold/20">AI</span>
+                    </span>
+                    <p class="text-[9px] text-parchment-600 dark:text-parchment-400 uppercase tracking-[0.2em] hidden sm:block">Literature Discovery</p>
+                </div>
+            </a>
+
+            <!-- Breadcrumb -->
+            <nav class="hidden lg:flex items-center gap-2 text-[11px] text-parchment-500 dark:text-parchment-400 font-medium">
+                <a href="#" class="hover:text-accent-gold transition">Home</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <span class="text-ink-900 dark:text-parchment-200 font-semibold">Poetry Map</span>
+            </nav>
+
+            <!-- Theme + CTA -->
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center p-0.5 bg-parchment-200/70 dark:bg-ink-800 rounded-lg border border-parchment-300 dark:border-parchment-700">
+                    <button onclick="setTheme('light')" id="btn-light" class="px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-800 shadow-sm text-[11px] font-medium transition" title="Light">
+                        <i class="fa-regular fa-sun text-amber-500 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('sepia')" id="btn-sepia" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-700 hover:text-parchment-900 text-[11px] font-medium transition" title="Sepia">
+                        <i class="fa-regular fa-file-lines text-amber-700 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-500 hover:text-parchment-200 text-[11px] font-medium transition" title="Dark">
+                        <i class="fa-regular fa-moon text-indigo-400 text-[11px]"></i>
+                    </button>
+                </div>
+                <button class="hidden sm:inline-flex items-center px-4 py-2 text-[12px] font-semibold rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white transition shadow-sm">
+                    <i class="fa-solid fa-arrow-left text-[10px] mr-1.5"></i> Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="relative pt-12 pb-8 overflow-hidden">
+        <div class="absolute inset-0 -z-10">
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-accent-gold/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-[420px] h-[420px] bg-accent-wine/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
+                <div class="max-w-2xl">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-gold/10 border border-accent-gold/20 text-accent-gold text-[10px] font-bold uppercase tracking-[0.15em] mb-4">
+                        <i class="fa-solid fa-map-location-dot text-[9px]"></i> Geography of the Word
+                    </div>
+                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink-900 dark:text-parchment-100 tracking-tight leading-none mb-3">
+                        The Poetry <span class="text-accent-gold">Map</span>
+                    </h1>
+                    <p class="text-[13px] sm:text-sm text-parchment-600 dark:text-parchment-400 max-w-xl leading-relaxed">
+                        Every poem has a home. Explore the birthplaces of poets, the geography of literary movements, and the migration of ideas across the Indian subcontinent.
+                    </p>
+                </div>
+
+                <!-- Quick stats -->
+                <div class="flex items-center gap-5 sm:gap-7">
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">420</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Poets</p>
+                    </div>
+                    <div class="w-px h-10 bg-parchment-300 dark:bg-parchment-700"></div>
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">14</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Languages</p>
+                    </div>
+                    <div class="w-px h-10 bg-parchment-300 dark:bg-parchment-700"></div>
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">28</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Regions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MAP + SIDEBAR ===== -->
+    <section class="pb-14">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-6">
+
+                <!-- ===== MAP AREA ===== -->
+                <div class="flex-1 min-w-0">
+
+                    <!-- Map controls -->
+                    <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 sm:p-5 mb-4">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-map text-accent-gold text-sm"></i>
+                                <h2 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">Interactive Map</h2>
+                            </div>
+
+                            <!-- Layer toggles -->
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <button onclick="toggleLayer('poets')" id="layer-poets" class="filter-chip active px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300 flex items-center gap-1">
+                                    <i class="fa-solid fa-feather-pointed text-[8px]"></i> Poets
+                                </button>
+                                <button onclick="toggleLayer('movements')" id="layer-movements" class="filter-chip active px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300 flex items-center gap-1">
+                                    <i class="fa-solid fa-diagram-project text-[8px]"></i> Movements
+                                </button>
+                                <button onclick="toggleLayer('routes')" id="layer-routes" class="filter-chip px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300 flex items-center gap-1">
+                                    <i class="fa-solid fa-route text-[8px]"></i> Routes
+                                </button>
+                                <button onclick="toggleLayer('heatmap')" id="layer-heatmap" class="filter-chip px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300 flex items-center gap-1">
+                                    <i class="fa-solid fa-fire text-[8px]"></i> Heatmap
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Map canvas -->
+                        <div class="map-canvas p-4 sm:p-6 border border-parchment-200/70 dark:border-parchment-700/40">
+                            <div class="relative aspect-[4/3] max-w-2xl mx-auto" id="map-container">
+                                <!-- Stylized India SVG map -->
+                                <svg viewBox="0 0 400 340" class="w-full h-full" id="india-map">
+                                    <!-- Region shapes -->
+                                    <g id="map-regions">
+                                        <!-- North India -->
+                                        <path class="map-region" data-region="north" d="M150 60 L180 40 L220 45 L250 65 L240 95 L210 110 L170 105 L145 85 Z" />
+                                        <!-- Punjab -->
+                                        <path class="map-region" data-region="punjab" d="M120 55 L150 60 L145 85 L130 95 L110 80 L105 65 Z" />
+                                        <!-- Bengal -->
+                                        <path class="map-region" data-region="bengal" d="M255 110 L280 100 L300 115 L295 145 L275 160 L250 145 L245 125 Z" />
+                                        <!-- Gujarat -->
+                                        <path class="map-region" data-region="gujarat" d="M90 130 L120 115 L140 130 L135 155 L110 165 L85 155 Z" />
+                                        <!-- Maharashtra -->
+                                        <path class="map-region" data-region="maharashtra" d="M130 170 L165 155 L190 170 L185 200 L155 215 L125 200 L120 185 Z" />
+                                        <!-- Karnataka -->
+                                        <path class="map-region" data-region="karnataka" d="M150 220 L180 210 L200 225 L195 255 L165 265 L140 250 L140 235 Z" />
+                                        <!-- Tamil Nadu -->
+                                        <path class="map-region" data-region="tamil" d="M175 270 L200 265 L215 285 L210 315 L185 325 L165 305 L160 285 Z" />
+                                        <!-- Kashmir -->
+                                        <path class="map-region" data-region="kashmir" d="M140 20 L165 15 L175 30 L165 45 L145 42 L135 30 Z" />
+                                        <!-- Rajasthan -->
+                                        <path class="map-region" data-region="rajasthan" d="M100 110 L125 100 L150 110 L145 135 L120 145 L95 135 Z" />
+                                        <!-- Delhi -->
+                                        <path class="map-region" data-region="delhi" d="M155 95 L170 90 L180 100 L175 115 L160 115 L150 105 Z" />
+                                    </g>
+
+                                    <!-- Movement routes (hidden by default) -->
+                                    <g id="map-routes" class="hidden" opacity="0.7">
+                                        <!-- Bhakti spread: Tamil → Karnataka → Maharashtra → North -->
+                                        <path class="route-line" d="M195 290 Q170 250 160 230 Q150 200 155 170 Q160 130 165 100" fill="none" stroke="#b8860b" stroke-width="2"/>
+                                        <!-- Sufi spread: Delhi → Punjab → Bengal -->
+                                        <path class="route-line" d="M165 105 Q140 80 125 70" fill="none" stroke="#8b3a3a" stroke-width="2"/>
+                                        <path class="route-line" d="M165 105 Q210 110 265 125" fill="none" stroke="#8b3a3a" stroke-width="2"/>
+                                    </g>
+
+                                    <!-- Markers -->
+                                    <g id="map-markers">
+                                        <!-- injected by JS -->
+                                    </g>
+                                </svg>
+
+                                <!-- Tooltip -->
+                                <div class="map-tooltip" id="map-tooltip"></div>
+                            </div>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 mt-4 text-[10px]">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-accent-gold"></span> Bhakti
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-accent-wine"></span> Sufi
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-accent-sage"></span> Classical
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-parchment-600"></span> Modern
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-parchment-500">Density:</span>
+                                <div class="heatmap-legend w-24"></div>
+                                <span class="text-parchment-500">High</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map info card -->
+                    <div id="map-info" class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5 hidden">
+                        <!-- injected by JS -->
+                    </div>
+                </div>
+
+                <!-- ===== SIDEBAR ===== -->
+                <aside class="lg:w-[320px] flex-shrink-0 space-y-4">
+                    <!-- Region list -->
+                    <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                                <i class="fa-solid fa-location-dot text-accent-gold text-[11px]"></i> Regions
+                            </h3>
+                            <button onclick="clearRegionFilter()" class="text-[9px] font-semibold text-accent-gold hover:underline">Clear</button>
+                        </div>
+                        <div class="space-y-1 max-h-[340px] overflow-y-auto pr-1" id="region-list">
+                            <!-- injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Language filter -->
+                    <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                                <i class="fa-solid fa-language text-accent-gold text-[11px]"></i> Language
+                            </h3>
+                            <button onclick="clearLanguageFilter()" class="text-[9px] font-semibold text-accent-gold hover:underline">Clear</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5" id="language-filters">
+                            <!-- injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Featured poet of the region -->
+                    <div class="bg-gradient-to-br from-parchment-800 to-parchment-900 dark:from-ink-800 dark:to-ink-900 rounded-2xl p-5 text-white shadow-soft">
+                        <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-accent-gold mb-2">Poet Spotlight</p>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 rounded-lg bg-accent-gold/20 flex items-center justify-center text-accent-gold font-poetic text-xl border border-accent-gold/30">
+                                क
+                            </div>
+                            <div>
+                                <h4 class="font-serif text-base font-bold">Kabir Das</h4>
+                                <p class="text-[10px] text-parchment-300/70">Varanasi · 15th century</p>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-parchment-200/75 leading-relaxed mb-3">
+                            Born in Varanasi, Kabir's dohas traveled across North India — carried by weavers, wanderers, and singers.
+                        </p>
+                        <button onclick="selectRegion('north')" class="w-full py-2 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[11px] font-semibold transition">
+                            <i class="fa-solid fa-location-dot text-[9px] mr-1.5"></i> Explore His Region
+                        </button>
+                    </div>
+
+                    <!-- Map stats -->
+                    <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                        <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-chart-simple text-accent-gold text-[11px]"></i> By Language
+                        </h3>
+                        <div class="space-y-2 text-[11px]">
+                            <div>
+                                <div class="flex justify-between mb-0.5">
+                                    <span class="text-parchment-600 dark:text-parchment-400">Hindi</span>
+                                    <span class="font-semibold text-ink-900 dark:text-parchment-200">142</span>
+                                </div>
+                                <div class="h-1.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                    <div class="h-full bg-accent-gold rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-0.5">
+                                    <span class="text-parchment-600 dark:text-parchment-400">Urdu</span>
+                                    <span class="font-semibold text-ink-900 dark:text-parchment-200">98</span>
+                                </div>
+                                <div class="h-1.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                    <div class="h-full bg-accent-wine rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-0.5">
+                                    <span class="text-parchment-600 dark:text-parchment-400">Bengali</span>
+                                    <span class="font-semibold text-ink-900 dark:text-parchment-200">76</span>
+                                </div>
+                                <div class="h-1.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                    <div class="h-full bg-accent-sage rounded-full" style="width: 50%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-0.5">
+                                    <span class="text-parchment-600 dark:text-parchment-400">Sanskrit</span>
+                                    <span class="font-semibold text-ink-900 dark:text-parchment-200">54</span>
+                                </div>
+                                <div class="h-1.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                    <div class="h-full bg-parchment-600 rounded-full" style="width: 35%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-0.5">
+                                    <span class="text-parchment-600 dark:text-parchment-400">Tamil</span>
+                                    <span class="font-semibold text-ink-900 dark:text-parchment-200">42</span>
+                                </div>
+                                <div class="h-1.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                    <div class="h-full bg-accent-gold rounded-full" style="width: 28%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== REGION CARDS GRID ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Browse by Place</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Literary Regions</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">Each region has its own poetic tradition, language, and voice.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="region-cards">
+                <!-- injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MIGRATION ROUTES ===== -->
+    <section class="py-14">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Movement</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Migration of Ideas</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">How literary movements traveled across the subcontinent.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Route card -->
+                <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">The Bhakti Wave</h3>
+                            <p class="text-[10px] text-parchment-500">South → North · 7th–17th century</p>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-3">
+                        The Bhakti movement began with the Tamil Alvars and Nayanars in the south, then traveled north through Karnataka (Virashaiva), Maharashtra (Varkari), and finally North India (Kabir, Mirabai, Tulsidas).
+                    </p>
+                    <div class="flex items-center gap-1 text-[10px] font-semibold text-accent-gold">
+                        <span>Tamil Nadu</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        <span>Karnataka</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        <span>Maharashtra</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        <span>North India</span>
+                    </div>
+                </div>
+
+                <!-- Route card -->
+                <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">The Sufi Trail</h3>
+                            <p class="text-[10px] text-parchment-500">Persia → Delhi → Punjab & Bengal · 12th–17th century</p>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-3">
+                        Sufi mysticism entered India through the Delhi Sultanate. The Chishti order established khanqahs in Delhi, Ajmer, and later Punjab and Bengal — bringing the ghazal and qawwali to the subcontinent.
+                    </p>
+                    <div class="flex items-center gap-1 text-[10px] font-semibold text-accent-wine">
+                        <span>Persia</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        <span>Delhi</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        <span>Punjab / Bengal</span>
+                    </div>
+                </div>
+
+                <!-- Route card -->
+                <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">The Ghazal's Journey</h3>
+                            <p class="text-[10px] text-parchment-500">Arabia → Persia → Delhi → Lucknow · 7th–19th century</p>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-3">
+                        The ghazal originated in Arabic poetry, matured in Persian, and reached its peak in Urdu under the Mughals. Mir, Sauda, and Ghalib perfected it in Delhi and Lucknow.
+                    </p>
+                    <div class="flex items-center gap-1 text-[10px] font-semibold text-accent-sage">
+                        <span>Arabia</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        <span>Persia</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        <span>Delhi</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        <span>Lucknow</span>
+                    </div>
+                </div>
+
+                <!-- Route card -->
+                <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-parchment-600/10 text-parchment-700 dark:text-parchment-400 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">The Print Revolution</h3>
+                            <p class="text-[10px] text-parchment-500">Bengal → North India → Nationwide · 19th–20th century</p>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-3">
+                        The printing press and colonial education transformed literature. The Bengal Renaissance sparked a nationwide literary modernization, from Tagore's Bengal to Premchand's Hindi heartland.
+                    </p>
+                    <div class="flex items-center gap-1 text-[10px] font-semibold text-parchment-700 dark:text-parchment-400">
+                        <span>Bengal</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        <span>North India</span>
+                        <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                        <span>Pan-India</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-br from-accent-gold/95 to-accent-wine/95 rounded-2xl p-8 sm:p-10 text-white shadow-glow relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 translate-x-10 translate-y-10 opacity-10 font-poetic text-[120px] pointer-events-none select-none">
+                    देश
+                </div>
+                <div class="relative z-10 max-w-lg">
+                    <span class="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">Keep Exploring</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold mt-1 mb-2">Poetry of Your Region</h2>
+                    <p class="text-white/80 text-[13px] leading-relaxed mb-5">
+                        Enter your city or region and discover the poets, poems, and literary traditions that grew from the soil you stand on.
+                    </p>
+                    <div class="flex flex-wrap gap-2.5">
+                        <div class="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm rounded-lg border border-white/20 p-1">
+                            <i class="fa-solid fa-location-dot text-white/70 pl-2 text-[11px]"></i>
+                            <input type="text" placeholder="Enter your city..." class="bg-transparent text-white placeholder-white/50 w-40 focus:outline-none text-[12px] px-1">
+                            <button class="px-3 py-1.5 rounded-md bg-white text-accent-wine text-[11px] font-bold hover:bg-white/90 transition">
+                                <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                            </button>
+                        </div>
+                        <button onclick="showWordModal('All Regions', 'Browse · 28 regions', 'Explore every literary region of the Indian subcontinent — from Kashmir to Tamil Nadu, from Gujarat to Bengal.', 'Prasang geography')" class="px-4 py-2.5 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[12px] font-semibold transition border border-white/20">
+                            <i class="fa-solid fa-map text-[10px] mr-1.5"></i> Browse All Regions
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-parchment-900 dark:bg-ink-900 text-parchment-300/60 py-10 border-t border-parchment-800/40 text-[11px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-md bg-accent-gold text-white flex items-center justify-center font-poetic text-base">प्र</div>
+                    <div>
+                        <span class="font-serif text-base font-bold tracking-wide text-parchment-100">PRASANG</span>
+                        <p class="text-[9px] text-parchment-400/70">Multilingual Literature & Poetry</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-5 font-medium text-parchment-200/70">
+                    <a href="#" class="hover:text-accent-gold transition">Rail</a>
+                    <a href="#" class="hover:text-accent-gold transition">Features</a>
+                    <a href="#" class="hover:text-accent-gold transition">Reader</a>
+                    <a href="#" class="hover:text-accent-gold transition">Eras</a>
+                    <a href="#" class="hover:text-accent-gold transition">Lexicon</a>
+                </div>
+                <p class="text-parchment-400/50">&copy; 2026 Prasang Platform.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== DICTIONARY MODAL ===== -->
+    <div id="dict-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-sm w-full shadow-2xl relative animate-fade-up overflow-hidden">
+            <div class="h-1 bg-gradient-to-r from-accent-gold to-parchment-500"></div>
+            <button onclick="closeWordModal()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-5">
+                <div class="flex items-center gap-1.5 text-accent-gold text-[9px] font-bold uppercase tracking-[0.15em] mb-2">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> Lexicon
+                </div>
+                <h3 id="modal-word" class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-0.5">Prem</h3>
+                <p id="modal-type" class="text-[10px] text-accent-gold font-semibold mb-2">N. Love, Compassion</p>
+                <p id="modal-desc" class="text-[12px] text-parchment-600 dark:text-parchment-300 leading-relaxed mb-2">
+                    Derived from Sanskrit 'Preman'. Refers to selfless divine love.
+                </p>
+                <div class="p-2 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 mb-3">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Etymology</p>
+                    <p id="modal-etymology" class="text-[10px] text-parchment-600 dark:text-parchment-400 italic">Sanskrit Preman → Prakrit → Sadhukkadi</p>
+                </div>
+                <button onclick="closeWordModal()" class="w-full py-1.5 bg-parchment-800 hover:bg-parchment-900 dark:bg-accent-gold dark:hover:bg-accent-gold/90 text-white rounded-lg text-[11px] font-semibold transition">
+                    Close & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ========== DATA ==========
+        const regions = [
+            { id: 'north', name: 'North India', script: 'उत्तर भारत', poets: 142, lang: 'Hindi', color: 'gold', desc: 'The heartland of the Bhakti movement — Kabir, Tulsidas, Surdas, and the Braj tradition.', cities: ['Varanasi', 'Mathura', 'Ayodhya'], poetsList: ['Kabir', 'Tulsidas', 'Surdas'] },
+            { id: 'punjab', name: 'Punjab', script: 'ਪੰਜਾਬ', poets: 48, lang: 'Punjabi', color: 'wine', desc: 'The land of the Sikh Gurus and Punjabi Sufi poets — Bulleh Shah, Waris Shah, and the Guru Granth Sahib.', cities: ['Amritsar', 'Lahore'], poetsList: ['Bulleh Shah', 'Guru Nanak', 'Waris Shah'] },
+            { id: 'bengal', name: 'Bengal', script: 'বাংলা', poets: 76, lang: 'Bengali', color: 'sage', desc: 'The Bengal Renaissance — Tagore, Nazrul, and the Vaishnava padavali tradition of Chandidas.', cities: ['Kolkata', 'Dhaka', 'Santiniketan'], poetsList: ['Rabindranath Tagore', 'Kazi Nazrul Islam', 'Chandidas'] },
+            { id: 'gujarat', name: 'Gujarat', script: 'ગુજરાત', poets: 34, lang: 'Gujarati', color: 'gold', desc: 'The land of Narsinh Mehta and Akha Bhagat — devotional and satirical poetry in Gujarati.', cities: ['Ahmedabad', 'Junagadh'], poetsList: ['Narsinh Mehta', 'Akha Bhagat'] },
+            { id: 'maharashtra', name: 'Maharashtra', script: 'महाराष्ट्र', poets: 68, lang: 'Marathi', color: 'wine', desc: 'The Varkari tradition — Dnyaneshwar, Namdev, Eknath, and Tukaram.', cities: ['Pune', 'Pandharpur'], poetsList: ['Dnyaneshwar', 'Tukaram', 'Namdev'] },
+            { id: 'karnataka', name: 'Karnataka', script: 'ಕರ್ನಾಟಕ', poets: 52, lang: 'Kannada', color: 'sage', desc: 'The Virashaiva vachana movement — Basava, Akka Mahadevi, and Allama Prabhu.', cities: ['Bengaluru', 'Kalyani'], poetsList: ['Basava', 'Akka Mahadevi', 'Allama Prabhu'] },
+            { id: 'tamil', name: 'Tamil Nadu', script: 'தமிழ்நாடு', poets: 56, lang: 'Tamil', color: 'gold', desc: 'The oldest literary tradition in India — Sangam poetry, the Alvars, and the Nayanars.', cities: ['Madurai', 'Chennai', 'Kanchipuram'], poetsList: ['Thiruvalluvar', 'Andal', 'Kambar'] },
+            { id: 'kashmir', name: 'Kashmir', script: 'کٲشُر', poets: 22, lang: 'Kashmiri', color: 'wine', desc: 'The mystic poetry of Lal Ded and the Sufi tradition of Kashmir.', cities: ['Srinagar'], poetsList: ['Lal Ded', 'Habba Khatoon'] },
+            { id: 'rajasthan', name: 'Rajasthan', script: 'राजस्थान', poets: 38, lang: 'Hindi', color: 'sage', desc: 'The land of Mirabai — Rajput devotional poetry and the Dingal tradition.', cities: ['Jodhpur', 'Merta'], poetsList: ['Mirabai', 'Sundar Das'] },
+            { id: 'delhi', name: 'Delhi', script: 'दिल्ली', poets: 84, lang: 'Urdu', color: 'gold', desc: 'The heart of the Mughal ghazal — Mir, Sauda, Ghalib, and the Delhi Renaissance.', cities: ['Delhi'], poetsList: ['Mirza Ghalib', 'Mir Taqi Mir', 'Amir Khusrau'] },
+        ];
+
+        const mapMarkers = [
+            { region: 'north', x: 195, y: 85, color: 'gold', label: 'North India', poets: 142, size: 'large' },
+            { region: 'punjab', x: 125, y: 72, color: 'wine', label: 'Punjab', poets: 48, size: 'medium' },
+            { region: 'bengal', x: 275, y: 130, color: 'sage', label: 'Bengal', poets: 76, size: 'medium' },
+            { region: 'gujarat', x: 112, y: 145, color: 'gold', label: 'Gujarat', poets: 34, size: 'small' },
+            { region: 'maharashtra', x: 160, y: 185, color: 'wine', label: 'Maharashtra', poets: 68, size: 'medium' },
+            { region: 'karnataka', x: 170, y: 240, color: 'sage', label: 'Karnataka', poets: 52, size: 'medium' },
+            { region: 'tamil', x: 190, y: 298, color: 'gold', label: 'Tamil Nadu', poets: 56, size: 'medium' },
+            { region: 'kashmir', x: 155, y: 28, color: 'wine', label: 'Kashmir', poets: 22, size: 'small' },
+            { region: 'rajasthan', x: 120, y: 125, color: 'sage', label: 'Rajasthan', poets: 38, size: 'small' },
+            { region: 'delhi', x: 165, y: 102, color: 'gold', label: 'Delhi', poets: 84, size: 'large' },
+        ];
+
+        const languages = ['All', 'Hindi', 'Urdu', 'Bengali', 'Sanskrit', 'Tamil', 'Punjabi', 'Marathi', 'Kannada', 'Gujarati', 'Kashmiri'];
+
+        const colorMap = {
+            gold: { bg: 'from-accent-gold/20 to-accent-gold/5', text: 'text-accent-gold', border: 'border-accent-gold/20', dot: '#b8860b' },
+            wine: { bg: 'from-accent-wine/20 to-accent-wine/5', text: 'text-accent-wine', border: 'border-accent-wine/20', dot: '#8b3a3a' },
+            sage: { bg: 'from-accent-sage/20 to-accent-sage/5', text: 'text-accent-sage', border: 'border-accent-sage/20', dot: '#5c7a6b' },
+        };
+
+        // ========== STATE ==========
+        let state = {
+            activeRegion: null,
+            activeLanguage: 'All',
+            layers: { poets: true, movements: true, routes: false, heatmap: false },
+        };
+
+        // ========== RENDER MAP MARKERS ==========
+        function renderMapMarkers() {
+            const container = document.getElementById('map-markers');
+            container.innerHTML = mapMarkers.map(m => {
+                const c = colorMap[m.color];
+                const sizes = { large: 7, medium: 5.5, small: 4 };
+                const r = sizes[m.size];
+                return `
+                    <g class="map-marker" data-region="${m.region}" onclick="selectRegion('${m.region}')" onmouseenter="showMapTooltip(event, '${m.label}', ${m.poets})" onmouseleave="hideMapTooltip()">
+                        ${state.layers.poets ? `
+                            <circle class="map-marker-ring" cx="${m.x}" cy="${m.y}" r="${r}" fill="${c.dot}" opacity="0.4"/>
+                            <circle cx="${m.x}" cy="${m.y}" r="${r}" fill="${c.dot}" stroke="#fff" stroke-width="1.5" opacity="0.9"/>
+                            <text x="${m.x}" y="${m.y + 1.5}" text-anchor="middle" font-size="4.5" font-weight="bold" fill="#fff">${m.poets}</text>
+                        ` : ''}
+                    </g>
+                `;
+            }).join('');
+        }
+
+        // ========== MAP TOOLTIP ==========
+        function showMapTooltip(event, label, poets) {
+            const tooltip = document.getElementById('map-tooltip');
+            const container = document.getElementById('map-container');
+            const rect = container.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+            tooltip.innerHTML = `<strong>${label}</strong> · ${poets} poets`;
+            tooltip.classList.add('visible');
+        }
+
+        function hideMapTooltip() {
+            document.getElementById('map-tooltip').classList.remove('visible');
+        }
+
+        // ========== SELECT REGION ==========
+        function selectRegion(regionId) {
+            state.activeRegion = regionId;
+
+            // Highlight region shape
+            document.querySelectorAll('.map-region').forEach(el => {
+                el.classList.toggle('active', el.dataset.region === regionId);
+            });
+
+            // Show info panel
+            renderMapInfo(regionId);
+
+            // Update region list
+            renderRegionList();
+
+            // Scroll to info
+            document.getElementById('map-info').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function clearRegionFilter() {
+            state.activeRegion = null;
+            document.querySelectorAll('.map-region').forEach(el => el.classList.remove('active'));
+            document.getElementById('map-info').classList.add('hidden');
+            renderRegionList();
+        }
+
+        // ========== RENDER MAP INFO ==========
+        function renderMapInfo(regionId) {
+            const region = regions.find(r => r.id === regionId);
+            if (!region) return;
+
+            const c = colorMap[region.color];
+            const container = document.getElementById('map-info');
+            container.classList.remove('hidden');
+            container.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} font-poetic text-2xl border ${c.border} flex-shrink-0">
+                        ${region.script.charAt(0)}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <div>
+                                <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100">${region.name}</h3>
+                                <p class="font-poetic text-sm text-parchment-500">${region.script}</p>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[10px] font-semibold">${region.poets} poets</span>
+                        </div>
+                        <p class="text-[12px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-3">${region.desc}</p>
+                        <div class="flex flex-wrap items-center gap-3 text-[10px] mb-3">
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-language text-accent-gold text-[9px]"></i> ${region.lang}</span>
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-location-dot text-accent-gold text-[9px]"></i> ${region.cities.join(', ')}</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            ${region.poetsList.map(p => `<button onclick="showWordModal('${p}', 'Poet · ${region.name}', 'A key poet of ${region.name}. Click to view their full profile.', '${region.lang}')" class="px-2 py-1 rounded-md bg-accent-gold/10 text-accent-gold text-[10px] font-semibold border border-accent-gold/20 hover:bg-accent-gold/20 transition">${p}</button>`).join('')}
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <button onclick="showWordModal('${region.name}', 'Region · ${region.poets} poets', '${region.desc.replace(/'/g, "\\'")}', '${region.lang}')" class="px-3 py-1.5 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[11px] font-semibold transition">
+                                <i class="fa-solid fa-arrow-right text-[9px] mr-1"></i> Explore Region
+                            </button>
+                            <button onclick="clearRegionFilter()" class="px-3 py-1.5 rounded-lg bg-white dark:bg-ink-800 border border-parchment-200/70 dark:border-parchment-700/40 text-parchment-600 dark:text-parchment-400 text-[11px] font-semibold hover:border-accent-gold/40 transition">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== RENDER REGION LIST ==========
+        function renderRegionList() {
+            const container = document.getElementById('region-list');
+            container.innerHTML = regions.map(r => {
+                const active = state.activeRegion === r.id;
+                return `
+                    <button onclick="selectRegion('${r.id}')" class="w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-medium transition flex items-center justify-between ${active ? 'bg-accent-gold/15 text-accent-gold' : 'text-parchment-700 dark:text-parchment-300 hover:bg-parchment-100/60 dark:hover:bg-ink-800'}">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-location-dot text-[9px] ${active ? 'text-accent-gold' : 'text-parchment-400'}"></i>
+                            ${r.name}
+                        </span>
+                        <span class="text-[9px] ${active ? 'text-accent-gold' : 'text-parchment-400'}">${r.poets}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // ========== RENDER REGION CARDS ==========
+        function renderRegionCards() {
+            const container = document.getElementById('region-cards');
+            container.innerHTML = regions.map(r => {
+                const c = colorMap[r.color];
+                return `
+                    <div class="region-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 group" onclick="selectRegion('${r.id}'); document.getElementById('map-info').scrollIntoView({ behavior: 'smooth', block: 'center' });">
+                        <div class="flex items-start justify-between mb-2.5">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} font-poetic text-lg border ${c.border}">
+                                ${r.script.charAt(0)}
+                            </div>
+                            <span class="text-[9px] font-bold text-parchment-500">${r.poets} poets</span>
+                        </div>
+                        <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-gold transition mb-0.5">${r.name}</h3>
+                        <p class="text-[10px] font-semibold ${c.text} mb-1.5">${r.lang}</p>
+                        <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed line-clamp-2">${r.desc}</p>
+                        <div class="flex items-center justify-between mt-2.5 pt-2.5 border-t border-parchment-200/60 dark:border-parchment-700/30">
+                            <span class="text-[9px] text-parchment-500">${r.cities.join(', ')}</span>
+                            <i class="fa-solid fa-arrow-right text-[9px] text-accent-gold opacity-0 group-hover:opacity-100 transition"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== LANGUAGE FILTERS ==========
+        function renderLanguageFilters() {
+            const container = document.getElementById('language-filters');
+            container.innerHTML = languages.map(l => `
+                <button onclick="filterByLanguage('${l}')" class="filter-chip ${state.activeLanguage === l ? 'active' : ''} px-2 py-1 rounded-md text-[10px] font-medium border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300" data-value="${l}">
+                    ${l}
+                </button>
+            `).join('');
+        }
+
+        function filterByLanguage(lang) {
+            state.activeLanguage = lang;
+            renderLanguageFilters();
+            // Filter region cards
+            const cards = document.querySelectorAll('#region-cards .region-card');
+            const regionEls = document.querySelectorAll('#region-cards > div');
+            regionEls.forEach((el, idx) => {
+                const region = regions[idx];
+                if (lang === 'All' || region.lang === lang) {
+                    el.style.display = '';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+        }
+
+        function clearLanguageFilter() {
+            state.activeLanguage = 'All';
+            renderLanguageFilters();
+            document.querySelectorAll('#region-cards > div').forEach(el => el.style.display = '');
+        }
+
+        // ========== LAYER TOGGLES ==========
+        function toggleLayer(layer) {
+            state.layers[layer] = !state.layers[layer];
+            const btn = document.getElementById(`layer-${layer}`);
+            btn.classList.toggle('active', state.layers[layer]);
+
+            if (layer === 'poets') {
+                renderMapMarkers();
+            } else if (layer === 'routes') {
+                document.getElementById('map-routes').classList.toggle('hidden', !state.layers.routes);
+            } else if (layer === 'heatmap') {
+                // Heatmap affects region fill opacity
+                document.querySelectorAll('.map-region').forEach(el => {
+                    if (state.layers.heatmap) {
+                        el.style.fill = 'rgba(184, 134, 11, 0.25)';
+                    } else {
+                        el.style.fill = '';
+                    }
+                });
+            } else if (layer === 'movements') {
+                // Movements toggle marker rings
+                renderMapMarkers();
+            }
+        }
+
+        // ========== THEME ==========
+        function setTheme(theme) {
+            const body = document.getElementById('app-body');
+            const btnLight = document.getElementById('btn-light');
+            const btnSepia = document.getElementById('btn-sepia');
+            const btnDark = document.getElementById('btn-dark');
+
+            body.classList.remove('dark', 'theme-sepia');
+            [btnLight, btnSepia, btnDark].forEach(btn => {
+                btn.className = 'px-2 py-1 rounded-md flex items-center gap-1 text-parchment-600 dark:text-parchment-400 hover:text-parchment-900 dark:hover:text-parchment-200 text-[11px] font-medium transition';
+            });
+
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                btnDark.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-ink-700 text-white shadow-sm text-[11px] font-medium transition';
+            } else if (theme === 'sepia') {
+                body.classList.add('theme-sepia');
+                btnSepia.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-parchment-800 text-white shadow-sm text-[11px] font-medium transition';
+            } else {
+                btnLight.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-900 shadow-sm text-[11px] font-medium transition';
+            }
+        }
+
+        // ========== DICTIONARY MODAL ==========
+        function showWordModal(word, type, desc, etymology) {
+            document.getElementById('modal-word').innerText = word;
+            document.getElementById('modal-type').innerText = type;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-etymology').innerText = etymology || '—';
+            document.getElementById('dict-modal').classList.remove('hidden');
+        }
+
+        function closeWordModal() {
+            document.getElementById('dict-modal').classList.add('hidden');
+        }
+
+        // ========== READING PROGRESS ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('reading-progress').style.width = progress + '%';
+        });
+
+        // ========== KEYBOARD ==========
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeWordModal();
+                clearRegionFilter();
+            }
+        });
+
+        document.getElementById('dict-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeWordModal();
+        });
+
+        // ========== BOOT ==========
+        window.onload = function() {
+            renderMapMarkers();
+            renderRegionList();
+            renderRegionCards();
+            renderLanguageFilters();
+        };
+    </script>
+</body>
+</html>

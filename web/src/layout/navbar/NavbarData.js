@@ -26,6 +26,14 @@ import {
   FaTree,
   FaSeedling,
   FaScroll,
+  FaTheaterMasks,   // ─── ADDED ───
+  FaBookOpen,       // ─── ADDED ───
+  FaFeather,        // ─── ADDED ───
+  FaMusic,          // ─── ADDED ───
+  FaLandmark,       // ─── ADDED ───
+  FaLeaf,           // ─── ADDED ───
+  FaPrayingHands,   // ─── ADDED ───
+  FaStar,           // ─── ADDED ───
 } from "react-icons/fa";
 
 // Navigation items with translation keys
@@ -50,6 +58,33 @@ export const navItems = [
       { labelKey: "poemTypes", path: "/poemstypes", icon: FaPenNib },
     ],
   },
+
+  // ─── ADDED: Literary Genres ─────────────────────────────
+  {
+    labelKey: "genres",
+    path: "/genres",
+    icon: FaTheaterMasks,
+    themeAware: true,
+    dropdown: [
+      { labelKey: "allGenres",   path: "/genres",              icon: FaBookOpen },
+      { labelKey: "epic",        path: "/genres/epic",         icon: FaScroll },
+      { labelKey: "lyric",       path: "/genres/lyric",        icon: FaMusic },
+      { labelKey: "sonnet",      path: "/genres/sonnet",       icon: FaPenNib },
+      { labelKey: "ghazal",      path: "/genres/ghazal",       icon: FaHeart },
+      { labelKey: "haiku",       path: "/genres/haiku",        icon: FaLeaf },
+      { labelKey: "ode",         path: "/genres/ode",          icon: FaAward },
+      { labelKey: "elegy",       path: "/genres/elegy",        icon: FaPrayingHands },
+      { labelKey: "ballad",      path: "/genres/ballad",       icon: FaFeather },
+      { labelKey: "freeVerse",   path: "/genres/free-verse",   icon: FaPenNib },
+      { labelKey: "blankVerse",  path: "/genres/blank-verse",  icon: FaPenFancy },
+      { labelKey: "prosePoem",   path: "/genres/prose-poem",   icon: FaPenFancy },
+      { labelKey: "folk",        path: "/genres/folk",         icon: FaFeatherAlt },
+      { labelKey: "classical",   path: "/genres/classical",    icon: FaLandmark },
+      { labelKey: "modern",      path: "/genres/modern",       icon: FaStar },
+    ],
+  },
+  // ────────────────────────────────────────────────────────
+
   {
     labelKey: "prose",
     path: "/prose",
@@ -102,6 +137,131 @@ export const navItems = [
     themeAware: true,
   },
 ];
+
+// ─── ADDED: Genre metadata (used by /genres pages) ────────
+// Each genre has a display name, description, and a native-script
+// name for the languages that use it.
+
+export const literaryGenres = [
+  {
+    slug: "epic",
+    nameKey: "epic",
+    descKey: "epicDesc",
+    icon: FaScroll,
+    examples: ["Iliad", "Mahabharata", "Shahnameh", "Ramayana"],
+    languages: ["grc", "sa", "fa", "hi"],
+  },
+  {
+    slug: "lyric",
+    nameKey: "lyric",
+    descKey: "lyricDesc",
+    icon: FaMusic,
+    examples: ["Sappho's Odes", "Meghaduta", "Divan-e-Hafez"],
+    languages: ["grc", "sa", "fa"],
+  },
+  {
+    slug: "sonnet",
+    nameKey: "sonnet",
+    descKey: "sonnetDesc",
+    icon: FaPenNib,
+    examples: ["Sonnet 18", "Astrophil and Stella"],
+    languages: ["en", "it", "fr"],
+  },
+  {
+    slug: "ghazal",
+    nameKey: "ghazal",
+    descKey: "ghazalDesc",
+    icon: FaHeart,
+    examples: ["Divan-e-Ghalib", "Rumi's Ghazals"],
+    languages: ["ur", "fa", "hi", "tr"],
+  },
+  {
+    slug: "haiku",
+    nameKey: "haiku",
+    descKey: "haikuDesc",
+    icon: FaLeaf,
+    examples: ["Bashō's Frog", "Issa's Sparrow"],
+    languages: ["ja"],
+  },
+  {
+    slug: "ode",
+    nameKey: "ode",
+    descKey: "odeDesc",
+    icon: FaAward,
+    examples: ["Ode to a Nightingale", "Ode to the West Wind"],
+    languages: ["en", "grc"],
+  },
+  {
+    slug: "elegy",
+    nameKey: "elegy",
+    descKey: "elegyDesc",
+    icon: FaPrayingHands,
+    examples: ["Lycidas", "In Memoriam", "Elegy Written in a Country Churchyard"],
+    languages: ["en", "la"],
+  },
+  {
+    slug: "ballad",
+    nameKey: "ballad",
+    descKey: "balladDesc",
+    icon: FaFeather,
+    examples: ["The Rime of the Ancient Mariner", "Barbara Allen"],
+    languages: ["en", "gd", "es"],
+  },
+  {
+    slug: "free-verse",
+    nameKey: "freeVerse",
+    descKey: "freeVerseDesc",
+    icon: FaPenNib,
+    examples: ["Song of Myself", "The Waste Land"],
+    languages: ["en", "fr"],
+  },
+  {
+    slug: "blank-verse",
+    nameKey: "blankVerse",
+    descKey: "blankVerseDesc",
+    icon: FaPenFancy,
+    examples: ["Paradise Lost", "Hamlet"],
+    languages: ["en"],
+  },
+  {
+    slug: "prose-poem",
+    nameKey: "prosePoem",
+    descKey: "prosePoemDesc",
+    icon: FaPenFancy,
+    examples: ["Le Spleen de Paris", "Tender Buttons"],
+    languages: ["fr", "en"],
+  },
+  {
+    slug: "folk",
+    nameKey: "folk",
+    descKey: "folkDesc",
+    icon: FaFeatherAlt,
+    examples: ["Kajri", "Chaiti", "Baul songs", "Alha"],
+    languages: ["hi", "bn", "pa"],
+  },
+  {
+    slug: "classical",
+    nameKey: "classical",
+    descKey: "classicalDesc",
+    icon: FaLandmark,
+    examples: ["Vedic hymns", "Sangam poetry", "Greek epics"],
+    languages: ["sa", "ta", "grc"],
+  },
+  {
+    slug: "modern",
+    nameKey: "modern",
+    descKey: "modernDesc",
+    icon: FaStar,
+    examples: ["The Waste Land", "Howl", "Nirala's poetry"],
+    languages: ["en", "hi", "ur"],
+  },
+];
+
+// ─── ADDED: Genre slug → path helper ──────────────────────
+export const getGenrePath = (slug) => `/genres/${slug}`;
+
+// ─── ADDED: Find a genre by slug ──────────────────────────
+export const findGenre = (slug) => literaryGenres.find((g) => g.slug === slug);
 
 // Theme icons
 export const themeIcons = {

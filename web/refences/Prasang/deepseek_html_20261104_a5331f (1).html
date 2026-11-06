@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kabir Das · Poetic Timeline | Prasang</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Editorial Mix -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Nastaliq+Urdu&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#fdfaf5', 100: '#f9f2e9', 200: '#f1e6d6', 300: '#e5d3b8',
+                            400: '#d4b894', 500: '#c09a6b', 600: '#a87d4a', 700: '#8a6238',
+                            800: '#6b4a2a', 900: '#4c3420',
+                        },
+                        ink: { 50: '#f6f6f7', 800: '#1e1b18', 900: '#141210' },
+                        accent: { gold: '#b8860b', wine: '#8b3a3a', sage: '#5c7a6b' }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        poetic: ['"Rozha One"', 'Georgia', 'serif'],
+                        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
+                        'glow': '0 0 25px -5px rgba(184,134,11,0.35)',
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c09a6b; border-radius: 99px; }
+        .dark ::-webkit-scrollbar-thumb { background: #6b4a2a; }
+
+        /* Sepia theme */
+        .theme-sepia {
+            background-color: #f4ebd0 !important;
+            color: #433422 !important;
+        }
+        .theme-sepia .glass-panel {
+            background-color: rgba(244, 235, 208, 0.9) !important;
+            border-color: #d3c39c !important;
+        }
+        .theme-sepia .bg-card-theme { background-color: #ebdcb9 !important; border-color: #d8c69d !important; }
+        .theme-sepia .text-muted-theme { color: #70583b !important; }
+        .theme-sepia .accent-theme { color: #8c4227 !important; }
+
+        /* Glassmorphism */
+        .glass-panel {
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background-color: rgba(253, 250, 245, 0.88);
+            border: 1px solid rgba(192, 154, 107, 0.2);
+        }
+        .dark .glass-panel {
+            background-color: rgba(20, 18, 16, 0.88);
+            border-color: rgba(107, 74, 42, 0.3);
+        }
+
+        /* Timeline vertical line */
+        .timeline-line {
+            background: linear-gradient(180deg, #e5d3b8 0%, #c09a6b 50%, #e5d3b8 100%);
+        }
+        .dark .timeline-line {
+            background: linear-gradient(180deg, #4c3420 0%, #8a6238 50%, #4c3420 100%);
+        }
+
+        /* Timeline item hover */
+        .timeline-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .timeline-item:hover .timeline-node {
+            transform: scale(1.25);
+            box-shadow: 0 0 0 6px rgba(184, 134, 11, 0.15);
+        }
+        .timeline-item:hover .work-card-inner {
+            transform: translateX(4px);
+            border-color: rgba(184, 134, 11, 0.4);
+        }
+
+        /* Period band */
+        .period-band {
+            transition: all 0.3s ease;
+        }
+        .period-band:hover {
+            background: rgba(184, 134, 11, 0.06);
+        }
+
+        /* Filter chip */
+        .filter-chip {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .filter-chip.active {
+            background-color: #b8860b;
+            color: #fff;
+            border-color: #b8860b;
+        }
+        .filter-chip:not(.active):hover {
+            background-color: rgba(192, 154, 107, 0.15);
+            border-color: rgba(192, 154, 107, 0.5);
+        }
+
+        /* Work detail expand */
+        .work-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        .work-item.expanded .work-detail {
+            max-height: 500px;
+            opacity: 1;
+        }
+        .work-item.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Theme evolution bar */
+        .theme-bar {
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Comparison split */
+        .comparison-split {
+            position: relative;
+        }
+        .comparison-split::before {
+            content: 'VS';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #b8860b;
+            color: #fff;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.35);
+            border: 3px solid #fdfaf5;
+        }
+        .dark .comparison-split::before {
+            border-color: #141210;
+        }
+
+        /* Word dictionary trigger */
+        .dict-word {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: #b8860b;
+            text-underline-offset: 5px;
+            transition: all 0.2s ease;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+        .dict-word:hover {
+            background-color: rgba(184, 134, 11, 0.18);
+            text-decoration-style: solid;
+        }
+
+        /* Ornamental divider */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #c09a6b;
+        }
+        .ornament-divider::before,
+        .ornament-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e5d3b8, transparent);
+        }
+        .dark .ornament-divider::before,
+        .dark .ornament-divider::after {
+            background: linear-gradient(90deg, transparent, #4c3420, transparent);
+        }
+
+        /* Reading progress */
+        .top-progress {
+            height: 2px;
+            background: linear-gradient(90deg, #b8860b, #d4b894);
+            width: 0%;
+            transition: width 0.15s ease-out;
+        }
+
+        /* Year pill */
+        .year-pill {
+            transition: all 0.2s ease;
+        }
+        .year-pill.active {
+            background-color: #b8860b;
+            color: #fff;
+        }
+
+        /* Reduce motion */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-parchment-50 text-ink-900 font-sans antialiased transition-colors duration-300 min-h-screen selection:bg-accent-gold/20">
+
+    <!-- Reading progress bar -->
+    <div class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-parchment-200/50 dark:bg-ink-800">
+        <div id="reading-progress" class="top-progress h-full"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-parchment-300/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
+            <!-- Brand -->
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center shadow-md text-white font-poetic text-xl pb-0.5">
+                    प्र
+                </div>
+                <div class="leading-tight">
+                    <span class="font-serif text-xl font-bold tracking-wide text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                        PRASANG
+                        <span class="text-[9px] tracking-wider font-sans bg-accent-gold/15 text-accent-gold px-1.5 py-0.5 rounded-full uppercase font-semibold border border-accent-gold/20">AI</span>
+                    </span>
+                    <p class="text-[9px] text-parchment-600 dark:text-parchment-400 uppercase tracking-[0.2em] hidden sm:block">Literature Discovery</p>
+                </div>
+            </a>
+
+            <!-- Breadcrumb -->
+            <nav class="hidden lg:flex items-center gap-2 text-[11px] text-parchment-500 dark:text-parchment-400 font-medium">
+                <a href="#" class="hover:text-accent-gold transition">Home</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <a href="#" class="hover:text-accent-gold transition">Poets</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <a href="#" class="hover:text-accent-gold transition">Kabir Das</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <span class="text-ink-900 dark:text-parchment-200 font-semibold">Poetic Timeline</span>
+            </nav>
+
+            <!-- Theme + CTA -->
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center p-0.5 bg-parchment-200/70 dark:bg-ink-800 rounded-lg border border-parchment-300 dark:border-parchment-700">
+                    <button onclick="setTheme('light')" id="btn-light" class="px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-800 shadow-sm text-[11px] font-medium transition" title="Light">
+                        <i class="fa-regular fa-sun text-amber-500 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('sepia')" id="btn-sepia" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-700 hover:text-parchment-900 text-[11px] font-medium transition" title="Sepia">
+                        <i class="fa-regular fa-file-lines text-amber-700 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-500 hover:text-parchment-200 text-[11px] font-medium transition" title="Dark">
+                        <i class="fa-regular fa-moon text-indigo-400 text-[11px]"></i>
+                    </button>
+                </div>
+                <button class="hidden sm:inline-flex items-center px-4 py-2 text-[12px] font-semibold rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white transition shadow-sm">
+                    <i class="fa-solid fa-arrow-left text-[10px] mr-1.5"></i> Poet Profile
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== POET HERO ===== -->
+    <section class="relative pt-10 pb-6 overflow-hidden">
+        <div class="absolute inset-0 -z-10">
+            <div class="absolute top-0 right-0 w-[460px] h-[460px] bg-accent-gold/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-[380px] h-[380px] bg-accent-wine/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                <!-- Monogram -->
+                <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-parchment-700 via-parchment-800 to-parchment-900 flex items-center justify-center shadow-glow border-2 border-parchment-100 dark:border-ink-800 flex-shrink-0">
+                    <span class="font-poetic text-4xl text-parchment-100 pb-1 select-none">क</span>
+                </div>
+
+                <!-- Identity -->
+                <div class="flex-1 min-w-0">
+                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span class="px-2 py-0.5 rounded-full bg-accent-gold/10 text-accent-gold text-[9px] font-bold uppercase tracking-[0.12em] border border-accent-gold/20">
+                            <i class="fa-solid fa-timeline text-[7px] mr-1"></i> Poetic Timeline
+                        </span>
+                        <span class="px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-semibold">Bhakti · 15th c.</span>
+                    </div>
+                    <h1 class="font-serif text-3xl sm:text-4xl font-bold text-ink-900 dark:text-parchment-100 tracking-tight leading-tight">
+                        Kabir Das <span class="text-accent-gold">· Works in Time</span>
+                    </h1>
+                    <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-1">
+                        A chronological journey through the surviving corpus — from the earliest attributed verses to the latest compilations.
+                    </p>
+                </div>
+
+                <!-- Quick stats -->
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <div class="text-center">
+                        <p class="font-serif text-2xl font-bold text-accent-gold">218</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Works</p>
+                    </div>
+                    <div class="w-px h-8 bg-parchment-300 dark:bg-parchment-700"></div>
+                    <div class="text-center">
+                        <p class="font-serif text-2xl font-bold text-accent-gold">3</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Periods</p>
+                    </div>
+                    <div class="w-px h-8 bg-parchment-300 dark:bg-parchment-700"></div>
+                    <div class="text-center">
+                        <p class="font-serif text-2xl font-bold text-accent-gold">78</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Years</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== VIEW + FILTER TOOLBAR ===== -->
+    <section class="pb-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 p-3 bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 shadow-soft">
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-parchment-500 mr-1">Filter:</span>
+                    <button onclick="filterPeriod('all')" id="f-all" class="filter-chip active px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300">All Works</button>
+                    <button onclick="filterPeriod('early')" id="f-early" class="filter-chip px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300">Early Period</button>
+                    <button onclick="filterPeriod('middle')" id="f-middle" class="filter-chip px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300">Middle Period</button>
+                    <button onclick="filterPeriod('late')" id="f-late" class="filter-chip px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300">Late Period</button>
+                    <span class="w-px h-5 bg-parchment-300 dark:bg-parchment-700 mx-1"></span>
+                    <button onclick="filterForm('all')" id="ff-all" class="filter-chip active px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300">All Forms</button>
+                    <button onclick="filterForm('doha')" id="ff-doha" class="filter-chip px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300">Doha</button>
+                    <button onclick="filterForm('sabda')" id="ff-sabda" class="filter-chip px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300">Sabda</button>
+                    <button onclick="filterForm('ramaini')" id="ff-ramaini" class="filter-chip px-2.5 py-1 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300">Ramaini</button>
+                </div>
+
+                <!-- View toggle + search -->
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-parchment-400 text-[10px]"></i>
+                        <input type="text" id="work-search" placeholder="Search works..." oninput="applyWorkFilters()" class="w-40 pl-7 pr-2 py-1.5 bg-parchment-100/60 dark:bg-ink-800/60 rounded-lg text-[11px] text-ink-900 dark:text-parchment-200 placeholder-parchment-500/70 focus:outline-none focus:ring-1 focus:ring-accent-gold">
+                    </div>
+                    <div class="flex items-center p-0.5 bg-parchment-200/60 dark:bg-ink-800 rounded-lg border border-parchment-300/60 dark:border-parchment-700/40">
+                        <button onclick="setTimelineDensity('comfortable')" id="d-comfortable" class="view-btn active px-2 py-1 rounded-md text-[11px] font-medium text-parchment-600 dark:text-parchment-400 transition" title="Comfortable">
+                            <i class="fa-solid fa-grip-lines text-[10px]"></i>
+                        </button>
+                        <button onclick="setTimelineDensity('compact')" id="d-compact" class="view-btn px-2 py-1 rounded-md text-[11px] font-medium text-parchment-600 dark:text-parchment-400 transition" title="Compact">
+                            <i class="fa-solid fa-bars text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MAIN TIMELINE ===== -->
+    <section class="pb-14">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="relative pl-8 sm:pl-12">
+                <!-- Vertical line -->
+                <div class="absolute left-3 sm:left-4 top-2 bottom-2 w-0.5 timeline-line"></div>
+
+                <!-- Timeline items injected by JS -->
+                <div id="timeline-items" class="space-y-3"></div>
+
+                <!-- Empty state -->
+                <div id="timeline-empty" class="hidden text-center py-16">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-parchment-200/60 dark:bg-ink-800 flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-scroll text-parchment-400 text-2xl"></i>
+                    </div>
+                    <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-1">No works match your filters</h3>
+                    <p class="text-[12px] text-parchment-500 mb-4">Try adjusting your period, form, or search terms.</p>
+                    <button onclick="resetWorkFilters()" class="px-4 py-2 rounded-lg bg-accent-gold text-white text-[11px] font-semibold hover:bg-accent-gold/90 transition">
+                        Reset All Filters
+                    </button>
+                </div>
+
+                <!-- Load more -->
+                <div class="text-center mt-8" id="load-more-wrap">
+                    <button onclick="loadMoreWorks()" class="px-6 py-2.5 rounded-lg bg-ink-900 dark:bg-accent-gold text-white text-[12px] font-semibold hover:bg-ink-800 dark:hover:bg-accent-gold/90 transition shadow-md inline-flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-rotate text-[10px]"></i> Load More Works
+                    </button>
+                    <p class="text-[10px] text-parchment-500 mt-2">Showing <span id="shown-count">12</span> of <span id="total-count">12</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PERIOD SUMMARY BANDS ===== -->
+    <section class="py-12 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-8">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Overview</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">The Three Periods</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">Kabir's works are traditionally grouped into three phases of composition.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Period 1 -->
+                <div class="period-band bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5 cursor-pointer hover:border-accent-gold/40" onclick="filterPeriod('early')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                        <span class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">c. 1440–1470</span>
+                    </div>
+                    <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-1">Early Period</h3>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-2">The formative years — simple, direct sakhis on devotion, the guru, and the search for the Divine.</p>
+                    <div class="flex items-center justify-between text-[10px]">
+                        <span class="font-semibold text-accent-gold">84 works</span>
+                        <span class="text-parchment-500">Mostly Dohas</span>
+                    </div>
+                </div>
+
+                <!-- Period 2 -->
+                <div class="period-band bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5 cursor-pointer hover:border-accent-gold/40" onclick="filterPeriod('middle')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                        <span class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">c. 1470–1500</span>
+                    </div>
+                    <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-1">Middle Period</h3>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-2">The mature voice — sharp polemical sabdas critiquing ritual, caste, and hypocrisy in both Hindu and Muslim society.</p>
+                    <div class="flex items-center justify-between text-[10px]">
+                        <span class="font-semibold text-accent-wine">92 works</span>
+                        <span class="text-parchment-500">Sabdas & Dohas</span>
+                    </div>
+                </div>
+
+                <!-- Period 3 -->
+                <div class="period-band bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5 cursor-pointer hover:border-accent-gold/40" onclick="filterPeriod('late')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-tree"></i>
+                        </div>
+                        <span class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">c. 1500–1518</span>
+                    </div>
+                    <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-1">Late Period</h3>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-2">The culminating vision — longer ramainis and mystical poems of unity, surrender, and the unstruck sound.</p>
+                    <div class="flex items-center justify-between text-[10px]">
+                        <span class="font-semibold text-accent-sage">42 works</span>
+                        <span class="text-parchment-500">Ramainis & Sabdas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== THEME EVOLUTION ===== -->
+    <section class="py-14">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Evolution</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">How His Themes Evolved</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">The dominant ideas across Kabir's three creative periods, measured by thematic frequency.</p>
+            </div>
+
+            <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-6 sm:p-8 space-y-6">
+                <!-- Theme bar row -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-[12px] font-bold text-ink-900 dark:text-parchment-200">Divine Love</p>
+                        <span class="text-[10px] text-parchment-500">Dominant in all periods</span>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-16 text-[9px] font-semibold text-parchment-500">Early</span>
+                            <div class="flex-1 h-2 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                <div class="theme-bar h-full bg-accent-gold rounded-full" style="width: 60%"></div>
+                            </div>
+                            <span class="w-8 text-[9px] text-parchment-500 text-right">60%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-16 text-[9px] font-semibold text-parchment-500">Middle</span>
+                            <div class="flex-1 h-2 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                <div class="theme-bar h-full bg-accent-gold rounded-full" style="width: 75%"></div>
+                            </div>
+                            <span class="w-8 text-[9px] text-parchment-500 text-right">75%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-16 text-[9px] font-semibold text-parchment-500">Late</span>
+                            <div class="flex-1 h-2 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                <div class="theme-bar h-full bg-accent-gold rounded-full" style="width: 90%"></div>
+                            </div>
+                            <span class="w-8 text-[9px] text-parchment-500 text-right">90%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme bar row -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-[12px] font-bold text-ink-900 dark:text-parchment-200">Anti-Ritualism</p>
+                        <span class="text-[10px] text-parchment-500">Peaks in middle period</span>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-16 text-[9px] font-semibold text-parchment-500">Early</span>
+                            <div class="flex-1 h-2 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                <div class="theme-bar h-full bg-accent-wine rounded-full" style="width: 30%"></div>
+                            </div>
+                            <span class="w-8 text-[9px] text-parchment-500 text-right">30%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-16 text-[9px] font-semibold text-parchment-500">Middle</span>
+                            <div class="flex-1 h-2 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                <div class="theme-bar h-full bg-accent-wine rounded-full" style="width: 85%"></div>
+                            </div>
+                            <span class="w-8 text-[9px] text-parchment-500 text-right">85%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-16 text-[9px] font-semibold text-parchment-500">Late</span>
+                            <div class="flex-1 h-2 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                <div class="theme-bar h-full bg-accent-wine rounded-full" style="width: 50%"></div>
+                            </div>
+                            <span class="w-8 text-[9px] text-parchment-500 text-right">50%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme bar row -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-[12px] font-bold text-ink-900 dark:text-parchment-200">Mystical Union (Sahaj)</p>
+                        <span class="text-[10px] text-parchment-500">Grows toward the end</span>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-16 text-[9px] font-semibold text-parchment-500">Early</span>
+                            <div class="flex-1 h-2 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                <div class="theme-bar h-full bg-accent-sage rounded-full" style="width: 20%"></div>
+                            </div>
+                            <span class="w-8 text-[9px] text-parchment-500 text-right">20%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-16 text-[9px] font-semibold text-parchment-500">Middle</span>
+                            <div class="flex-1 h-2 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                <div class="theme-bar h-full bg-accent-sage rounded-full" style="width: 45%"></div>
+                            </div>
+                            <span class="w-8 text-[9px] text-parchment-500 text-right">45%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-16 text-[9px] font-semibold text-parchment-500">Late</span>
+                            <div class="flex-1 h-2 rounded-full bg-parchment-200/70 dark:bg-ink-800 overflow-hidden">
+                                <div class="theme-bar h-full bg-accent-sage rounded-full" style="width: 80%"></div>
+                            </div>
+                            <span class="w-8 text-[9px] text-parchment-500 text-right">80%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-[10px] text-parchment-400 dark:text-parchment-500 italic text-center pt-2 border-t border-parchment-200/60 dark:border-parchment-700/30">
+                    <i class="fa-solid fa-robot text-[9px] mr-1"></i> Thematic frequencies derived from AI analysis of the surviving corpus.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FIRST VS LAST COMPARISON ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-8">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">The Arc of a Life</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">First Poem vs. Last Poem</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">How did Kabir's voice change from his earliest to his final surviving verse?</p>
+            </div>
+
+            <div class="comparison-split grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- First poem -->
+                <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2 py-0.5 rounded-full bg-accent-gold/10 text-accent-gold text-[9px] font-bold uppercase tracking-wider border border-accent-gold/20">Earliest Surviving</span>
+                        <span class="text-[9px] text-parchment-500">c. 1440s</span>
+                    </div>
+                    <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-1">Sakhi #1 — Guru Govind Dono</h3>
+                    <p class="font-poetic text-base text-parchment-800 dark:text-parchment-200 leading-relaxed mb-3">
+                        गुरु गोविन्द दोउ खड़े, काके लागूं पाय।<br>
+                        बलिहारी गुरु आपने, गोविन्द दियो बताय॥
+                    </p>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 italic leading-relaxed mb-3">
+                        "The Guru and God both stand before me — whose feet do I touch first? I bow to the Guru, who showed me God."
+                    </p>
+                    <div class="flex items-center gap-2 text-[10px]">
+                        <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 font-medium">Doha</span>
+                        <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 font-medium">Guru devotion</span>
+                    </div>
+                    <p class="text-[10px] text-parchment-500 mt-3 pt-2 border-t border-parchment-200/60 dark:border-parchment-700/30">
+                        <strong class="text-accent-gold">Style:</strong> Simple, traditional, humble — a classic guru-vandana (invocation).
+                    </p>
+                </div>
+
+                <!-- Last poem -->
+                <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2 py-0.5 rounded-full bg-accent-wine/10 text-accent-wine text-[9px] font-bold uppercase tracking-wider border border-accent-wine/20">Latest Surviving</span>
+                        <span class="text-[9px] text-parchment-500">c. 1510s</span>
+                    </div>
+                    <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-1">Ramaini — Kahai Kabir Suno Bhai Sadho</h3>
+                    <p class="font-poetic text-base text-parchment-800 dark:text-parchment-200 leading-relaxed mb-3">
+                        कहै कबीर सुनो भाई साधो,<br>
+                        सहज समाधि लागी।
+                    </p>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 italic leading-relaxed mb-3">
+                        "Says Kabir, listen O seeker — the spontaneous meditation has begun. The unstruck sound resounds, and the self dissolves in the Beloved."
+                    </p>
+                    <div class="flex items-center gap-2 text-[10px]">
+                        <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 font-medium">Ramaini</span>
+                        <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 font-medium">Mystical union</span>
+                    </div>
+                    <p class="text-[10px] text-parchment-500 mt-3 pt-2 border-t border-parchment-200/60 dark:border-parchment-700/30">
+                        <strong class="text-accent-wine">Style:</strong> Intimate, realized, inward — a sage speaking from experience, not doctrine.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-5 p-4 rounded-xl bg-parchment-100/70 dark:bg-ink-800/60 border-l-4 border-accent-gold">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-accent-gold mb-1 flex items-center gap-1">
+                    <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i> AI Literary Analysis
+                </p>
+                <p class="text-[12px] text-parchment-700 dark:text-parchment-300 leading-relaxed">
+                    The arc from the <strong>first</strong> to the <strong>last</strong> poem mirrors Kabir's spiritual journey: from the outward gesture of <em>reverence</em> (bowing to the Guru) to the inward state of <em>realization</em> (the unstruck sound within). The early Kabir asks <em>who</em> to worship; the late Kabir has <em>become</em> the worship. This movement from <strong>doctrine to experience</em> is the signature of his creative evolution.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CRITICISM TRACK ===== -->
+    <section class="py-14">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-8">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Scholarship</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Criticism Through Time</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">How scholars and critics have read Kabir's works across the centuries.</p>
+            </div>
+
+            <div class="relative pl-8 sm:pl-10">
+                <div class="absolute left-2 sm:left-3 top-2 bottom-2 w-0.5 timeline-line"></div>
+                <div class="space-y-3">
+                    <!-- Criticism item -->
+                    <div class="relative">
+                        <div class="absolute -left-8 sm:-left-10 top-3 w-4 h-4 rounded-full bg-accent-gold border-4 border-parchment-50 dark:border-ink-900 shadow"></div>
+                        <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[10px] font-bold text-accent-gold">c. 1600</span>
+                                <span class="text-parchment-300 dark:text-parchment-700">·</span>
+                                <span class="text-[10px] text-parchment-500">Early Compilation</span>
+                            </div>
+                            <p class="text-[12px] text-parchment-700 dark:text-parchment-300 leading-relaxed">
+                                The <em>Bijak</em> is compiled by the Kabir Panth — the first major collection of his verses, organized into sakhis, sabdas, and ramainis.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-8 sm:-left-10 top-3 w-4 h-4 rounded-full bg-accent-gold border-4 border-parchment-50 dark:border-ink-900 shadow"></div>
+                        <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[10px] font-bold text-accent-gold">1920s</span>
+                                <span class="text-parchment-300 dark:text-parchment-700">·</span>
+                                <span class="text-[10px] text-parchment-500">Nationalist Revival</span>
+                            </div>
+                            <p class="text-[12px] text-parchment-700 dark:text-parchment-300 leading-relaxed">
+                                Rabindranath Tagore translates Kabir into English; Gandhi and the nationalist movement adopt Kabir as a symbol of Hindu-Muslim unity.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-8 sm:-left-10 top-3 w-4 h-4 rounded-full bg-accent-gold border-4 border-parchment-50 dark:border-ink-900 shadow"></div>
+                        <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[10px] font-bold text-accent-gold">1960s–80s</span>
+                                <span class="text-parchment-300 dark:text-parchment-700">·</span>
+                                <span class="text-[10px] text-parchment-500">Modern Scholarship</span>
+                            </div>
+                            <p class="text-[12px] text-parchment-700 dark:text-parchment-300 leading-relaxed">
+                                Scholars like Charlotte Vaudeville and Parasuram Chaturvedi produce the first critical editions, separating authentic Kabir from later attributions.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-8 sm:-left-10 top-3 w-4 h-4 rounded-full bg-accent-gold border-4 border-parchment-50 dark:border-ink-900 shadow"></div>
+                        <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[10px] font-bold text-accent-gold">2000s–present</span>
+                                <span class="text-parchment-300 dark:text-parchment-700">·</span>
+                                <span class="text-[10px] text-parchment-500">Digital &amp; Global</span>
+                            </div>
+                            <p class="text-[12px] text-parchment-700 dark:text-parchment-300 leading-relaxed">
+                                Kabir enters world literature through new translations, comparative studies with Sufi and Christian mysticism, and digital archives like Prasang.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-br from-accent-gold/95 to-accent-wine/95 rounded-2xl p-8 sm:p-10 text-white shadow-glow relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 translate-x-10 translate-y-10 opacity-10 font-poetic text-[120px] pointer-events-none select-none">
+                    काल
+                </div>
+                <div class="relative z-10 max-w-lg">
+                    <span class="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">Continue</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold mt-1 mb-2">Explore the Full Corpus</h2>
+                    <p class="text-white/80 text-[13px] leading-relaxed mb-5">
+                        This timeline shows Kabir's trajectory, but every work has its own page — with full text, translation, AI analysis, and community annotations.
+                    </p>
+                    <div class="flex flex-wrap gap-2.5">
+                        <button onclick="showWordModal('Kabir Das — Complete Works', 'Collection · 218 works', 'Browse the complete surviving corpus of Kabir, organized by period, form, and theme.', 'Prasang archive')" class="px-5 py-2.5 rounded-lg bg-white text-accent-wine text-[12px] font-bold hover:bg-white/90 transition shadow-md">
+                            <i class="fa-solid fa-book-open text-[10px] mr-1.5"></i> Browse All 218 Works
+                        </button>
+                        <button onclick="showWordModal('Reading Path — Kabir in 7 Days', 'Learning path', 'A 7-day guided journey through Kabir\'s works, from the early sakhis to the late ramainis.', 'Prasang learning')" class="px-4 py-2.5 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[12px] font-semibold transition border border-white/20">
+                            <i class="fa-solid fa-list-check text-[10px] mr-1.5"></i> 7-Day Reading Path
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-parchment-900 dark:bg-ink-900 text-parchment-300/60 py-10 border-t border-parchment-800/40 text-[11px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-md bg-accent-gold text-white flex items-center justify-center font-poetic text-base">प्र</div>
+                    <div>
+                        <span class="font-serif text-base font-bold tracking-wide text-parchment-100">PRASANG</span>
+                        <p class="text-[9px] text-parchment-400/70">Multilingual Literature & Poetry</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-5 font-medium text-parchment-200/70">
+                    <a href="#" class="hover:text-accent-gold transition">Rail</a>
+                    <a href="#" class="hover:text-accent-gold transition">Features</a>
+                    <a href="#" class="hover:text-accent-gold transition">Reader</a>
+                    <a href="#" class="hover:text-accent-gold transition">Eras</a>
+                    <a href="#" class="hover:text-accent-gold transition">Lexicon</a>
+                </div>
+                <p class="text-parchment-400/50">&copy; 2026 Prasang Platform.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== DICTIONARY MODAL ===== -->
+    <div id="dict-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-sm w-full shadow-2xl relative animate-fade-up overflow-hidden">
+            <div class="h-1 bg-gradient-to-r from-accent-gold to-parchment-500"></div>
+            <button onclick="closeWordModal()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-5">
+                <div class="flex items-center gap-1.5 text-accent-gold text-[9px] font-bold uppercase tracking-[0.15em] mb-2">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> Lexicon
+                </div>
+                <h3 id="modal-word" class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-0.5">Prem</h3>
+                <p id="modal-type" class="text-[10px] text-accent-gold font-semibold mb-2">N. Love, Compassion</p>
+                <p id="modal-desc" class="text-[12px] text-parchment-600 dark:text-parchment-300 leading-relaxed mb-2">
+                    Derived from Sanskrit 'Preman'. Refers to selfless divine love.
+                </p>
+                <div class="p-2 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 mb-3">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Etymology</p>
+                    <p id="modal-etymology" class="text-[10px] text-parchment-600 dark:text-parchment-400 italic">Sanskrit Preman → Prakrit → Sadhukkadi</p>
+                </div>
+                <button onclick="closeWordModal()" class="w-full py-1.5 bg-parchment-800 hover:bg-parchment-900 dark:bg-accent-gold dark:hover:bg-accent-gold/90 text-white rounded-lg text-[11px] font-semibold transition">
+                    Close & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ========== DATA ==========
+        const worksData = [
+            { title: 'Sakhi #1 — Guru Govind Dono', period: 'early', form: 'doha', year: 'c. 1440s', color: 'gold', excerpt: 'गुरु गोविन्द दोउ खड़े, काके लागूं पाय।', meaning: '"The Guru and God both stand before me — whose feet do I touch first? I bow to the Guru, who showed me God."', themes: ['Guru devotion', 'Humility'], significance: 'Among the earliest attributed verses — a traditional invocation establishing the primacy of the guru.', refs: 342 },
+            { title: 'Sakhi #4 — Dhai Akhar Prem Ka', period: 'early', form: 'doha', year: 'c. 1445', color: 'gold', excerpt: 'पोथी पढ़ि पढ़ि जग मुआ, पण्डित भया न कोय।', meaning: '"Reading books over and over, the whole world died, yet none became truly wise. One who understands just two and a half letters of Love becomes the true scholar."', themes: ['Divine Love', 'Anti-intellectualism'], significance: 'The most quoted Kabir doha — the essence of his critique of empty scholarship.', refs: 512 },
+            { title: 'Sakhi #12 — Kaal Kare So Aaj Kar', period: 'early', form: 'doha', year: 'c. 1450', color: 'gold', excerpt: 'काल करे सो आज कर, आज करे सो अब।', meaning: '"Do tomorrow\'s work today, today\'s work now. In a moment the world may end — how will you act then?"', themes: ['Impermanence', 'Urgency'], significance: 'A meditation on time and mortality, urging immediate spiritual action.', refs: 287 },
+            { title: 'Sakhi #28 — Bura Jo Dekhan Main Chala', period: 'early', form: 'doha', year: 'c. 1455', color: 'gold', excerpt: 'बुरा जो देखन मैं चला, बुरा न मिलिया कोय।', meaning: '"I went searching for a bad person, but found none. When I searched my own heart, I found none worse than me."', themes: ['Self-reflection', 'Humility'], significance: 'A profound statement of self-criticism and moral introspection.', refs: 198 },
+            { title: 'Sakhi #45 — Man Ke Haare Haar Hai', period: 'early', form: 'doha', year: 'c. 1460', color: 'gold', excerpt: 'मन के हारे हार है, मन के जीते जीत।', meaning: '"Defeat is in the mind, victory is in the mind. Says Kabir, listen O seeker — this is the greatest truth."', themes: ['Mind', 'Inner strength'], significance: 'A psychological insight into the power of the mind over circumstance.', refs: 176 },
+            { title: 'Sakhi #67 — Jaati Na Poochho Sadhu Ki', period: 'middle', form: 'doha', year: 'c. 1470', color: 'wine', excerpt: 'जाति न पूछो साधु की, पूछ लीजिए ज्ञान।', meaning: '"Do not ask the caste of a saint; ask of their wisdom. Value the sword, not its scabbard."', themes: ['Equality', 'Anti-caste'], significance: 'One of Kabir\'s most direct challenges to caste hierarchy.', refs: 234 },
+            { title: 'Sabda — Kaal Karam Ki Gati', period: 'middle', form: 'sabda', year: 'c. 1475', color: 'wine', excerpt: 'काल करम की गति न्यारी, सब कोई कहत पुराण।', meaning: '"The workings of time and karma are strange — the Puranas all speak of it, yet none fully grasp it."', themes: ['Karma', 'Time', 'Philosophy'], significance: 'A longer sabda engaging with classical philosophy from a critical standpoint.', refs: 156 },
+            { title: 'Sabda — Pandit Bhoopa Baniya', period: 'middle', form: 'sabda', year: 'c. 1480', color: 'wine', excerpt: 'पंडित भूप बनिया, सबै मिलि माया खाई।', meaning: '"The scholar, the king, and the merchant — all have eaten of maya (illusion) together."', themes: ['Maya', 'Anti-hypocrisy'], significance: 'A sharp polemic against the complicity of all social classes in illusion.', refs: 189 },
+            { title: 'Sabda — Hindu Anhin Turkan', period: 'middle', form: 'sabda', year: 'c. 1485', color: 'wine', excerpt: 'हिंदू अन्हिं तुर्कन, दोऊ एक बिचार।', meaning: '"Hindus and Turks (Muslims) are one in essence — the difference is only in words."', themes: ['Unity', 'Anti-sectarianism'], significance: 'A daring statement of Hindu-Muslim unity, radical for its time.', refs: 267 },
+            { title: 'Sabda — Dukh Mein Sumiran', period: 'middle', form: 'sabda', year: 'c. 1490', color: 'wine', excerpt: 'दुख में सुमिरन सब करै, सुख में करै न कोय।', meaning: '"In adversity everyone remembers God; in prosperity, no one does. If one remembered in joy, why would sorrow ever come?"', themes: ['Remembrance', 'Suffering'], significance: 'A critique of transactional devotion — loving God only in hardship.', refs: 145 },
+            { title: 'Ramaini — Kahai Kabir Suno Bhai Sadho', period: 'late', form: 'ramaini', year: 'c. 1500', color: 'sage', excerpt: 'कहै कबीर सुनो भाई साधो, सहज समाधि लागी।', meaning: '"Says Kabir, listen O seeker — the spontaneous meditation has begun. The unstruck sound resounds, and the self dissolves in the Beloved."', themes: ['Mystical union', 'Sahaj'], significance: 'The mature Kabir speaks from realized experience — the culmination of his spiritual journey.', refs: 201 },
+            { title: 'Ramaini — Anhad Dhuni Suni Re', period: 'late', form: 'ramaini', year: 'c. 1505', color: 'sage', excerpt: 'अनहद धुनि सुनि रहा, तब ही सहज समाधि।', meaning: '"Listening to the unstruck sound, one enters spontaneous meditation. The mind dissolves, and only the Divine remains."', themes: ['Anhad', 'Meditation'], significance: 'A key mystical poem describing the experience of the unstruck sound (anhad naad).', refs: 178 },
+            { title: 'Ramaini — Jahan Na Pahunche Panthi', period: 'late', form: 'ramaini', year: 'c. 1510', color: 'sage', excerpt: 'जहां न पहुंचे पंथी, तहां पहुंचे प्रेम।', meaning: '"Where the traveler cannot reach, love reaches. Where reason cannot go, love goes."', themes: ['Divine Love', 'Transcendence'], significance: 'A poetic declaration that love transcends all human limits — reason, ritual, and pilgrimage.', refs: 223 },
+            { title: 'Ramaini — Kabir Man Nirmal Bhaya', period: 'late', form: 'ramaini', year: 'c. 1515', color: 'sage', excerpt: 'कबीर मन निर्मल भया, तब ही सहज समाधि।', meaning: '"When the mind became pure, then came spontaneous meditation. The mirror of the heart reflected the Divine."', themes: ['Purity', 'Realization'], significance: 'One of the last attributed works — a serene, realized statement of inner purity.', refs: 134 },
+            { title: 'Sabda — Gagan Mandal Mein', period: 'late', form: 'sabda', year: 'c. 1516', color: 'sage', excerpt: 'गगन मंडल में अनहद बाजै, तहां सुरति लगाऊं।', meaning: '"In the sky of the heart the unstruck sound plays — there I fix my attention."', themes: ['Anhad', 'Inner sky'], significance: 'A meditative poem mapping the inner landscape of spiritual experience.', refs: 112 },
+        ];
+
+        const colorMap = {
+            gold: { bg: 'from-accent-gold/20 to-accent-gold/5', text: 'text-accent-gold', border: 'border-accent-gold/20', bar: 'from-accent-gold to-parchment-500', dot: 'bg-accent-gold' },
+            wine: { bg: 'from-accent-wine/20 to-accent-wine/5', text: 'text-accent-wine', border: 'border-accent-wine/20', bar: 'from-accent-wine to-parchment-500', dot: 'bg-accent-wine' },
+            sage: { bg: 'from-accent-sage/20 to-accent-sage/5', text: 'text-accent-sage', border: 'border-accent-sage/20', bar: 'from-accent-sage to-parchment-500', dot: 'bg-accent-sage' },
+        };
+
+        // ========== STATE ==========
+        let state = {
+            period: 'all',
+            form: 'all',
+            search: '',
+            density: 'comfortable',
+            visible: 12,
+        };
+
+        // ========== RENDER TIMELINE ITEMS ==========
+        function renderTimeline() {
+            const container = document.getElementById('timeline-items');
+            const emptyState = document.getElementById('timeline-empty');
+
+            let filtered = worksData.filter(w => {
+                const matchPeriod = state.period === 'all' || w.period === state.period;
+                const matchForm = state.form === 'all' || w.form === state.form;
+                const matchSearch = !state.search || w.title.toLowerCase().includes(state.search) || w.excerpt.includes(state.search) || w.themes.some(t => t.toLowerCase().includes(state.search));
+                return matchPeriod && matchForm && matchSearch;
+            });
+
+            document.getElementById('total-count').textContent = filtered.length;
+            document.getElementById('shown-count').textContent = Math.min(state.visible, filtered.length);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                document.getElementById('load-more-wrap').style.display = 'none';
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            const shown = filtered.slice(0, state.visible);
+            const isCompact = state.density === 'compact';
+
+            container.innerHTML = shown.map((w, idx) => {
+                const c = colorMap[w.color];
+                const periodLabel = w.period.charAt(0).toUpperCase() + w.period.slice(1);
+                const formLabel = w.form.charAt(0).toUpperCase() + w.form.slice(1);
+
+                if (isCompact) {
+                    return `
+                        <div class="relative work-item cursor-pointer group" onclick="toggleWorkDetail(this)">
+                            <div class="absolute -left-8 sm:-left-12 top-3 w-4 h-4 rounded-full ${c.dot} border-4 border-parchment-50 dark:border-ink-900 shadow timeline-node transition-all"></div>
+                            <div class="p-2.5 rounded-lg bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 work-card-inner transition-all">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="text-[9px] font-bold ${c.text} flex-shrink-0">${w.year}</span>
+                                        <span class="text-parchment-300 dark:text-parchment-700">·</span>
+                                        <h3 class="font-serif text-[12px] font-bold text-ink-900 dark:text-parchment-100 truncate">${w.title}</h3>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                                        <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[8px] font-medium">${formLabel}</span>
+                                        <i class="fa-solid fa-chevron-down expand-icon text-parchment-400 text-[9px] transition-transform"></i>
+                                    </div>
+                                </div>
+                                <div class="work-detail">
+                                    <div class="mt-2 pt-2 border-t border-parchment-200/60 dark:border-parchment-700/30">
+                                        <p class="font-poetic text-[12px] text-parchment-800 dark:text-parchment-200 mb-1.5">${w.excerpt}</p>
+                                        <p class="text-[10px] text-parchment-600 dark:text-parchment-400 italic mb-2">${w.meaning}</p>
+                                        <div class="flex flex-wrap gap-1">
+                                            ${w.themes.map(t => `<span class="px-1.5 py-0.5 rounded bg-accent-gold/10 text-accent-gold text-[8px] font-semibold border border-accent-gold/20">${t}</span>`).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="relative work-item cursor-pointer group" onclick="toggleWorkDetail(this)">
+                        <div class="absolute -left-8 sm:-left-12 top-4 w-4 h-4 rounded-full ${c.dot} border-4 border-parchment-50 dark:border-ink-900 shadow timeline-node transition-all"></div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 work-card-inner transition-all">
+                            <div class="flex items-start justify-between gap-3 mb-2">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="px-2 py-0.5 rounded-full bg-${w.color === 'gold' ? 'accent-gold' : w.color === 'wine' ? 'accent-wine' : 'accent-sage'}/10 ${c.text} text-[9px] font-bold uppercase tracking-wider border ${c.border}">${periodLabel} Period</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">${formLabel}</span>
+                                    <span class="text-[10px] font-bold ${c.text}">${w.year}</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-down expand-icon text-parchment-400 text-[10px] mt-1 transition-transform flex-shrink-0"></i>
+                            </div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-1.5">${w.title}</h3>
+                            <p class="font-poetic text-[15px] text-parchment-800 dark:text-parchment-200 leading-relaxed mb-2">${w.excerpt}</p>
+                            <p class="text-[11px] text-parchment-600 dark:text-parchment-400 italic leading-relaxed mb-2">${w.meaning}</p>
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                ${w.themes.map(t => `<span class="px-1.5 py-0.5 rounded bg-accent-gold/10 text-accent-gold text-[9px] font-semibold border border-accent-gold/20">${t}</span>`).join('')}
+                            </div>
+
+                            <!-- Expandable detail -->
+                            <div class="work-detail">
+                                <div class="mt-3 pt-3 border-t border-parchment-200/60 dark:border-parchment-700/30 space-y-2">
+                                    <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                        <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Significance</p>
+                                        <p class="text-[10px] text-parchment-700 dark:text-parchment-300 leading-relaxed">${w.significance}</p>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[9px] text-parchment-500"><i class="fa-solid fa-link text-[8px] mr-1"></i>${w.refs} references in scholarship</span>
+                                        <button onclick="event.stopPropagation(); showWordModal('${w.title}', '${periodLabel} · ${formLabel}', '${w.meaning.replace(/'/g, "\\'")} — ${w.significance.replace(/'/g, "\\'")}', 'Kabir corpus')" class="px-2 py-1 rounded-md bg-accent-gold/10 text-accent-gold text-[9px] font-semibold border border-accent-gold/20 hover:bg-accent-gold/20 transition">
+                                            <i class="fa-solid fa-book-open text-[8px] mr-1"></i>Read Full
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Load more
+            const loadMoreWrap = document.getElementById('load-more-wrap');
+            if (filtered.length <= state.visible) {
+                loadMoreWrap.style.display = 'none';
+            } else {
+                loadMoreWrap.style.display = 'block';
+            }
+        }
+
+        // ========== TOGGLE WORK DETAIL ==========
+        function toggleWorkDetail(el) {
+            el.classList.toggle('expanded');
+        }
+
+        // ========== FILTERS ==========
+        function filterPeriod(period) {
+            state.period = period;
+            state.visible = 12;
+            ['all', 'early', 'middle', 'late'].forEach(p => {
+                const btn = document.getElementById(`f-${p}`);
+                if (p === period) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            renderTimeline();
+        }
+
+        function filterForm(form) {
+            state.form = form;
+            state.visible = 12;
+            ['all', 'doha', 'sabda', 'ramaini'].forEach(f => {
+                const btn = document.getElementById(`ff-${f}`);
+                if (f === form) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            renderTimeline();
+        }
+
+        function applyWorkFilters() {
+            state.search = document.getElementById('work-search').value.toLowerCase();
+            state.visible = 12;
+            renderTimeline();
+        }
+
+        function resetWorkFilters() {
+            state = { period: 'all', form: 'all', search: '', density: state.density, visible: 12 };
+            document.getElementById('work-search').value = '';
+            filterPeriod('all');
+            filterForm('all');
+        }
+
+        // ========== DENSITY TOGGLE ==========
+        function setTimelineDensity(density) {
+            state.density = density;
+            ['comfortable', 'compact'].forEach(d => {
+                const btn = document.getElementById(`d-${d}`);
+                if (d === density) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            renderTimeline();
+        }
+
+        // ========== LOAD MORE ==========
+        function loadMoreWorks() {
+            state.visible += 12;
+            renderTimeline();
+        }
+
+        // ========== THEME ==========
+        function setTheme(theme) {
+            const body = document.getElementById('app-body');
+            const btnLight = document.getElementById('btn-light');
+            const btnSepia = document.getElementById('btn-sepia');
+            const btnDark = document.getElementById('btn-dark');
+
+            body.classList.remove('dark', 'theme-sepia');
+            [btnLight, btnSepia, btnDark].forEach(btn => {
+                btn.className = 'px-2 py-1 rounded-md flex items-center gap-1 text-parchment-600 dark:text-parchment-400 hover:text-parchment-900 dark:hover:text-parchment-200 text-[11px] font-medium transition';
+            });
+
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                btnDark.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-ink-700 text-white shadow-sm text-[11px] font-medium transition';
+            } else if (theme === 'sepia') {
+                body.classList.add('theme-sepia');
+                btnSepia.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-parchment-800 text-white shadow-sm text-[11px] font-medium transition';
+            } else {
+                btnLight.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-900 shadow-sm text-[11px] font-medium transition';
+            }
+        }
+
+        // ========== DICTIONARY MODAL ==========
+        function showWordModal(word, type, desc, etymology) {
+            document.getElementById('modal-word').innerText = word;
+            document.getElementById('modal-type').innerText = type;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-etymology').innerText = etymology || '—';
+            document.getElementById('dict-modal').classList.remove('hidden');
+        }
+
+        function closeWordModal() {
+            document.getElementById('dict-modal').classList.add('hidden');
+        }
+
+        // ========== READING PROGRESS ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('reading-progress').style.width = progress + '%';
+        });
+
+        // ========== KEYBOARD ==========
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeWordModal();
+            if (e.key === '/' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                document.getElementById('work-search').focus();
+            }
+        });
+
+        document.getElementById('dict-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeWordModal();
+        });
+
+        // ========== BOOT ==========
+        window.onload = function() {
+            renderTimeline();
+        };
+    </script>
+</body>
+</html>

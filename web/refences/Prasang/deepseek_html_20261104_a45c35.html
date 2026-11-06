@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Literature · Prasang</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Editorial Mix -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Nastaliq+Urdu&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#fdfaf5', 100: '#f9f2e9', 200: '#f1e6d6', 300: '#e5d3b8',
+                            400: '#d4b894', 500: '#c09a6b', 600: '#a87d4a', 700: '#8a6238',
+                            800: '#6b4a2a', 900: '#4c3420',
+                        },
+                        ink: { 50: '#f6f6f7', 800: '#1e1b18', 900: '#141210' },
+                        accent: { gold: '#b8860b', wine: '#8b3a3a', sage: '#5c7a6b' }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        poetic: ['"Rozha One"', 'Georgia', 'serif'],
+                        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
+                        'glow': '0 0 25px -5px rgba(184,134,11,0.35)',
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c09a6b; border-radius: 99px; }
+        .dark ::-webkit-scrollbar-thumb { background: #6b4a2a; }
+
+        /* Sepia theme */
+        .theme-sepia {
+            background-color: #f4ebd0 !important;
+            color: #433422 !important;
+        }
+        .theme-sepia .glass-panel {
+            background-color: rgba(244, 235, 208, 0.9) !important;
+            border-color: #d3c39c !important;
+        }
+        .theme-sepia .bg-card-theme { background-color: #ebdcb9 !important; border-color: #d8c69d !important; }
+        .theme-sepia .text-muted-theme { color: #70583b !important; }
+        .theme-sepia .accent-theme { color: #8c4227 !important; }
+
+        /* Glassmorphism */
+        .glass-panel {
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background-color: rgba(253, 250, 245, 0.88);
+            border: 1px solid rgba(192, 154, 107, 0.2);
+        }
+        .dark .glass-panel {
+            background-color: rgba(20, 18, 16, 0.88);
+            border-color: rgba(107, 74, 42, 0.3);
+        }
+
+        /* Genre card */
+        .genre-card {
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .genre-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(184, 134, 11, 0.04), transparent);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+        .genre-card:hover::before { opacity: 1; }
+        .genre-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -16px rgba(107, 74, 42, 0.3);
+            border-color: rgba(184, 134, 11, 0.45);
+        }
+        .dark .genre-card:hover {
+            box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.7);
+            border-color: rgba(184, 134, 11, 0.55);
+        }
+
+        /* Filter chip */
+        .filter-chip {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .filter-chip.active {
+            background-color: #b8860b;
+            color: #fff;
+            border-color: #b8860b;
+        }
+        .filter-chip:not(.active):hover {
+            background-color: rgba(192, 154, 107, 0.15);
+            border-color: rgba(192, 154, 107, 0.5);
+        }
+
+        /* Work card */
+        .work-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .work-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px -8px rgba(107, 74, 42, 0.28);
+            border-color: rgba(184, 134, 11, 0.45);
+        }
+        .dark .work-card:hover {
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
+            border-color: rgba(184, 134, 11, 0.55);
+        }
+
+        /* Type pill */
+        .type-pill {
+            transition: all 0.2s ease;
+        }
+        .type-pill:hover {
+            transform: scale(1.03);
+        }
+
+        /* Ornamental divider */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #c09a6b;
+        }
+        .ornament-divider::before,
+        .ornament-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e5d3b8, transparent);
+        }
+        .dark .ornament-divider::before,
+        .dark .ornament-divider::after {
+            background: linear-gradient(90deg, transparent, #4c3420, transparent);
+        }
+
+        /* Reading progress */
+        .top-progress {
+            height: 2px;
+            background: linear-gradient(90deg, #b8860b, #d4b894);
+            width: 0%;
+            transition: width 0.15s ease-out;
+        }
+
+        /* Scroll pill nav */
+        .pill-scroll {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .pill-scroll::-webkit-scrollbar { display: none; }
+
+        /* View toggle */
+        .view-btn.active {
+            background-color: #fff;
+            color: #4c3420;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .dark .view-btn.active {
+            background-color: #1e1b18;
+            color: #e5d3b8;
+        }
+
+        /* Featured banner gradient */
+        .featured-banner {
+            background: linear-gradient(135deg, #4c3420 0%, #6b4a2a 40%, #8a6238 70%, #4c3420 100%);
+        }
+        .dark .featured-banner {
+            background: linear-gradient(135deg, #141210 0%, #1e1b18 40%, #2a2521 70%, #141210 100%);
+        }
+
+        /* Reduce motion */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-parchment-50 text-ink-900 font-sans antialiased transition-colors duration-300 min-h-screen selection:bg-accent-gold/20">
+
+    <!-- Reading progress bar -->
+    <div class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-parchment-200/50 dark:bg-ink-800">
+        <div id="reading-progress" class="top-progress h-full"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-parchment-300/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
+            <!-- Brand -->
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center shadow-md text-white font-poetic text-xl pb-0.5">
+                    प्र
+                </div>
+                <div class="leading-tight">
+                    <span class="font-serif text-xl font-bold tracking-wide text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                        PRASANG
+                        <span class="text-[9px] tracking-wider font-sans bg-accent-gold/15 text-accent-gold px-1.5 py-0.5 rounded-full uppercase font-semibold border border-accent-gold/20">AI</span>
+                    </span>
+                    <p class="text-[9px] text-parchment-600 dark:text-parchment-400 uppercase tracking-[0.2em] hidden sm:block">Literature Discovery</p>
+                </div>
+            </a>
+
+            <!-- Nav Links (desktop) -->
+            <nav class="hidden lg:flex items-center gap-7 text-[13px] font-medium text-ink-800/70 dark:text-parchment-300">
+                <a href="#genres" class="hover:text-accent-gold transition-colors">Genres</a>
+                <a href="#catalogue" class="hover:text-accent-gold transition-colors">Catalogue</a>
+                <a href="#collections" class="hover:text-accent-gold transition-colors">Collections</a>
+                <a href="#featured" class="hover:text-accent-gold transition-colors">Featured</a>
+            </nav>
+
+            <!-- Theme + CTA -->
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center p-0.5 bg-parchment-200/70 dark:bg-ink-800 rounded-lg border border-parchment-300 dark:border-parchment-700">
+                    <button onclick="setTheme('light')" id="btn-light" class="px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-800 shadow-sm text-[11px] font-medium transition" title="Light">
+                        <i class="fa-regular fa-sun text-amber-500 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('sepia')" id="btn-sepia" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-700 hover:text-parchment-900 text-[11px] font-medium transition" title="Sepia">
+                        <i class="fa-regular fa-file-lines text-amber-700 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-500 hover:text-parchment-200 text-[11px] font-medium transition" title="Dark">
+                        <i class="fa-regular fa-moon text-indigo-400 text-[11px]"></i>
+                    </button>
+                </div>
+                <button class="hidden sm:inline-flex items-center px-4 py-2 text-[12px] font-semibold rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white transition shadow-sm">
+                    <i class="fa-solid fa-arrow-left text-[10px] mr-1.5"></i> Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="relative pt-12 pb-10 overflow-hidden">
+        <div class="absolute inset-0 -z-10">
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-accent-gold/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-[420px] h-[420px] bg-accent-wine/5 rounded-full blur-3xl"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-sage/3 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
+                <div class="max-w-2xl">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-gold/10 border border-accent-gold/20 text-accent-gold text-[10px] font-bold uppercase tracking-[0.15em] mb-4">
+                        <i class="fa-solid fa-layer-group text-[9px]"></i> Every Form, Every Language
+                    </div>
+                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink-900 dark:text-parchment-100 tracking-tight leading-none mb-3">
+                        Explore <span class="text-accent-gold">Literature</span>
+                    </h1>
+                    <p class="text-[13px] sm:text-sm text-parchment-600 dark:text-parchment-400 max-w-xl leading-relaxed">
+                        Poetry, prose, drama, epics, essays, and folk traditions — discover the full spectrum of South Asian literature across 14 languages and 28 centuries.
+                    </p>
+                </div>
+
+                <!-- Quick stats -->
+                <div class="flex items-center gap-5 sm:gap-7">
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">8</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Genres</p>
+                    </div>
+                    <div class="w-px h-10 bg-parchment-300 dark:bg-parchment-700"></div>
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">12k</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Works</p>
+                    </div>
+                    <div class="w-px h-10 bg-parchment-300 dark:bg-parchment-700"></div>
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">14</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Languages</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Genre pill nav -->
+            <div class="mt-10">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-parchment-500 dark:text-parchment-400">
+                        <i class="fa-solid fa-compass text-accent-gold text-[9px] mr-1.5"></i> Jump to a Genre
+                    </p>
+                    <button onclick="clearGenreFilter()" class="text-[10px] font-semibold text-accent-gold hover:underline">Show All</button>
+                </div>
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 pill-scroll" id="genre-pills">
+                    <!-- injected by JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURED BANNER ===== -->
+    <section class="pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="relative rounded-2xl overflow-hidden shadow-glow border border-parchment-300/60 dark:border-parchment-700/40">
+                <div class="featured-banner absolute inset-0"></div>
+                <div class="absolute inset-0 opacity-[0.06] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+                <div class="relative p-6 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="px-2.5 py-1 rounded-full bg-accent-gold/25 text-accent-gold text-[10px] font-bold uppercase tracking-wider border border-accent-gold/30">
+                                <i class="fa-solid fa-star text-[8px] mr-1"></i> Editor's Pick
+                            </span>
+                            <span class="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-parchment-200 text-[10px] font-semibold border border-white/15">
+                                <i class="fa-solid fa-book text-[8px] mr-1"></i> Epic
+                            </span>
+                        </div>
+                        <h2 class="font-serif text-3xl sm:text-4xl font-bold text-white mb-2">
+                            The Mahabharata
+                        </h2>
+                        <p class="font-poetic text-lg text-parchment-300/90 mb-4">
+                            महाभारत · The Great Epic of Bharata
+                        </p>
+                        <p class="text-[13px] text-parchment-200/80 leading-relaxed max-w-2xl mb-5">
+                            The longest epic ever composed — 200,000 verses, 1.8 million words — a universe of dharma, war, love, and philosophy. Attributed to Vyasa, it contains the Bhagavad Gita and remains the foundational text of Indian civilization.
+                        </p>
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <button onclick="scrollToCatalogue()" class="px-5 py-2.5 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[12px] font-semibold flex items-center gap-1.5 transition shadow-md">
+                                <i class="fa-solid fa-book-open text-[10px]"></i> Explore Epic
+                            </button>
+                            <button onclick="showWordModal('The Mahabharata', 'Epic · Sanskrit', 'Attributed to Vyasa, c. 400 BCE–400 CE. 18 parvas (books), 200,000+ verses. Contains the Bhagavad Gita, the most influential philosophical dialogue in Indian literature.', 'Sanskrit: mahā (great) + bhārata (of the Bharatas)')" class="px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-[12px] font-semibold flex items-center gap-1.5 transition border border-white/20">
+                                <i class="fa-solid fa-circle-info text-[10px]"></i> Quick Facts
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/15">
+                        <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-accent-gold mb-2">At a Glance</p>
+                        <div class="space-y-2 text-[11px] text-parchment-100">
+                            <div class="flex justify-between py-1 border-b border-white/10">
+                                <span class="text-parchment-300/70">Form</span>
+                                <span class="font-semibold">Epic Poem</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-white/10">
+                                <span class="text-parchment-300/70">Language</span>
+                                <span class="font-semibold">Sanskrit</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-white/10">
+                                <span class="text-parchment-300/70">Verses</span>
+                                <span class="font-semibold">~200,000</span>
+                            </div>
+                            <div class="flex justify-between py-1">
+                                <span class="text-parchment-300/70">Era</span>
+                                <span class="font-semibold">c. 400 BCE–400 CE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== GENRES GRID ===== -->
+    <section id="genres" class="pb-14">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-6 gap-3">
+                <div>
+                    <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Browse by Form</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Literary Genres</h2>
+                </div>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 max-w-sm">
+                    Every form of the written and spoken word — from ancient epics to modern experimental writing.
+                </p>
+            </div>
+
+            <div id="genres-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CATALOGUE (FILTERABLE) ===== -->
+    <section id="catalogue" class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-6 gap-3">
+                <div>
+                    <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">The Full Archive</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Literature Catalogue</h2>
+                </div>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 max-w-sm">
+                    Filter by genre, language, and era to find your next read.
+                </p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-6">
+
+                <!-- Filter sidebar -->
+                <aside class="lg:w-[240px] flex-shrink-0">
+                    <div class="space-y-5">
+                        <!-- Search -->
+                        <div class="bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 p-4 shadow-soft">
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-parchment-400 text-[11px]"></i>
+                                <input type="text" id="catalogue-search" placeholder="Search works..." oninput="applyCatalogueFilters()" class="w-full pl-8 pr-3 py-2 bg-parchment-100/60 dark:bg-ink-800/60 rounded-lg text-ink-800 dark:text-parchment-100 placeholder-parchment-500/70 focus:outline-none focus:ring-1 focus:ring-accent-gold text-[12px]">
+                            </div>
+                        </div>
+
+                        <!-- Genre filter -->
+                        <div class="bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 p-4 shadow-soft">
+                            <div class="flex items-center justify-between mb-2.5">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wider text-parchment-700 dark:text-parchment-300">Genre</h3>
+                                <button onclick="clearCatalogueGenre()" class="text-[9px] font-semibold text-accent-gold hover:underline">Clear</button>
+                            </div>
+                            <div class="space-y-1" id="genre-filters">
+                                <!-- injected by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Language filter -->
+                        <div class="bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 p-4 shadow-soft">
+                            <div class="flex items-center justify-between mb-2.5">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wider text-parchment-700 dark:text-parchment-300">Language</h3>
+                                <button onclick="clearCatalogueLang()" class="text-[9px] font-semibold text-accent-gold hover:underline">Clear</button>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5" id="catalogue-lang-filters">
+                                <!-- injected by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Era filter -->
+                        <div class="bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 p-4 shadow-soft">
+                            <div class="flex items-center justify-between mb-2.5">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wider text-parchment-700 dark:text-parchment-300">Era</h3>
+                                <button onclick="clearCatalogueEra()" class="text-[9px] font-semibold text-accent-gold hover:underline">Clear</button>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5" id="catalogue-era-filters">
+                                <!-- injected by JS -->
+                            </div>
+                        </div>
+
+                        <button onclick="resetCatalogueFilters()" class="w-full py-2 rounded-lg bg-parchment-200/70 dark:bg-ink-800 text-parchment-700 dark:text-parchment-300 text-[11px] font-semibold hover:bg-parchment-300/70 dark:hover:bg-ink-700 transition">
+                            <i class="fa-solid fa-rotate-left text-[10px] mr-1.5"></i> Reset All Filters
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Results -->
+                <div class="flex-1 min-w-0">
+                    <!-- Toolbar -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[12px] font-medium text-parchment-600 dark:text-parchment-400">
+                                Showing <span id="catalogue-count" class="font-bold text-ink-900 dark:text-parchment-100">12</span> works
+                            </span>
+                            <span id="catalogue-filter-badge" class="hidden px-2 py-0.5 rounded-full bg-accent-gold/10 text-accent-gold text-[9px] font-semibold border border-accent-gold/20"></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <select id="catalogue-sort" onchange="applyCatalogueFilters()" class="appearance-none pl-3 pr-8 py-1.5 bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 rounded-lg text-[11px] font-medium text-ink-800 dark:text-parchment-300 focus:outline-none focus:ring-1 focus:ring-accent-gold cursor-pointer">
+                                    <option value="az">A → Z</option>
+                                    <option value="za">Z → A</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="newest">Newest First</option>
+                                    <option value="popular">Most Popular</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-parchment-400 text-[9px] pointer-events-none"></i>
+                            </div>
+                            <div class="flex items-center p-0.5 bg-parchment-200/60 dark:bg-ink-800 rounded-lg border border-parchment-300/60 dark:border-parchment-700/40">
+                                <button onclick="setCatalogueView('grid')" id="cv-grid" class="view-btn active px-2 py-1 rounded-md text-[11px] font-medium text-parchment-600 dark:text-parchment-400 transition" title="Grid view">
+                                    <i class="fa-solid fa-grip text-[10px]"></i>
+                                </button>
+                                <button onclick="setCatalogueView('list')" id="cv-list" class="view-btn px-2 py-1 rounded-md text-[11px] font-medium text-parchment-600 dark:text-parchment-400 transition" title="List view">
+                                    <i class="fa-solid fa-list text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results container -->
+                    <div id="catalogue-container"></div>
+
+                    <!-- Empty state -->
+                    <div id="catalogue-empty" class="hidden text-center py-16">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-parchment-200/60 dark:bg-ink-800 flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-book text-parchment-400 text-2xl"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-1">No works found</h3>
+                        <p class="text-[12px] text-parchment-500 mb-4">Try adjusting your filters or search terms.</p>
+                        <button onclick="resetCatalogueFilters()" class="px-4 py-2 rounded-lg bg-accent-gold text-white text-[11px] font-semibold hover:bg-accent-gold/90 transition">
+                            Reset All Filters
+                        </button>
+                    </div>
+
+                    <!-- Load more -->
+                    <div class="text-center mt-8" id="catalogue-load-more">
+                        <button onclick="loadMoreCatalogue()" class="px-6 py-2.5 rounded-lg bg-ink-900 dark:bg-accent-gold text-white text-[12px] font-semibold hover:bg-ink-800 dark:hover:bg-accent-gold/90 transition shadow-md inline-flex items-center gap-2">
+                            <i class="fa-solid fa-arrows-rotate text-[10px]"></i> Load More Works
+                        </button>
+                        <p class="text-[10px] text-parchment-500 mt-2">Showing <span id="catalogue-shown">12</span> of <span id="catalogue-total">12</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CURATED COLLECTIONS ===== -->
+    <section id="collections" class="py-14">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-3">
+                <div>
+                    <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Editorial</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Curated Collections</h2>
+                </div>
+                <a href="#" class="text-[11px] font-semibold text-accent-gold hover:underline flex items-center gap-1">
+                    All Collections <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Collection card -->
+                <a href="#" class="group relative rounded-2xl overflow-hidden shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 h-64">
+                    <div class="absolute inset-0 bg-gradient-to-br from-accent-gold/90 to-accent-wine/90"></div>
+                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
+                    <div class="relative p-5 h-full flex flex-col justify-between text-white">
+                        <div>
+                            <span class="text-[9px] font-bold uppercase tracking-wider text-white/70">12 works</span>
+                            <h3 class="font-serif text-xl font-bold mt-1 leading-tight group-hover:translate-x-0.5 transition">Poems for Rainy Days</h3>
+                            <p class="text-[11px] text-white/80 mt-1 leading-relaxed">Monsoon, longing, and the scent of wet earth.</p>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] text-white/60">Curated by Prasang</span>
+                            <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#" class="group relative rounded-2xl overflow-hidden shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 h-64">
+                    <div class="absolute inset-0 bg-gradient-to-br from-accent-wine/90 to-parchment-700/90"></div>
+                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
+                    <div class="relative p-5 h-full flex flex-col justify-between text-white">
+                        <div>
+                            <span class="text-[9px] font-bold uppercase tracking-wider text-white/70">10 works</span>
+                            <h3 class="font-serif text-xl font-bold mt-1 leading-tight group-hover:translate-x-0.5 transition">Midnight Ghazals</h3>
+                            <p class="text-[11px] text-white/80 mt-1 leading-relaxed">Ghalib, Mir, and the ache of the small hours.</p>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] text-white/60">Curated by Prasang</span>
+                            <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#" class="group relative rounded-2xl overflow-hidden shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 h-64">
+                    <div class="absolute inset-0 bg-gradient-to-br from-accent-sage/90 to-accent-gold/90"></div>
+                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
+                    <div class="relative p-5 h-full flex flex-col justify-between text-white">
+                        <div>
+                            <span class="text-[9px] font-bold uppercase tracking-wider text-white/70">15 works</span>
+                            <h3 class="font-serif text-xl font-bold mt-1 leading-tight group-hover:translate-x-0.5 transition">First Love in Every Language</h3>
+                            <p class="text-[11px] text-white/80 mt-1 leading-relaxed">The beginning of longing across 8 languages.</p>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] text-white/60">Curated by Prasang</span>
+                            <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="#" class="group relative rounded-2xl overflow-hidden shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 h-64">
+                    <div class="absolute inset-0 bg-gradient-to-br from-parchment-700/90 to-accent-wine/90"></div>
+                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
+                    <div class="relative p-5 h-full flex flex-col justify-between text-white">
+                        <div>
+                            <span class="text-[9px] font-bold uppercase tracking-wider text-white/70">8 works</span>
+                            <h3 class="font-serif text-xl font-bold mt-1 leading-tight group-hover:translate-x-0.5 transition">Poems About Mothers</h3>
+                            <p class="text-[11px] text-white/80 mt-1 leading-relaxed">Tenderness, sacrifice, and the first home.</p>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] text-white/60">Curated by Prasang</span>
+                            <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURED WORKS BY TYPE ===== -->
+    <section id="featured" class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Highlights</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">One Masterpiece Per Form</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">A single exemplary work from each literary genre, spanning eras and languages.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="featured-works">
+                <!-- injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA: EXPLORE BY MOOD ===== -->
+    <section class="py-14">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-br from-accent-gold/95 to-accent-wine/95 rounded-2xl p-8 sm:p-10 text-white shadow-glow relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 translate-x-10 translate-y-10 opacity-10 font-poetic text-[120px] pointer-events-none select-none">
+                    काव्य
+                </div>
+                <div class="relative z-10 max-w-lg">
+                    <span class="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">Not Sure Where to Start?</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold mt-1 mb-2">Explore by Mood</h2>
+                    <p class="text-white/80 text-[13px] leading-relaxed mb-5">
+                        Sometimes you don't know what you want to read — you just know how you want to feel. Start with an emotion, and let literature follow.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="showWordModal('Poems for Rainy Days', 'Mood · Collection', 'Monsoon poetry across traditions — longing, petrichor, and the ache of grey skies.', 'Prasang curation')" class="px-3.5 py-2 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[11px] font-semibold transition border border-white/20">
+                            <i class="fa-solid fa-cloud-rain text-[10px] mr-1.5"></i> Melancholy
+                        </button>
+                        <button onclick="showWordModal('Poems of Celebration', 'Mood · Collection', 'Poems of joy, arrival, and the sweetness of being alive.', 'Prasang curation')" class="px-3.5 py-2 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[11px] font-semibold transition border border-white/20">
+                            <i class="fa-solid fa-sun text-[10px] mr-1.5"></i> Joy
+                        </button>
+                        <button onclick="showWordModal('Poems of Longing', 'Mood · Collection', 'The literature of desire — for the beloved, the Divine, or a home left behind.', 'Prasang curation')" class="px-3.5 py-2 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[11px] font-semibold transition border border-white/20">
+                            <i class="fa-solid fa-droplet text-[10px] mr-1.5"></i> Longing
+                        </button>
+                        <button onclick="showWordModal('Poems of Wonder', 'Mood · Collection', 'Awe, mystery, and the vastness of the cosmos — from Vedic hymns to modern lyric.', 'Prasang curation')" class="px-3.5 py-2 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[11px] font-semibold transition border border-white/20">
+                            <i class="fa-solid fa-star text-[10px] mr-1.5"></i> Wonder
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-parchment-900 dark:bg-ink-900 text-parchment-300/60 py-10 border-t border-parchment-800/40 text-[11px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-md bg-accent-gold text-white flex items-center justify-center font-poetic text-base">प्र</div>
+                    <div>
+                        <span class="font-serif text-base font-bold tracking-wide text-parchment-100">PRASANG</span>
+                        <p class="text-[9px] text-parchment-400/70">Multilingual Literature & Poetry</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-5 font-medium text-parchment-200/70">
+                    <a href="#" class="hover:text-accent-gold transition">Rail</a>
+                    <a href="#" class="hover:text-accent-gold transition">Features</a>
+                    <a href="#" class="hover:text-accent-gold transition">Reader</a>
+                    <a href="#" class="hover:text-accent-gold transition">Eras</a>
+                    <a href="#" class="hover:text-accent-gold transition">Lexicon</a>
+                </div>
+                <p class="text-parchment-400/50">&copy; 2026 Prasang Platform.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== DICTIONARY MODAL ===== -->
+    <div id="dict-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-sm w-full shadow-2xl relative animate-fade-up overflow-hidden">
+            <div class="h-1 bg-gradient-to-r from-accent-gold to-parchment-500"></div>
+            <button onclick="closeWordModal()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-5">
+                <div class="flex items-center gap-1.5 text-accent-gold text-[9px] font-bold uppercase tracking-[0.15em] mb-2">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> Lexicon
+                </div>
+                <h3 id="modal-word" class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-0.5">Prem</h3>
+                <p id="modal-type" class="text-[10px] text-accent-gold font-semibold mb-2">N. Love, Compassion</p>
+                <p id="modal-desc" class="text-[12px] text-parchment-600 dark:text-parchment-300 leading-relaxed mb-2">
+                    Derived from Sanskrit 'Preman'. Refers to selfless divine love.
+                </p>
+                <div class="p-2 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 mb-3">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Etymology</p>
+                    <p id="modal-etymology" class="text-[10px] text-parchment-600 dark:text-parchment-400 italic">Sanskrit Preman → Prakrit → Sadhukkadi</p>
+                </div>
+                <button onclick="closeWordModal()" class="w-full py-1.5 bg-parchment-800 hover:bg-parchment-900 dark:bg-accent-gold dark:hover:bg-accent-gold/90 text-white rounded-lg text-[11px] font-semibold transition">
+                    Close & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ========== DATA ==========
+        const genres = [
+            { name: 'Poetry', script: 'काव्य', icon: 'fa-feather-pointed', color: 'gold', works: 4200, desc: 'Doha, ghazal, bhajan, abhang, sonnet — the oldest and most intimate literary form.', tagline: 'The music of language' },
+            { name: 'Prose', script: 'गद्य', icon: 'fa-book', color: 'wine', works: 2800, desc: 'Novels, short stories, essays, and memoirs that shaped modern South Asian literature.', tagline: 'The architecture of narrative' },
+            { name: 'Drama', script: 'नाटक', icon: 'fa-masks-theater', color: 'sage', works: 1600, desc: 'From Sanskrit natya to modern theatre — dialogues, scenes, and the stage.', tagline: 'The body of literature' },
+            { name: 'Epic', script: 'महाकाव्य', icon: 'fa-scroll', color: 'gold', works: 420, desc: 'Mahabharata, Ramayana, and the great narrative poems that built civilizations.', tagline: 'The memory of a people' },
+            { name: 'Folk & Oral', script: 'लोक', icon: 'fa-users', color: 'wine', works: 1100, desc: 'Songs, ballads, riddles, and stories carried across generations by voice.', tagline: 'The literature of the people' },
+            { name: 'Essay', script: 'निबंध', icon: 'fa-pen-fancy', color: 'sage', works: 980, desc: 'The reflective, argumentative, and personal essay — a modern form with ancient roots.', tagline: 'The thinking voice' },
+            { name: 'Biography', script: 'जीवनी', icon: 'fa-user-tie', color: 'gold', works: 640, desc: 'Lives of poets, saints, kings, and ordinary people told as literature.', tagline: 'A life, told as story' },
+            { name: 'Letter', script: 'पत्र', icon: 'fa-envelope', color: 'wine', works: 320, desc: 'The literary letter — personal correspondence that became art.', tagline: 'Intimacy on the page' },
+        ];
+
+        const catalogueWorks = [
+            { title: 'Mahabharata', poet: 'Vyasa', genre: 'Epic', lang: 'Sanskrit', era: 'Ancient', year: -400, color: 'gold', type: 'Epic Poem', desc: 'The longest epic ever composed — 200,000 verses of dharma, war, and philosophy.' },
+            { title: 'Ramcharitmanas', poet: 'Tulsidas', genre: 'Poetry', lang: 'Hindi', era: 'Bhakti', year: 1574, color: 'wine', type: 'Epic Poem', desc: 'A retelling of the Ramayana in Awadhi — one of the most widely read texts in North India.' },
+            { title: 'Gitanjali', poet: 'Rabindranath Tagore', genre: 'Poetry', lang: 'Bengali', era: 'Modern', year: 1910, color: 'sage', type: 'Poetry Collection', desc: 'Nobel-winning songs of devotion and freedom — Tagore\'s masterwork.' },
+            { title: 'Bijak', poet: 'Kabir', genre: 'Poetry', lang: 'Hindi', era: 'Bhakti', year: 1500, color: 'gold', type: 'Poetry Collection', desc: 'The largest collection of Kabir\'s verses — sakhis, sabads, and ramainis.' },
+            { title: 'Meghaduta', poet: 'Kalidasa', genre: 'Poetry', lang: 'Sanskrit', era: 'Classical', year: 400, color: 'wine', type: 'Lyric Poem', desc: 'A cloud as messenger between separated lovers — the masterpiece of Sanskrit lyric poetry.' },
+            { title: 'Diwan-e-Ghalib', poet: 'Mirza Ghalib', genre: 'Poetry', lang: 'Urdu', era: 'Mughal', year: 1841, color: 'sage', type: 'Ghazal Collection', desc: 'The complete ghazals of Ghalib — love, loss, and existential irony.' },
+            { title: 'Godaan', poet: 'Munshi Premchand', genre: 'Prose', lang: 'Hindi', era: 'Modern', year: 1936, color: 'gold', type: 'Novel', desc: 'The great Hindi novel of rural life, debt, and the human condition.' },
+            { title: 'Pather Panchali', poet: 'Bibhutibhushan Bandyopadhyay', genre: 'Prose', lang: 'Bengali', era: 'Modern', year: 1929, color: 'wine', type: 'Novel', desc: 'A boy\'s coming of age in rural Bengal — later a landmark film by Satyajit Ray.' },
+            { title: 'Abhijnanashakuntalam', poet: 'Kalidasa', genre: 'Drama', lang: 'Sanskrit', era: 'Classical', year: 400, color: 'sage', type: 'Play', desc: 'The recognition of Shakuntala — the most celebrated Sanskrit drama.' },
+            { title: 'Andha Yug', poet: 'Dharamvir Bharati', genre: 'Drama', lang: 'Hindi', era: 'Modern', year: 1954, color: 'gold', type: 'Verse Play', desc: 'A verse play set after the Mahabharata war — a meditation on violence and guilt.' },
+            { title: 'Tirukkural', poet: 'Thiruvalluvar', genre: 'Poetry', lang: 'Tamil', era: 'Sangam', year: 400, color: 'wine', type: 'Couplets', desc: '1,330 couplets on ethics, politics, and love — the ethical foundation of Tamil literature.' },
+            { title: 'Guru Granth Sahib', poet: 'Sikh Gurus', genre: 'Poetry', lang: 'Punjabi', era: 'Bhakti', year: 1604, color: 'sage', type: 'Hymnal Collection', desc: 'The Sikh holy scripture — a compilation of Bhakti and Sufi poetry.' },
+        ];
+
+        const featuredWorks = [
+            { title: 'Mahabharata', genre: 'Epic', poet: 'Vyasa', desc: 'The longest epic ever composed.', color: 'gold', icon: 'fa-scroll' },
+            { title: 'Bijak', genre: 'Poetry', poet: 'Kabir', desc: 'The sharpest devotional couplets.', color: 'wine', icon: 'fa-feather-pointed' },
+            { title: 'Abhijnanashakuntalam', genre: 'Drama', poet: 'Kalidasa', desc: 'The greatest Sanskrit play.', color: 'sage', icon: 'fa-masks-theater' },
+            { title: 'Godaan', genre: 'Prose', poet: 'Premchand', desc: 'The great Hindi novel of rural life.', color: 'gold', icon: 'fa-book' },
+        ];
+
+        const languages = ['All', 'Sanskrit', 'Hindi', 'Urdu', 'Bengali', 'Tamil', 'Punjabi', 'Marathi', 'Persian'];
+        const eras = ['All', 'Ancient', 'Classical', 'Sangam', 'Bhakti', 'Mughal', 'Modern'];
+
+        const colorMap = {
+            gold: { bg: 'from-accent-gold/20 to-accent-gold/5', text: 'text-accent-gold', border: 'border-accent-gold/20', bar: 'from-accent-gold to-parchment-500' },
+            wine: { bg: 'from-accent-wine/20 to-accent-wine/5', text: 'text-accent-wine', border: 'border-accent-wine/20', bar: 'from-accent-wine to-parchment-500' },
+            sage: { bg: 'from-accent-sage/20 to-accent-sage/5', text: 'text-accent-sage', border: 'border-accent-sage/20', bar: 'from-accent-sage to-parchment-500' },
+        };
+
+        // ========== STATE ==========
+        let catalogueState = {
+            search: '',
+            genre: [],
+            lang: [],
+            era: [],
+            sort: 'az',
+            view: 'grid',
+            visible: 12,
+        };
+
+        // ========== RENDER GENRE PILLS ==========
+        function renderGenrePills() {
+            const container = document.getElementById('genre-pills');
+            container.innerHTML = genres.map(g => `
+                <button onclick="scrollToCatalogueWithGenre('${g.name}')" class="type-pill flex-shrink-0 px-3.5 py-2 rounded-full bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300 text-[11px] font-semibold flex items-center gap-1.5 hover:border-accent-gold/40 hover:text-accent-gold transition shadow-sm">
+                    <i class="fa-solid ${g.icon} text-[10px] text-accent-gold"></i> ${g.name}
+                </button>
+            `).join('');
+        }
+
+        // ========== RENDER GENRE GRID ==========
+        function renderGenreGrid() {
+            const container = document.getElementById('genres-grid');
+            container.innerHTML = genres.map(g => {
+                const c = colorMap[g.color];
+                return `
+                    <div class="genre-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5" onclick="scrollToCatalogueWithGenre('${g.name}')">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} text-xl border ${c.border}">
+                                <i class="fa-solid ${g.icon}"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-parchment-500">${g.works.toLocaleString()} works</span>
+                        </div>
+                        <h3 class="font-serif text-lg font-bold text-ink-900 dark:text-parchment-100 mb-0.5">${g.name}</h3>
+                        <p class="font-poetic text-sm text-parchment-500 mb-2">${g.script}</p>
+                        <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-3 line-clamp-2">${g.desc}</p>
+                        <div class="flex items-center justify-between pt-2 border-t border-parchment-200/60 dark:border-parchment-700/30">
+                            <span class="text-[10px] text-parchment-500 italic">${g.tagline}</span>
+                            <i class="fa-solid fa-arrow-right text-[10px] text-accent-gold"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== RENDER FEATURED WORKS ==========
+        function renderFeaturedWorks() {
+            const container = document.getElementById('featured-works');
+            container.innerHTML = featuredWorks.map(w => {
+                const c = colorMap[w.color];
+                return `
+                    <div class="work-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 overflow-hidden cursor-pointer" onclick="showWordModal('${w.title}', '${w.genre} · ${w.poet}', '${w.desc}', 'Prasang featured work')">
+                        <div class="h-1 bg-gradient-to-r ${c.bar}"></div>
+                        <div class="p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} text-[11px] border ${c.border}">
+                                    <i class="fa-solid ${w.icon}"></i>
+                                </div>
+                                <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-semibold">${w.genre}</span>
+                            </div>
+                            <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-0.5">${w.title}</h3>
+                            <p class="text-[10px] text-accent-gold font-semibold mb-1">by ${w.poet}</p>
+                            <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed">${w.desc}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== RENDER CATALOGUE FILTERS ==========
+        function renderCatalogueFilters() {
+            // Genre
+            const genreContainer = document.getElementById('genre-filters');
+            genreContainer.innerHTML = genres.map(g => `
+                <button onclick="toggleCatalogueFilter('genre', '${g.name}')" class="filter-chip ${catalogueState.genre.includes(g.name) ? 'active' : ''} w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-medium border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300 flex items-center justify-between" data-value="${g.name}">
+                    <span>${g.name}</span>
+                    <span class="text-[9px] text-parchment-400">${g.works.toLocaleString()}</span>
+                </button>
+            `).join('');
+
+            // Language
+            const langContainer = document.getElementById('catalogue-lang-filters');
+            langContainer.innerHTML = languages.map(l => `
+                <button onclick="toggleCatalogueFilter('lang', '${l}')" class="filter-chip ${catalogueState.lang.includes(l) ? 'active' : ''} px-2 py-1 rounded-md text-[10px] font-medium border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300" data-value="${l}">
+                    ${l}
+                </button>
+            `).join('');
+
+            // Era
+            const eraContainer = document.getElementById('catalogue-era-filters');
+            eraContainer.innerHTML = eras.map(e => `
+                <button onclick="toggleCatalogueFilter('era', '${e}')" class="filter-chip ${catalogueState.era.includes(e) ? 'active' : ''} px-2 py-1 rounded-md text-[10px] font-medium border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300" data-value="${e}">
+                    ${e}
+                </button>
+            `).join('');
+        }
+
+        // ========== TOGGLE FILTER ==========
+        function toggleCatalogueFilter(type, value) {
+            if (value === 'All') {
+                catalogueState[type] = [];
+            } else {
+                const arr = catalogueState[type];
+                const idx = arr.indexOf(value);
+                if (idx > -1) arr.splice(idx, 1);
+                else arr.push(value);
+            }
+            renderCatalogueFilters();
+            applyCatalogueFilters();
+        }
+
+        function clearCatalogueGenre() { catalogueState.genre = []; renderCatalogueFilters(); applyCatalogueFilters(); }
+        function clearCatalogueLang() { catalogueState.lang = []; renderCatalogueFilters(); applyCatalogueFilters(); }
+        function clearCatalogueEra() { catalogueState.era = []; renderCatalogueFilters(); applyCatalogueFilters(); }
+
+        function resetCatalogueFilters() {
+            catalogueState = { search: '', genre: [], lang: [], era: [], sort: 'az', view: catalogueState.view, visible: 12 };
+            document.getElementById('catalogue-search').value = '';
+            renderCatalogueFilters();
+            applyCatalogueFilters();
+        }
+
+        // ========== APPLY CATALOGUE FILTERS ==========
+        function applyCatalogueFilters() {
+            catalogueState.search = document.getElementById('catalogue-search').value.toLowerCase();
+            catalogueState.sort = document.getElementById('catalogue-sort').value;
+            catalogueState.visible = 12;
+
+            let filtered = catalogueWorks.filter(w => {
+                const matchSearch = !catalogueState.search || w.title.toLowerCase().includes(catalogueState.search) || w.poet.toLowerCase().includes(catalogueState.search) || w.desc.toLowerCase().includes(catalogueState.search);
+                const matchGenre = catalogueState.genre.length === 0 || catalogueState.genre.includes(w.genre);
+                const matchLang = catalogueState.lang.length === 0 || catalogueState.lang.includes(w.lang);
+                const matchEra = catalogueState.era.length === 0 || catalogueState.era.includes(w.era);
+                return matchSearch && matchGenre && matchLang && matchEra;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                switch (catalogueState.sort) {
+                    case 'az': return a.title.localeCompare(b.title);
+                    case 'za': return b.title.localeCompare(a.title);
+                    case 'oldest': return a.year - b.year;
+                    case 'newest': return b.year - a.year;
+                    case 'popular': return 0;
+                    default: return a.title.localeCompare(b.title);
+                }
+            });
+
+            document.getElementById('catalogue-count').textContent = filtered.length;
+            document.getElementById('catalogue-total').textContent = filtered.length;
+            document.getElementById('catalogue-shown').textContent = Math.min(catalogueState.visible, filtered.length);
+
+            // Active filter badge
+            const totalActive = catalogueState.genre.length + catalogueState.lang.length + catalogueState.era.length + (catalogueState.search ? 1 : 0);
+            const badge = document.getElementById('catalogue-filter-badge');
+            if (totalActive > 0) {
+                badge.classList.remove('hidden');
+                badge.textContent = `${totalActive} filter${totalActive > 1 ? 's' : ''}`;
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            renderCatalogueResults(filtered);
+
+            // Load more
+            const loadMoreWrap = document.getElementById('catalogue-load-more');
+            if (filtered.length <= catalogueState.visible) {
+                loadMoreWrap.style.display = 'none';
+            } else {
+                loadMoreWrap.style.display = 'block';
+            }
+        }
+
+        // ========== RENDER CATALOGUE RESULTS ==========
+        function renderCatalogueResults(filtered) {
+            const container = document.getElementById('catalogue-container');
+            const emptyState = document.getElementById('catalogue-empty');
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            const shown = filtered.slice(0, catalogueState.visible);
+
+            if (catalogueState.view === 'grid') {
+                container.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">${shown.map(w => catalogueGridHTML(w)).join('')}</div>`;
+            } else {
+                container.innerHTML = `<div class="space-y-2">${shown.map(w => catalogueListHTML(w)).join('')}</div>`;
+            }
+        }
+
+        // ========== CATALOGUE GRID CARD ==========
+        function catalogueGridHTML(w) {
+            const c = colorMap[w.color] || colorMap.gold;
+            return `
+                <div class="work-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 overflow-hidden cursor-pointer" onclick="showWordModal('${w.title}', '${w.genre} · ${w.type}', '${w.desc}', '${w.lang} · ${w.poet}')">
+                    <div class="h-1 bg-gradient-to-r ${c.bar}"></div>
+                    <div class="p-4">
+                        <div class="flex items-center gap-1.5 mb-2 flex-wrap">
+                            <span class="px-1.5 py-0.5 rounded bg-accent-gold/10 text-accent-gold text-[9px] font-bold uppercase tracking-wider border border-accent-gold/20">${w.genre}</span>
+                            <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">${w.type}</span>
+                            <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">${w.lang}</span>
+                        </div>
+                        <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-0.5">${w.title}</h3>
+                        <p class="text-[10px] text-accent-gold font-semibold mb-2">by ${w.poet}</p>
+                        <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed line-clamp-2">${w.desc}</p>
+                        <div class="flex items-center justify-between mt-2.5 pt-2.5 border-t border-parchment-200/60 dark:border-parchment-700/30">
+                            <span class="text-[9px] text-parchment-500">${w.era} · ${Math.abs(w.year)}${w.year < 0 ? ' BCE' : ' CE'}</span>
+                            <span class="text-[9px] font-semibold text-accent-gold flex items-center gap-1">Read <i class="fa-solid fa-arrow-right text-[7px]"></i></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== CATALOGUE LIST ==========
+        function catalogueListHTML(w) {
+            const c = colorMap[w.color] || colorMap.gold;
+            return `
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-3.5 hover:border-accent-gold/40 transition cursor-pointer group" onclick="showWordModal('${w.title}', '${w.genre} · ${w.type}', '${w.desc}', '${w.lang} · ${w.poet}')">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} font-poetic text-lg border ${c.border} flex-shrink-0">
+                            ${w.title.charAt(0)}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-gold transition">${w.title}</h3>
+                                <span class="text-[10px] text-parchment-400">·</span>
+                                <span class="text-[10px] text-parchment-500">${w.genre}</span>
+                            </div>
+                            <p class="text-[10px] text-parchment-500 dark:text-parchment-400 truncate">${w.desc}</p>
+                        </div>
+                        <div class="hidden sm:flex items-center gap-3 text-[10px] text-parchment-500 flex-shrink-0">
+                            <span>${w.lang}</span>
+                            <span>${w.type}</span>
+                            <i class="fa-solid fa-arrow-right text-[9px] text-accent-gold"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== VIEW TOGGLE ==========
+        function setCatalogueView(view) {
+            catalogueState.view = view;
+            ['grid', 'list'].forEach(v => {
+                const btn = document.getElementById(`cv-${v}`);
+                if (v === view) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            applyCatalogueFilters();
+        }
+
+        // ========== LOAD MORE ==========
+        function loadMoreCatalogue() {
+            catalogueState.visible += 12;
+            applyCatalogueFilters();
+        }
+
+        // ========== SCROLL HELPERS ==========
+        function scrollToCatalogue() {
+            document.getElementById('catalogue').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToCatalogueWithGenre(genreName) {
+            catalogueState.genre = [genreName];
+            renderCatalogueFilters();
+            applyCatalogueFilters();
+            scrollToCatalogue();
+        }
+
+        function clearGenreFilter() {
+            catalogueState.genre = [];
+            renderCatalogueFilters();
+            applyCatalogueFilters();
+        }
+
+        // ========== THEME ==========
+        function setTheme(theme) {
+            const body = document.getElementById('app-body');
+            const btnLight = document.getElementById('btn-light');
+            const btnSepia = document.getElementById('btn-sepia');
+            const btnDark = document.getElementById('btn-dark');
+
+            body.classList.remove('dark', 'theme-sepia');
+            [btnLight, btnSepia, btnDark].forEach(btn => {
+                btn.className = 'px-2 py-1 rounded-md flex items-center gap-1 text-parchment-600 dark:text-parchment-400 hover:text-parchment-900 dark:hover:text-parchment-200 text-[11px] font-medium transition';
+            });
+
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                btnDark.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-ink-700 text-white shadow-sm text-[11px] font-medium transition';
+            } else if (theme === 'sepia') {
+                body.classList.add('theme-sepia');
+                btnSepia.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-parchment-800 text-white shadow-sm text-[11px] font-medium transition';
+            } else {
+                btnLight.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-900 shadow-sm text-[11px] font-medium transition';
+            }
+        }
+
+        // ========== DICTIONARY MODAL ==========
+        function showWordModal(word, type, desc, etymology) {
+            document.getElementById('modal-word').innerText = word;
+            document.getElementById('modal-type').innerText = type;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-etymology').innerText = etymology || '—';
+            document.getElementById('dict-modal').classList.remove('hidden');
+        }
+
+        function closeWordModal() {
+            document.getElementById('dict-modal').classList.add('hidden');
+        }
+
+        // ========== READING PROGRESS ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('reading-progress').style.width = progress + '%';
+        });
+
+        // ========== KEYBOARD ==========
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeWordModal();
+            if (e.key === '/' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                document.getElementById('catalogue-search').focus();
+            }
+        });
+
+        document.getElementById('dict-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeWordModal();
+        });
+
+        // ========== BOOT ==========
+        window.onload = function() {
+            renderGenrePills();
+            renderGenreGrid();
+            renderFeaturedWorks();
+            renderCatalogueFilters();
+            applyCatalogueFilters();
+        };
+    </script>
+</body>
+</html>

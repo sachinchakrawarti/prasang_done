@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline · Interactive Era Explorer | Prasang</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Editorial Mix -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Nastaliq+Urdu&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#fdfaf5', 100: '#f9f2e9', 200: '#f1e6d6', 300: '#e5d3b8',
+                            400: '#d4b894', 500: '#c09a6b', 600: '#a87d4a', 700: '#8a6238',
+                            800: '#6b4a2a', 900: '#4c3420',
+                        },
+                        ink: { 50: '#f6f6f7', 800: '#1e1b18', 900: '#141210' },
+                        accent: { gold: '#b8860b', wine: '#8b3a3a', sage: '#5c7a6b' }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        poetic: ['"Rozha One"', 'Georgia', 'serif'],
+                        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
+                        'glow': '0 0 25px -5px rgba(184,134,11,0.35)',
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c09a6b; border-radius: 99px; }
+        .dark ::-webkit-scrollbar-thumb { background: #6b4a2a; }
+
+        /* Sepia theme */
+        .theme-sepia {
+            background-color: #f4ebd0 !important;
+            color: #433422 !important;
+        }
+        .theme-sepia .glass-panel {
+            background-color: rgba(244, 235, 208, 0.9) !important;
+            border-color: #d3c39c !important;
+        }
+        .theme-sepia .bg-card-theme { background-color: #ebdcb9 !important; border-color: #d8c69d !important; }
+        .theme-sepia .text-muted-theme { color: #70583b !important; }
+        .theme-sepia .accent-theme { color: #8c4227 !important; }
+
+        /* Glassmorphism */
+        .glass-panel {
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background-color: rgba(253, 250, 245, 0.88);
+            border: 1px solid rgba(192, 154, 107, 0.2);
+        }
+        .dark .glass-panel {
+            background-color: rgba(20, 18, 16, 0.88);
+            border-color: rgba(107, 74, 42, 0.3);
+        }
+
+        /* Horizontal timeline scroll */
+        .timeline-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #c09a6b transparent;
+            scroll-behavior: smooth;
+        }
+        .timeline-scroll::-webkit-scrollbar { height: 4px; }
+        .timeline-scroll::-webkit-scrollbar-track { background: transparent; }
+        .timeline-scroll::-webkit-scrollbar-thumb { background: #c09a6b; border-radius: 99px; }
+
+        /* Timeline track */
+        .timeline-track-h {
+            position: relative;
+            height: 2px;
+            background: linear-gradient(90deg, #e5d3b8 0%, #c09a6b 50%, #e5d3b8 100%);
+            border-radius: 99px;
+        }
+        .dark .timeline-track-h {
+            background: linear-gradient(90deg, #4c3420 0%, #8a6238 50%, #4c3420 100%);
+        }
+
+        /* Timeline node */
+        .timeline-node-h {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .timeline-node-h .node-dot {
+            transition: all 0.3s ease;
+        }
+        .timeline-node-h:hover .node-dot {
+            transform: scale(1.3);
+            box-shadow: 0 0 0 5px rgba(184, 134, 11, 0.15);
+        }
+        .timeline-node-h.active .node-dot {
+            background: #b8860b;
+            box-shadow: 0 0 0 6px rgba(184, 134, 11, 0.2);
+            transform: scale(1.25);
+        }
+        .timeline-node-h.active .node-label {
+            color: #b8860b;
+            font-weight: 700;
+        }
+
+        /* Era card */
+        .era-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .era-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px -8px rgba(107, 74, 42, 0.28);
+            border-color: rgba(184, 134, 11, 0.45);
+        }
+        .dark .era-card:hover {
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
+            border-color: rgba(184, 134, 11, 0.55);
+        }
+
+        /* Era detail panel */
+        .era-detail-panel {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Scroll story */
+        .story-section {
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.4;
+            transform: translateY(20px);
+        }
+        .story-section.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Word dictionary trigger */
+        .dict-word {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: #b8860b;
+            text-underline-offset: 5px;
+            transition: all 0.2s ease;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+        .dict-word:hover {
+            background-color: rgba(184, 134, 11, 0.18);
+            text-decoration-style: solid;
+        }
+
+        /* Ornamental divider */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #c09a6b;
+        }
+        .ornament-divider::before,
+        .ornament-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e5d3b8, transparent);
+        }
+        .dark .ornament-divider::before,
+        .dark .ornament-divider::after {
+            background: linear-gradient(90deg, transparent, #4c3420, transparent);
+        }
+
+        /* Reading progress */
+        .top-progress {
+            height: 2px;
+            background: linear-gradient(90deg, #b8860b, #d4b894);
+            width: 0%;
+            transition: width 0.15s ease-out;
+        }
+
+        /* Minimap */
+        .minimap-track {
+            position: relative;
+            height: 4px;
+            background: #e5d3b8;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .dark .minimap-track { background: #4c3420; }
+        .minimap-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #b8860b, #d4b894);
+            border-radius: 99px;
+            transition: width 0.2s ease;
+        }
+        .minimap-marker {
+            position: absolute;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #b8860b;
+            border: 2px solid #fff;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .dark .minimap-marker { border-color: #1e1b18; }
+
+        /* Comparison mode */
+        .compare-column {
+            transition: all 0.3s ease;
+        }
+        .compare-column.hidden { display: none; }
+
+        /* Zoom controls */
+        .zoom-btn {
+            transition: all 0.2s ease;
+        }
+        .zoom-btn:hover {
+            background: rgba(184, 134, 11, 0.1);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            .timeline-scroll { scroll-behavior: auto; }
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-parchment-50 text-ink-900 font-sans antialiased transition-colors duration-300 min-h-screen selection:bg-accent-gold/20">
+
+    <!-- Reading progress bar -->
+    <div class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-parchment-200/50 dark:bg-ink-800">
+        <div id="reading-progress" class="top-progress h-full"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-parchment-300/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
+            <!-- Brand -->
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center shadow-md text-white font-poetic text-xl pb-0.5">
+                    प्र
+                </div>
+                <div class="leading-tight">
+                    <span class="font-serif text-xl font-bold tracking-wide text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                        PRASANG
+                        <span class="text-[9px] tracking-wider font-sans bg-accent-gold/15 text-accent-gold px-1.5 py-0.5 rounded-full uppercase font-semibold border border-accent-gold/20">AI</span>
+                    </span>
+                    <p class="text-[9px] text-parchment-600 dark:text-parchment-400 uppercase tracking-[0.2em] hidden sm:block">Literature Discovery</p>
+                </div>
+            </a>
+
+            <!-- Breadcrumb -->
+            <nav class="hidden lg:flex items-center gap-2 text-[11px] text-parchment-500 dark:text-parchment-400 font-medium">
+                <a href="#" class="hover:text-accent-gold transition">Home</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <span class="text-ink-900 dark:text-parchment-200 font-semibold">Timeline</span>
+            </nav>
+
+            <!-- Theme + CTA -->
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center p-0.5 bg-parchment-200/70 dark:bg-ink-800 rounded-lg border border-parchment-300 dark:border-parchment-700">
+                    <button onclick="setTheme('light')" id="btn-light" class="px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-800 shadow-sm text-[11px] font-medium transition" title="Light">
+                        <i class="fa-regular fa-sun text-amber-500 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('sepia')" id="btn-sepia" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-700 hover:text-parchment-900 text-[11px] font-medium transition" title="Sepia">
+                        <i class="fa-regular fa-file-lines text-amber-700 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-500 hover:text-parchment-200 text-[11px] font-medium transition" title="Dark">
+                        <i class="fa-regular fa-moon text-indigo-400 text-[11px]"></i>
+                    </button>
+                </div>
+                <button class="hidden sm:inline-flex items-center px-4 py-2 text-[12px] font-semibold rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white transition shadow-sm">
+                    <i class="fa-solid fa-arrow-left text-[10px] mr-1.5"></i> Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="relative pt-12 pb-8 overflow-hidden">
+        <div class="absolute inset-0 -z-10">
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-accent-gold/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-[420px] h-[420px] bg-accent-wine/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
+                <div class="max-w-2xl">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-gold/10 border border-accent-gold/20 text-accent-gold text-[10px] font-bold uppercase tracking-[0.15em] mb-4">
+                        <i class="fa-solid fa-timeline text-[9px]"></i> 3,000+ Years of Literature
+                    </div>
+                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink-900 dark:text-parchment-100 tracking-tight leading-none mb-3">
+                        The <span class="text-accent-gold">Timeline</span>
+                    </h1>
+                    <p class="text-[13px] sm:text-sm text-parchment-600 dark:text-parchment-400 max-w-xl leading-relaxed">
+                        Scroll through the centuries. From Vedic hymns to modern ghazals — every era, every movement, every voice on one interactive line.
+                    </p>
+                </div>
+
+                <!-- View toggle + zoom -->
+                <div class="flex flex-col items-start lg:items-end gap-2.5">
+                    <div class="flex items-center gap-1.5 bg-white dark:bg-ink-900 rounded-lg border border-parchment-200/70 dark:border-parchment-700/40 p-1 shadow-soft">
+                        <button onclick="setTimelineView('horizontal')" id="tv-horizontal" class="view-btn active px-2.5 py-1 rounded-md text-[11px] font-medium text-parchment-600 dark:text-parchment-400 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrows-left-right text-[10px]"></i> Horizontal
+                        </button>
+                        <button onclick="setTimelineView('vertical')" id="tv-vertical" class="view-btn px-2.5 py-1 rounded-md text-[11px] font-medium text-parchment-600 dark:text-parchment-400 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrows-up-down text-[10px]"></i> Vertical
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] text-parchment-500 font-semibold uppercase tracking-wider">Zoom:</span>
+                        <div class="flex items-center bg-white dark:bg-ink-900 rounded-lg border border-parchment-200/70 dark:border-parchment-700/40 p-0.5 shadow-sm">
+                            <button onclick="setZoom('century')" id="zoom-century" class="zoom-btn px-2 py-1 rounded text-[10px] font-semibold text-parchment-600 dark:text-parchment-400 transition">Century</button>
+                            <button onclick="setZoom('decade')" id="zoom-decade" class="zoom-btn px-2 py-1 rounded text-[10px] font-semibold text-parchment-600 dark:text-parchment-400 transition">Decade</button>
+                            <button onclick="setZoom('year')" id="zoom-year" class="zoom-btn px-2 py-1 rounded text-[10px] font-semibold text-parchment-600 dark:text-parchment-400 transition">Year</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick stats -->
+            <div class="flex flex-wrap items-center gap-6 mt-8">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <p class="font-serif text-lg font-bold text-ink-900 dark:text-parchment-100">3,000+</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Years</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <p class="font-serif text-lg font-bold text-ink-900 dark:text-parchment-100">18</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Eras</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-feather-pointed"></i>
+                    </div>
+                    <div>
+                        <p class="font-serif text-lg font-bold text-ink-900 dark:text-parchment-100">420</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Poets</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-globe"></i>
+                    </div>
+                    <div>
+                        <p class="font-serif text-lg font-bold text-ink-900 dark:text-parchment-100">14</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Languages</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== INTERACTIVE TIMELINE ===== -->
+    <section class="pb-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5 sm:p-6">
+
+                <!-- Timeline header -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-timeline text-accent-gold text-sm"></i>
+                        <h2 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">Era Timeline</h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="scrollTimeline('left')" class="w-7 h-7 rounded-lg bg-parchment-100/60 dark:bg-ink-800/60 border border-parchment-200/60 dark:border-parchment-700/40 flex items-center justify-center text-parchment-500 hover:text-accent-gold transition">
+                            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                        </button>
+                        <button onclick="scrollTimeline('right')" class="w-7 h-7 rounded-lg bg-parchment-100/60 dark:bg-ink-800/60 border border-parchment-200/60 dark:border-parchment-700/40 flex items-center justify-center text-parchment-500 hover:text-accent-gold transition">
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="centerActiveNode()" class="px-2 py-1 rounded-lg bg-parchment-100/60 dark:bg-ink-800/60 border border-parchment-200/60 dark:border-parchment-700/40 text-[10px] font-semibold text-parchment-500 hover:text-accent-gold transition">
+                            <i class="fa-solid fa-crosshairs text-[9px] mr-1"></i> Center
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Horizontal timeline -->
+                <div id="timeline-horizontal-wrap" class="relative">
+                    <!-- Minimap -->
+                    <div class="minimap-track mb-4 relative" id="minimap">
+                        <div class="minimap-fill" id="minimap-fill" style="width: 15%"></div>
+                        <!-- markers injected by JS -->
+                    </div>
+
+                    <!-- Scrollable track -->
+                    <div class="overflow-x-auto timeline-scroll pb-2" id="timeline-scroll">
+                        <div class="relative" style="min-width: 1400px; padding: 20px 0;">
+                            <!-- Track line -->
+                            <div class="timeline-track-h absolute left-0 right-0 top-1/2 -translate-y-1/2 mx-4"></div>
+
+                            <!-- Nodes -->
+                            <div id="timeline-nodes-h" class="relative flex justify-between items-start px-4">
+                                <!-- injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vertical timeline -->
+                <div id="timeline-vertical-wrap" class="hidden relative pl-8 sm:pl-10 mt-4">
+                    <div class="absolute left-2 sm:left-3 top-2 bottom-2 w-0.5 timeline-track-h-vert" style="background: linear-gradient(180deg, #e5d3b8, #c09a6b, #e5d3b8);"></div>
+                    <div id="timeline-nodes-v" class="space-y-3">
+                        <!-- injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Era detail panel -->
+                <div id="era-detail" class="mt-5 era-detail-panel">
+                    <!-- injected by JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ERA GRID ===== -->
+    <section class="py-12 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-8">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Browse All</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">All Eras & Movements</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">Click any era to explore its poets, works, and themes in depth.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="era-grid">
+                <!-- injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== NARRATIVE SCROLL STORY ===== -->
+    <section class="py-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">The Story</span>
+                <h2 class="font-serif text-3xl sm:text-4xl font-bold text-ink-900 dark:text-parchment-100 mt-1">A 3,000-Year Journey</h2>
+                <p class="text-[13px] text-parchment-600 dark:text-parchment-400 mt-3 max-w-lg mx-auto">
+                    Scroll through the story of South Asian literature — from the first Vedic hymns to the modern ghazal.
+                </p>
+            </div>
+
+            <div class="space-y-16" id="story-container">
+                <!-- injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== COMPARISON MODE ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Compare</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Era Comparison</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">Select two eras to see them side-by-side.</p>
+            </div>
+
+            <!-- Selectors -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-semibold text-parchment-500">Era A:</span>
+                    <select id="compare-a" onchange="updateComparison()" class="appearance-none pl-3 pr-8 py-1.5 bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 rounded-lg text-[11px] font-medium text-ink-800 dark:text-parchment-300 focus:outline-none focus:ring-1 focus:ring-accent-gold cursor-pointer">
+                        <!-- injected -->
+                    </select>
+                </div>
+                <i class="fa-solid fa-arrows-left-right text-parchment-400 text-xs hidden sm:block"></i>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-semibold text-parchment-500">Era B:</span>
+                    <select id="compare-b" onchange="updateComparison()" class="appearance-none pl-3 pr-8 py-1.5 bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 rounded-lg text-[11px] font-medium text-ink-800 dark:text-parchment-300 focus:outline-none focus:ring-1 focus:ring-accent-gold cursor-pointer">
+                        <!-- injected -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Comparison grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="comparison-grid">
+                <!-- injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="py-14">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-br from-accent-gold/95 to-accent-wine/95 rounded-2xl p-8 sm:p-10 text-white shadow-glow relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 translate-x-10 translate-y-10 opacity-10 font-poetic text-[120px] pointer-events-none select-none">
+                    काल
+                </div>
+                <div class="relative z-10 max-w-lg">
+                    <span class="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">Keep Exploring</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold mt-1 mb-2">Dive into an Era</h2>
+                    <p class="text-white/80 text-[13px] leading-relaxed mb-5">
+                        Each era has its own page — with key poets, defining works, historical context, and a reading list. Pick a period and start your journey.
+                    </p>
+                    <div class="flex flex-wrap gap-2.5">
+                        <button onclick="scrollToTimeline()" class="px-5 py-2.5 rounded-lg bg-white text-accent-wine text-[12px] font-bold hover:bg-white/90 transition shadow-md">
+                            <i class="fa-solid fa-timeline text-[10px] mr-1.5"></i> Back to Timeline
+                        </button>
+                        <button onclick="showWordModal('Bhakti Movement', 'Era · 7th–17th century', 'A thousand-year devotional revolution that democratized spirituality across India.', 'Prasang era')" class="px-4 py-2.5 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[12px] font-semibold transition border border-white/20">
+                            <i class="fa-solid fa-feather-pointed text-[10px] mr-1.5"></i> Explore Bhakti
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-parchment-900 dark:bg-ink-900 text-parchment-300/60 py-10 border-t border-parchment-800/40 text-[11px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-md bg-accent-gold text-white flex items-center justify-center font-poetic text-base">प्र</div>
+                    <div>
+                        <span class="font-serif text-base font-bold tracking-wide text-parchment-100">PRASANG</span>
+                        <p class="text-[9px] text-parchment-400/70">Multilingual Literature & Poetry</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-5 font-medium text-parchment-200/70">
+                    <a href="#" class="hover:text-accent-gold transition">Rail</a>
+                    <a href="#" class="hover:text-accent-gold transition">Features</a>
+                    <a href="#" class="hover:text-accent-gold transition">Reader</a>
+                    <a href="#" class="hover:text-accent-gold transition">Eras</a>
+                    <a href="#" class="hover:text-accent-gold transition">Lexicon</a>
+                </div>
+                <p class="text-parchment-400/50">&copy; 2026 Prasang Platform.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== DICTIONARY MODAL ===== -->
+    <div id="dict-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-sm w-full shadow-2xl relative animate-fade-up overflow-hidden">
+            <div class="h-1 bg-gradient-to-r from-accent-gold to-parchment-500"></div>
+            <button onclick="closeWordModal()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-5">
+                <div class="flex items-center gap-1.5 text-accent-gold text-[9px] font-bold uppercase tracking-[0.15em] mb-2">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> Lexicon
+                </div>
+                <h3 id="modal-word" class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-0.5">Prem</h3>
+                <p id="modal-type" class="text-[10px] text-accent-gold font-semibold mb-2">N. Love, Compassion</p>
+                <p id="modal-desc" class="text-[12px] text-parchment-600 dark:text-parchment-300 leading-relaxed mb-2">
+                    Derived from Sanskrit 'Preman'. Refers to selfless divine love.
+                </p>
+                <div class="p-2 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 mb-3">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Etymology</p>
+                    <p id="modal-etymology" class="text-[10px] text-parchment-600 dark:text-parchment-400 italic">Sanskrit Preman → Prakrit → Sadhukkadi</p>
+                </div>
+                <button onclick="closeWordModal()" class="w-full py-1.5 bg-parchment-800 hover:bg-parchment-900 dark:bg-accent-gold dark:hover:bg-accent-gold/90 text-white rounded-lg text-[11px] font-semibold transition">
+                    Close & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ========== DATA ==========
+        const eras = [
+            { id: 'vedic', name: 'Vedic Period', script: 'वैदिक काल', years: 'c. 1500–500 BCE', start: -1500, end: -500, century: -15, color: 'gold', icon: 'fa-om', poets: 12, works: 4, lang: 'Sanskrit', desc: 'The Rigveda, Upanishads, and the earliest hymns to the gods — the foundation of Indian literature.', keyPoets: ['Anonymous Rishis'], keyWorks: ['Rigveda', 'Upanishads'] },
+            { id: 'epic', name: 'Epic Age', script: 'महाकाव्य काल', years: 'c. 500 BCE–400 CE', start: -500, end: 400, century: -5, color: 'wine', icon: 'fa-scroll', poets: 8, works: 3, lang: 'Sanskrit', desc: 'The Mahabharata and Ramayana take shape — the great epics that built Indian civilization.', keyPoets: ['Vyasa', 'Valmiki'], keyWorks: ['Mahabharata', 'Ramayana'] },
+            { id: 'classical', name: 'Classical Sanskrit', script: 'शास्त्रीय संस्कृत', years: 'c. 400–1200 CE', start: 400, end: 1200, century: 4, color: 'sage', icon: 'fa-landmark', poets: 24, works: 12, lang: 'Sanskrit', desc: 'Kalidasa, Bhasa, and the golden age of Sanskrit drama, lyric, and poetics.', keyPoets: ['Kalidasa', 'Bhasa', 'Bhartrihari'], keyWorks: ['Meghaduta', 'Abhijnanashakuntalam'] },
+            { id: 'sangam', name: 'Sangam Literature', script: 'संगम साहित्य', years: 'c. 300 BCE–300 CE', start: -300, end: 300, century: -3, color: 'gold', icon: 'fa-water', poets: 18, works: 8, lang: 'Tamil', desc: 'The earliest Tamil poetry — love, war, and ethics in the classical Sangam anthologies.', keyPoets: ['Thiruvalluvar', 'Kambar'], keyWorks: ['Tirukkural', 'Silappatikaram'] },
+            { id: 'tamil-bhakti', name: 'Tamil Bhakti', script: 'तमिल भक्ति', years: 'c. 600–900 CE', start: 600, end: 900, century: 6, color: 'wine', icon: 'fa-feather-pointed', poets: 20, works: 10, lang: 'Tamil', desc: 'The Alvars and Nayanars — the first Bhakti poets, singing to Vishnu and Shiva.', keyPoets: ['Andal', 'Appar', 'Sundarar'], keyWorks: ['Divya Prabandham', 'Tevaram'] },
+            { id: 'virashaiva', name: 'Virashaiva', script: 'वीरशैव', years: 'c. 1100–1200 CE', start: 1100, end: 1200, century: 11, color: 'sage', icon: 'fa-hands-praying', poets: 15, works: 6, lang: 'Kannada', desc: 'Basava and the Virashaiva saints produce the vachanas — radical, caste-rejecting devotional poetry.', keyPoets: ['Basava', 'Akka Mahadevi'], keyWorks: ['Vachana Sahitya'] },
+            { id: 'varkari', name: 'Varkari Tradition', script: 'वारकरी', years: 'c. 1270–1700 CE', start: 1270, end: 1700, century: 12, color: 'gold', icon: 'fa-music', poets: 22, works: 14, lang: 'Marathi', desc: 'Dnyaneshwar, Namdev, Eknath, and Tukaram — the great Marathi Bhakti tradition.', keyPoets: ['Dnyaneshwar', 'Tukaram', 'Namdev'], keyWorks: ['Dnyaneshwari', 'Abhangs'] },
+            { id: 'delhi-sultanate', name: 'Delhi Sultanate', script: 'दिल्ली सल्तनत', years: 'c. 1200–1500 CE', start: 1200, end: 1500, century: 12, color: 'wine', icon: 'fa-crown', poets: 16, works: 9, lang: 'Persian', desc: 'Amir Khusrau and the birth of Indo-Persian poetry — ghazal, qawwali, and the sitar.', keyPoets: ['Amir Khusrau', 'Hasan Dehlavi'], keyWorks: ['Diwan-e-Khusrau'] },
+            { id: 'bhakti', name: 'Bhakti Movement', script: 'भक्ति आन्दोलन', years: 'c. 1400–1700 CE', start: 1400, end: 1700, century: 14, color: 'gold', icon: 'fa-heart', poets: 40, works: 25, lang: 'Hindi', desc: 'Kabir, Mirabai, Tulsidas, Surdas — the devotional revolution that changed Indian literature forever.', keyPoets: ['Kabir', 'Mirabai', 'Tulsidas', 'Surdas'], keyWorks: ['Bijak', 'Ramcharitmanas', 'Sur Sagar'] },
+            { id: 'sufi', name: 'Sufi Mysticism', script: 'सूफ़ी रहस्यवाद', years: 'c. 1200–1700 CE', start: 1200, end: 1700, century: 12, color: 'wine', icon: 'fa-moon', poets: 18, works: 11, lang: 'Persian', desc: 'Rumi, Attar, and the Persian Sufi poets — divine love, the reed pipe, and the ocean in a drop.', keyPoets: ['Rumi', 'Attar', 'Bulleh Shah'], keyWorks: ['Masnavi', 'Conference of the Birds'] },
+            { id: 'sikh', name: 'Sikh Gurus', script: 'सिख गुरु', years: 'c. 1500–1700 CE', start: 1500, end: 1700, century: 15, color: 'sage', icon: 'fa-star', poets: 10, works: 5, lang: 'Punjabi', desc: 'Guru Nanak and the Sikh Gurus — Bhakti and Sufi poetry compiled into the Guru Granth Sahib.', keyPoets: ['Guru Nanak', 'Guru Arjan'], keyWorks: ['Guru Granth Sahib'] },
+            { id: 'mughal', name: 'Mughal Golden Age', script: 'मुग़ल स्वर्ण युग', years: 'c. 1550–1850 CE', start: 1550, end: 1850, century: 15, color: 'gold', icon: 'fa-crown', poets: 22, works: 15, lang: 'Urdu', desc: 'The refinement of Urdu and Persian poetry — Mir, Sauda, and the great ghazal masters.', keyPoets: ['Mir Taqi Mir', 'Mirza Sauda'], keyWorks: ['Diwan-e-Mir'] },
+            { id: 'ghalib', name: 'Age of Ghalib', script: 'ग़ालिब युग', years: 'c. 1797–1869 CE', start: 1797, end: 1869, century: 17, color: 'wine', icon: 'fa-feather-pointed', poets: 12, works: 8, lang: 'Urdu', desc: 'Ghalib, Zauq, and the last great flowering of Mughal poetry before colonial modernity.', keyPoets: ['Mirza Ghalib', 'Zauq'], keyWorks: ['Diwan-e-Ghalib'] },
+            { id: 'bengal', name: 'Bengal Renaissance', script: 'बंगाल पुनर्जागरण', years: 'c. 1850–1940 CE', start: 1850, end: 1940, century: 18, color: 'sage', icon: 'fa-seedling', poets: 18, works: 12, lang: 'Bengali', desc: 'Tagore, Nazrul, and the making of modern South Asian poetry — lyric, freedom, and the nation.', keyPoets: ['Rabindranath Tagore', 'Kazi Nazrul Islam'], keyWorks: ['Gitanjali', 'Bidrohi'] },
+            { id: 'chhayavad', name: 'Chhayavad', script: 'छायावाद', years: 'c. 1915–1940 CE', start: 1915, end: 1940, century: 19, color: 'gold', icon: 'fa-cloud', poets: 8, works: 6, lang: 'Hindi', desc: 'The "shadowism" movement — romantic, introspective Hindi poetry of mystery and longing.', keyPoets: ['Mahadevi Varma', 'Jaishankar Prasad'], keyWorks: ['Yama', 'Kamayani'] },
+            { id: 'modern-hindi', name: 'Modern Hindi', script: 'आधुनिक हिन्दी', years: 'c. 1940–1980 CE', start: 1940, end: 1980, century: 19, color: 'wine', icon: 'fa-pen-fancy', poets: 15, works: 10, lang: 'Hindi', desc: 'Experimental and progressive poetry — Agyeya, Bachchan, and the Nayi Kavita movement.', keyPoets: ['Agyeya', 'Harivansh Rai Bachchan'], keyWorks: ['Madhushala', 'Shekhar: Ek Jivani'] },
+            { id: 'postcolonial', name: 'Postcolonial Voices', script: 'उत्तर-औपनिवेशिक', years: 'c. 1947–1990 CE', start: 1947, end: 1990, century: 19, color: 'sage', icon: 'fa-globe', poets: 20, works: 14, lang: 'Urdu', desc: 'Faiz, Jaun Elia, and the literature of partition, exile, and resistance.', keyPoets: ['Faiz Ahmed Faiz', 'Jaun Elia'], keyWorks: ['Naqsh-e-Faryadi', 'Shayad'] },
+            { id: 'contemporary', name: 'Contemporary', script: 'समकालीन', years: 'c. 1990–present', start: 1990, end: 2026, century: 20, color: 'gold', icon: 'fa-sparkles', poets: 30, works: 20, lang: 'Multiple', desc: 'Global, digital, and multilingual — the poetry of the present moment, across borders and screens.', keyPoets: ['Gulzar', 'Arundhathi Subramaniam'], keyWorks: ['Selected Poems'] },
+        ];
+
+        const storySections = [
+            { era: 'Vedic Period', years: 'c. 1500 BCE', title: 'The First Hymns', text: 'Before written literature, there were hymns — sung to Agni, Indra, and Ushas, the dawn. The Rigveda, composed over centuries and passed down orally with astonishing precision, is the oldest living text in any Indo-European language. Its 1,028 hymns are not just poetry; they are the foundation of an entire civilization\'s imagination.', highlight: 'The Rigveda is 3,500 years old and still recited today.', color: 'gold' },
+            { era: 'Epic Age', years: 'c. 400 BCE', title: 'The Great Epics', text: 'The Mahabharata and Ramayana transformed literature into a vast universe. The Mahabharata alone is 200,000 verses — ten times the length of the Iliad and Odyssey combined. These epics gave India its archetypes: the righteous king, the devoted wife, the conflicted warrior, the divine trickster. They are still performed, retold, and argued over.', highlight: 'The Mahabharata is the longest epic poem ever written.', color: 'wine' },
+            { era: 'Classical Sanskrit', years: 'c. 400 CE', title: 'The Golden Age', text: 'Kalidasa wrote of clouds as messengers and lovers separated by fate. Sanskrit drama flourished; poetics became a science. This was an age of refinement — where poetry was measured in syllables, emotions were catalogued as rasas, and the court poet was a revered figure. The Meghaduta, a 120-verse poem about a cloud carrying a message of love, remains a masterpiece.', highlight: 'Kalidasa is often called the Shakespeare of India.', color: 'sage' },
+            { era: 'Bhakti Movement', years: 'c. 1400 CE', title: 'The Devotional Revolution', text: 'Then came the weaver, the princess, the blind poet, and the woman who left her palace for a god. The Bhakti movement democratized spirituality — Kabir mocked ritual, Mirabai sang in ecstasy, Tulsidas retold the Ramayana for everyone. Poetry moved from Sanskrit courts to village squares, from the written page to the sung bhajan.', highlight: 'Kabir\'s dohas are among the most quoted verses in Indian literature.', color: 'gold' },
+            { era: 'Mughal & Urdu', years: 'c. 1600 CE', title: 'The Ghazal Blooms', text: 'In the courts of Delhi and Lucknow, a new poetry emerged — the Urdu ghazal. With its strict rhyme and refrain, its world of wine, love, and existential irony, it became the most sophisticated lyric form in South Asia. Mir Taqi Mir, called "the god of poetry," and later Ghalib, perfected it. The ghazal is still the dominant form of Urdu poetry today.', highlight: 'Ghalib\'s ghazals are recited across India and Pakistan every year.', color: 'wine' },
+            { era: 'Modern & Beyond', years: 'c. 1900 CE', title: 'The Modern Voice', text: 'Tagore won the Nobel Prize. The printing press, the nation-state, and the world wars changed everything. Poetry became personal, political, experimental. The Chhayavad poets explored the inner self; Faiz wrote of love and revolution; Jaun Elia wrote of loneliness and sarcasm. Today, poetry lives on screens, in translation, and in the voices of a new generation.', highlight: 'Tagore\'s Gitanjali was the first non-Western work to win the Nobel Prize in Literature.', color: 'sage' },
+        ];
+
+        const colorMap = {
+            gold: { bg: 'from-accent-gold/20 to-accent-gold/5', text: 'text-accent-gold', border: 'border-accent-gold/20', bar: 'from-accent-gold to-parchment-500', dot: 'bg-accent-gold' },
+            wine: { bg: 'from-accent-wine/20 to-accent-wine/5', text: 'text-accent-wine', border: 'border-accent-wine/20', bar: 'from-accent-wine to-parchment-500', dot: 'bg-accent-wine' },
+            sage: { bg: 'from-accent-sage/20 to-accent-sage/5', text: 'text-accent-sage', border: 'border-accent-sage/20', bar: 'from-accent-sage to-parchment-500', dot: 'bg-accent-sage' },
+        };
+
+        // ========== STATE ==========
+        let state = {
+            activeEra: 8, // Bhakti
+            view: 'horizontal',
+            zoom: 'century',
+        };
+
+        // ========== RENDER TIMELINE (HORIZONTAL) ==========
+        function renderTimelineHorizontal() {
+            const container = document.getElementById('timeline-nodes-h');
+            container.innerHTML = eras.map((era, idx) => `
+                <div class="timeline-node-h flex flex-col items-center ${idx === state.activeEra ? 'active' : ''}" style="min-width: 70px;" onclick="selectEra(${idx})" data-index="${idx}">
+                    <div class="node-dot w-4 h-4 rounded-full bg-parchment-300 dark:bg-parchment-700 border-2 border-white dark:border-ink-900 shadow mb-2"></div>
+                    <span class="node-label text-[9px] sm:text-[10px] font-semibold text-parchment-600 dark:text-parchment-400 whitespace-nowrap transition">${era.name.split(' ')[0]}</span>
+                    <span class="text-[8px] text-parchment-400 dark:text-parchment-500 mt-0.5">${era.years.split('–')[0]}</span>
+                </div>
+            `).join('');
+
+            // Minimap markers
+            renderMinimap();
+        }
+
+        // ========== RENDER MINIMAP ==========
+        function renderMinimap() {
+            const minimap = document.getElementById('minimap');
+            // Remove old markers
+            minimap.querySelectorAll('.minimap-marker').forEach(m => m.remove());
+
+            const minYear = -1500;
+            const maxYear = 2026;
+            const range = maxYear - minYear;
+
+            eras.forEach((era, idx) => {
+                const pct = ((era.start - minYear) / range) * 100;
+                const marker = document.createElement('div');
+                marker.className = 'minimap-marker';
+                marker.style.left = pct + '%';
+                marker.title = era.name;
+                marker.onclick = () => selectEra(idx);
+                minimap.appendChild(marker);
+            });
+        }
+
+        // ========== RENDER TIMELINE (VERTICAL) ==========
+        function renderTimelineVertical() {
+            const container = document.getElementById('timeline-nodes-v');
+            container.innerHTML = eras.map((era, idx) => {
+                const c = colorMap[era.color];
+                return `
+                    <div class="relative cursor-pointer group" onclick="selectEra(${idx})">
+                        <div class="absolute -left-8 sm:-left-10 top-3 w-4 h-4 rounded-full ${idx === state.activeEra ? 'bg-accent-gold shadow-glow' : 'bg-parchment-300 dark:bg-parchment-700'} border-2 border-white dark:border-ink-900 transition"></div>
+                        <div class="p-3 rounded-lg bg-white dark:bg-ink-900 border ${idx === state.activeEra ? 'border-accent-gold/40 bg-accent-gold/5' : 'border-parchment-200/60 dark:border-parchment-700/30'} hover:border-accent-gold/40 transition">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[9px] font-bold uppercase tracking-wider ${c.text}">${era.years}</span>
+                                        <span class="text-[9px] text-parchment-500">${era.lang}</span>
+                                    </div>
+                                    <h4 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 mt-0.5">${era.name}</h4>
+                                </div>
+                                <span class="text-[10px] text-parchment-500">${era.poets} poets</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== SELECT ERA ==========
+        function selectEra(idx) {
+            state.activeEra = idx;
+            renderTimelineHorizontal();
+            renderTimelineVertical();
+            renderEraDetail();
+            updateMinimapFill();
+            centerActiveNode();
+        }
+
+        // ========== UPDATE MINIMAP FILL ==========
+        function updateMinimapFill() {
+            const minYear = -1500;
+            const maxYear = 2026;
+            const range = maxYear - minYear;
+            const era = eras[state.activeEra];
+            const pct = ((era.start - minYear) / range) * 100;
+            document.getElementById('minimap-fill').style.width = pct + '%';
+        }
+
+        // ========== CENTER ACTIVE NODE ==========
+        function centerActiveNode() {
+            const node = document.querySelector(`.timeline-node-h[data-index="${state.activeEra}"]`);
+            const scrollContainer = document.getElementById('timeline-scroll');
+            if (node && scrollContainer) {
+                const nodeLeft = node.offsetLeft;
+                const nodeWidth = node.offsetWidth;
+                const containerWidth = scrollContainer.offsetWidth;
+                scrollContainer.scrollTo({
+                    left: nodeLeft - (containerWidth / 2) + (nodeWidth / 2),
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // ========== SCROLL TIMELINE ==========
+        function scrollTimeline(direction) {
+            const container = document.getElementById('timeline-scroll');
+            const amount = 300;
+            container.scrollBy({ left: direction === 'left' ? -amount : amount, behavior: 'smooth' });
+        }
+
+        // ========== RENDER ERA DETAIL ==========
+        function renderEraDetail() {
+            const era = eras[state.activeEra];
+            const c = colorMap[era.color];
+            const container = document.getElementById('era-detail');
+            container.innerHTML = `
+                <div class="p-4 sm:p-5 rounded-xl bg-parchment-50/80 dark:bg-ink-800/40 border border-parchment-200/70 dark:border-parchment-700/40 animate-fade-in">
+                    <div class="flex flex-col sm:flex-row items-start gap-4">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} text-2xl border ${c.border} flex-shrink-0">
+                            <i class="fa-solid ${era.icon}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span class="text-[10px] font-bold uppercase tracking-wider ${c.text}">${era.years}</span>
+                                <span class="text-parchment-300 dark:text-parchment-700">·</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 font-medium">${era.lang}</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 font-medium">${era.poets} poets</span>
+                            </div>
+                            <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-1">${era.name}</h3>
+                            <p class="font-poetic text-sm text-parchment-500 mb-2">${era.script}</p>
+                            <p class="text-[12px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-3">${era.desc}</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-1.5">Key Poets</p>
+                                    <div class="flex flex-wrap gap-1.5">
+                                        ${era.keyPoets.map(p => `<button onclick="showWordModal('${p}', 'Poet · ${era.name}', 'A key voice of the ${era.name}. Click to view their full profile and works.', '${era.lang}')" class="px-2 py-1 rounded-md bg-accent-gold/10 text-accent-gold text-[10px] font-semibold border border-accent-gold/20 hover:bg-accent-gold/20 transition">${p}</button>`).join('')}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-1.5">Key Works</p>
+                                    <div class="flex flex-wrap gap-1.5">
+                                        ${era.keyWorks.map(w => `<button onclick="showWordModal('${w}', 'Work · ${era.name}', 'A defining work of the ${era.name}. Click to explore the full text and AI analysis.', '${era.lang}')" class="px-2 py-1 rounded-md bg-accent-wine/10 text-accent-wine text-[10px] font-semibold border border-accent-wine/20 hover:bg-accent-wine/20 transition">${w}</button>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2 mt-4">
+                                <button onclick="showWordModal('${era.name}', 'Era · ${era.years}', '${era.desc.replace(/'/g, "\\'")}', 'Prasang era')" class="px-3 py-1.5 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[11px] font-semibold transition">
+                                    <i class="fa-solid fa-arrow-right text-[9px] mr-1"></i> Explore Full Era
+                                </button>
+                                <button onclick="selectEra((${state.activeEra} + 1) % ${eras.length})" class="px-3 py-1.5 rounded-lg bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 text-parchment-600 dark:text-parchment-400 text-[11px] font-semibold hover:border-accent-gold/40 transition">
+                                    Next Era <i class="fa-solid fa-chevron-right text-[8px] ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== RENDER ERA GRID ==========
+        function renderEraGrid() {
+            const container = document.getElementById('era-grid');
+            container.innerHTML = eras.map((era, idx) => {
+                const c = colorMap[era.color];
+                return `
+                    <div class="era-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 group" onclick="selectEra(${idx}); scrollToTimeline();">
+                        <div class="flex items-start justify-between mb-2.5">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} text-base border ${c.border}">
+                                <i class="fa-solid ${era.icon}"></i>
+                            </div>
+                            <span class="text-[9px] font-bold text-parchment-500">${era.poets} poets</span>
+                        </div>
+                        <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-gold transition mb-0.5">${era.name}</h3>
+                        <p class="text-[10px] font-semibold ${c.text} mb-1.5">${era.years}</p>
+                        <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed line-clamp-2">${era.desc}</p>
+                        <div class="flex items-center justify-between mt-2.5 pt-2.5 border-t border-parchment-200/60 dark:border-parchment-700/30">
+                            <span class="text-[9px] text-parchment-500">${era.lang}</span>
+                            <i class="fa-solid fa-arrow-right text-[9px] text-accent-gold opacity-0 group-hover:opacity-100 transition"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== RENDER STORY ==========
+        function renderStory() {
+            const container = document.getElementById('story-container');
+            container.innerHTML = storySections.map((s, idx) => {
+                const c = colorMap[s.color];
+                return `
+                    <div class="story-section" data-story-index="${idx}">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} text-xl border ${c.border}">
+                                <i class="fa-solid fa-book-open"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider ${c.text}">${s.years}</span>
+                                <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100">${s.title}</h3>
+                            </div>
+                        </div>
+                        <p class="text-[13px] text-parchment-700 dark:text-parchment-300 leading-relaxed mb-3 pl-15 sm:pl-15">${s.text}</p>
+                        <div class="ml-15 sm:ml-15 p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border-l-3 border-accent-gold">
+                            <p class="text-[11px] font-semibold text-ink-900 dark:text-parchment-200">
+                                <i class="fa-solid fa-lightbulb text-accent-gold text-[10px] mr-1.5"></i>${s.highlight}
+                            </p>
+                        </div>
+                        <div class="ml-15 sm:ml-15 mt-2">
+                            <span class="text-[9px] uppercase tracking-wider text-parchment-400 font-bold">${s.era}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Setup intersection observer
+            setupStoryObserver();
+        }
+
+        // ========== STORY OBSERVER ==========
+        function setupStoryObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                    }
+                });
+            }, { threshold: 0.2, rootMargin: '0px 0px -50px 0px' });
+
+            document.querySelectorAll('.story-section').forEach(s => observer.observe(s));
+        }
+
+        // ========== COMPARISON ==========
+        function populateComparisonSelects() {
+            const selectA = document.getElementById('compare-a');
+            const selectB = document.getElementById('compare-b');
+
+            eras.forEach((era, idx) => {
+                const optA = document.createElement('option');
+                optA.value = idx;
+                optA.textContent = era.name;
+                if (idx === 8) optA.selected = true; // Bhakti
+                selectA.appendChild(optA);
+
+                const optB = document.createElement('option');
+                optB.value = idx;
+                optB.textContent = era.name;
+                if (idx === 9) optB.selected = true; // Sufi
+                selectB.appendChild(optB);
+            });
+
+            updateComparison();
+        }
+
+        function updateComparison() {
+            const idxA = parseInt(document.getElementById('compare-a').value);
+            const idxB = parseInt(document.getElementById('compare-b').value);
+            const eraA = eras[idxA];
+            const eraB = eras[idxB];
+
+            const container = document.getElementById('comparison-grid');
+            container.innerHTML = `
+                ${comparisonColumnHTML(eraA, 'A')}
+                ${comparisonColumnHTML(eraB, 'B')}
+            `;
+        }
+
+        function comparisonColumnHTML(era, label) {
+            const c = colorMap[era.color];
+            return `
+                <div class="compare-column bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[10px] font-bold uppercase tracking-wider ${c.text}">Era ${label}</span>
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} text-sm border ${c.border}">
+                            <i class="fa-solid ${era.icon}"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-serif text-lg font-bold text-ink-900 dark:text-parchment-100 mb-0.5">${era.name}</h3>
+                    <p class="font-poetic text-sm text-parchment-500 mb-2">${era.script}</p>
+                    <p class="text-[11px] font-semibold ${c.text} mb-3">${era.years}</p>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-4">${era.desc}</p>
+                    <div class="space-y-2 text-[11px]">
+                        <div class="flex justify-between py-1 border-b border-parchment-200/60 dark:border-parchment-700/30">
+                            <span class="text-parchment-500 font-medium">Language</span>
+                            <span class="font-semibold text-ink-900 dark:text-parchment-200">${era.lang}</span>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-parchment-200/60 dark:border-parchment-700/30">
+                            <span class="text-parchment-500 font-medium">Poets</span>
+                            <span class="font-semibold text-ink-900 dark:text-parchment-200">${era.poets}</span>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-parchment-200/60 dark:border-parchment-700/30">
+                            <span class="text-parchment-500 font-medium">Key Works</span>
+                            <span class="font-semibold text-ink-900 dark:text-parchment-200">${era.works}</span>
+                        </div>
+                        <div class="flex justify-between py-1">
+                            <span class="text-parchment-500 font-medium">Era Span</span>
+                            <span class="font-semibold text-ink-900 dark:text-parchment-200">${Math.abs(era.start - era.end)} years</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-parchment-200/60 dark:border-parchment-700/30">
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-1.5">Key Poets</p>
+                        <div class="flex flex-wrap gap-1">
+                            ${era.keyPoets.map(p => `<span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">${p}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== VIEW TOGGLE ==========
+        function setTimelineView(view) {
+            state.view = view;
+
+            const hWrap = document.getElementById('timeline-horizontal-wrap');
+            const vWrap = document.getElementById('timeline-vertical-wrap');
+            const tvH = document.getElementById('tv-horizontal');
+            const tvV = document.getElementById('tv-vertical');
+
+            if (view === 'horizontal') {
+                hWrap.classList.remove('hidden');
+                vWrap.classList.add('hidden');
+                tvH.classList.add('active');
+                tvV.classList.remove('active');
+            } else {
+                hWrap.classList.add('hidden');
+                vWrap.classList.remove('hidden');
+                tvV.classList.add('active');
+                tvH.classList.remove('active');
+                renderTimelineVertical();
+            }
+        }
+
+        // ========== ZOOM ==========
+        function setZoom(level) {
+            state.zoom = level;
+            ['century', 'decade', 'year'].forEach(z => {
+                const btn = document.getElementById(`zoom-${z}`);
+                if (z === level) {
+                    btn.classList.add('active');
+                    btn.style.background = 'rgba(184, 134, 11, 0.15)';
+                    btn.style.color = '#b8860b';
+                } else {
+                    btn.classList.remove('active');
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }
+            });
+            // Zoom affects timeline spacing (simple implementation)
+            const track = document.getElementById('timeline-scroll');
+            if (track) {
+                const inner = track.querySelector('.relative');
+                if (level === 'century') inner.style.minWidth = '1400px';
+                else if (level === 'decade') inner.style.minWidth = '2000px';
+                else inner.style.minWidth = '2800px';
+            }
+        }
+
+        // ========== SCROLL HELPERS ==========
+        function scrollToTimeline() {
+            document.querySelector('.timeline-scroll')?.closest('section')?.scrollIntoView({ behavior: 'smooth' }) ||
+            document.getElementById('timeline-nodes-h')?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ========== THEME ==========
+        function setTheme(theme) {
+            const body = document.getElementById('app-body');
+            const btnLight = document.getElementById('btn-light');
+            const btnSepia = document.getElementById('btn-sepia');
+            const btnDark = document.getElementById('btn-dark');
+
+            body.classList.remove('dark', 'theme-sepia');
+            [btnLight, btnSepia, btnDark].forEach(btn => {
+                btn.className = 'px-2 py-1 rounded-md flex items-center gap-1 text-parchment-600 dark:text-parchment-400 hover:text-parchment-900 dark:hover:text-parchment-200 text-[11px] font-medium transition';
+            });
+
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                btnDark.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-ink-700 text-white shadow-sm text-[11px] font-medium transition';
+            } else if (theme === 'sepia') {
+                body.classList.add('theme-sepia');
+                btnSepia.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-parchment-800 text-white shadow-sm text-[11px] font-medium transition';
+            } else {
+                btnLight.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-900 shadow-sm text-[11px] font-medium transition';
+            }
+        }
+
+        // ========== DICTIONARY MODAL ==========
+        function showWordModal(word, type, desc, etymology) {
+            document.getElementById('modal-word').innerText = word;
+            document.getElementById('modal-type').innerText = type;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-etymology').innerText = etymology || '—';
+            document.getElementById('dict-modal').classList.remove('hidden');
+        }
+
+        function closeWordModal() {
+            document.getElementById('dict-modal').classList.add('hidden');
+        }
+
+        // ========== READING PROGRESS ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('reading-progress').style.width = progress + '%';
+        });
+
+        // ========== KEYBOARD ==========
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeWordModal();
+            if (e.key === 'ArrowLeft' && state.activeEra > 0) {
+                selectEra(state.activeEra - 1);
+            }
+            if (e.key === 'ArrowRight' && state.activeEra < eras.length - 1) {
+                selectEra(state.activeEra + 1);
+            }
+        });
+
+        document.getElementById('dict-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeWordModal();
+        });
+
+        // ========== BOOT ==========
+        window.onload = function() {
+            renderTimelineHorizontal();
+            renderTimelineVertical();
+            renderEraDetail();
+            renderEraGrid();
+            renderStory();
+            populateComparisonSelects();
+            updateMinimapFill();
+            setZoom('century');
+            setTimeout(centerActiveNode, 300);
+        };
+    </script>
+</body>
+</html>

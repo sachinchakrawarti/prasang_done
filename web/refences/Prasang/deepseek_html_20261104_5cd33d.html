@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Plans · Prasang</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Editorial Mix -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Nastaliq+Urdu&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#fdfaf5', 100: '#f9f2e9', 200: '#f1e6d6', 300: '#e5d3b8',
+                            400: '#d4b894', 500: '#c09a6b', 600: '#a87d4a', 700: '#8a6238',
+                            800: '#6b4a2a', 900: '#4c3420',
+                        },
+                        ink: { 50: '#f6f6f7', 800: '#1e1b18', 900: '#141210' },
+                        accent: { gold: '#b8860b', wine: '#8b3a3a', sage: '#5c7a6b' }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        poetic: ['"Rozha One"', 'Georgia', 'serif'],
+                        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
+                        'glow': '0 0 25px -5px rgba(184,134,11,0.35)',
+                        'premium': '0 20px 50px -12px rgba(184,134,11,0.35)',
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                        'shimmer': 'shimmer 3s linear infinite',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c09a6b; border-radius: 99px; }
+        .dark ::-webkit-scrollbar-thumb { background: #6b4a2a; }
+
+        /* Sepia theme */
+        .theme-sepia {
+            background-color: #f4ebd0 !important;
+            color: #433422 !important;
+        }
+        .theme-sepia .glass-panel {
+            background-color: rgba(244, 235, 208, 0.9) !important;
+            border-color: #d3c39c !important;
+        }
+        .theme-sepia .bg-card-theme { background-color: #ebdcb9 !important; border-color: #d8c69d !important; }
+        .theme-sepia .text-muted-theme { color: #70583b !important; }
+        .theme-sepia .accent-theme { color: #8c4227 !important; }
+
+        /* Glassmorphism */
+        .glass-panel {
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background-color: rgba(253, 250, 245, 0.88);
+            border: 1px solid rgba(192, 154, 107, 0.2);
+        }
+        .dark .glass-panel {
+            background-color: rgba(20, 18, 16, 0.88);
+            border-color: rgba(107, 74, 42, 0.3);
+        }
+
+        /* Premium plan card */
+        .plan-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .plan-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(184, 134, 11, 0.04), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .plan-card:hover::before { opacity: 1; }
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -16px rgba(107, 74, 42, 0.3);
+            border-color: rgba(184, 134, 11, 0.45);
+        }
+        .dark .plan-card:hover {
+            box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.7);
+            border-color: rgba(184, 134, 11, 0.55);
+        }
+
+        /* Featured plan */
+        .plan-card.featured {
+            border-color: rgba(184, 134, 11, 0.5);
+            box-shadow: 0 20px 50px -12px rgba(184, 134, 11, 0.35);
+        }
+        .dark .plan-card.featured {
+            border-color: rgba(184, 134, 11, 0.6);
+            box-shadow: 0 20px 50px -12px rgba(184, 134, 11, 0.25);
+        }
+
+        /* Ribbon */
+        .ribbon {
+            position: absolute;
+            top: 16px;
+            right: -30px;
+            background: linear-gradient(135deg, #b8860b, #8a6238);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 5px 40px;
+            transform: rotate(45deg);
+            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.4);
+            z-index: 20;
+        }
+
+        /* Price toggle */
+        .price-toggle {
+            position: relative;
+            display: inline-flex;
+            background: rgba(192, 154, 107, 0.15);
+            border-radius: 99px;
+            padding: 4px;
+            border: 1px solid rgba(192, 154, 107, 0.25);
+        }
+        .price-toggle button {
+            position: relative;
+            z-index: 2;
+            padding: 8px 24px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            color: #a87d4a;
+        }
+        .price-toggle button.active {
+            color: #fff;
+        }
+        .price-toggle-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            bottom: 4px;
+            background: linear-gradient(135deg, #b8860b, #8a6238);
+            border-radius: 99px;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4);
+        }
+
+        /* Feature check icon */
+        .feature-check {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 8px;
+        }
+
+        /* Comparison table */
+        .compare-table th,
+        .compare-table td {
+            padding: 14px 16px;
+            text-align: center;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(192, 154, 107, 0.15);
+        }
+        .dark .compare-table th,
+        .dark .compare-table td {
+            border-bottom-color: rgba(107, 74, 42, 0.25);
+        }
+        .compare-table th:first-child,
+        .compare-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+        .compare-table thead th {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            color: #a87d4a;
+        }
+        .compare-table tbody tr:hover {
+            background: rgba(184, 134, 11, 0.03);
+        }
+
+        /* FAQ accordion */
+        .faq-item {
+            transition: all 0.3s ease;
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+            opacity: 1;
+        }
+        .faq-item.open .faq-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Trust badge */
+        .trust-badge {
+            transition: all 0.2s ease;
+        }
+        .trust-badge:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #b8860b, #8b3a3a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .dark .gradient-text {
+            background: linear-gradient(135deg, #d4b894, #c09a6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Ornamental divider */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #c09a6b;
+        }
+        .ornament-divider::before,
+        .ornament-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e5d3b8, transparent);
+        }
+        .dark .ornament-divider::before,
+        .dark .ornament-divider::after {
+            background: linear-gradient(90deg, transparent, #4c3420, transparent);
+        }
+
+        /* Reading progress */
+        .top-progress {
+            height: 2px;
+            background: linear-gradient(90deg, #b8860b, #d4b894);
+            width: 0%;
+            transition: width 0.15s ease-out;
+        }
+
+        /* Testimonial card */
+        .testimonial-card {
+            transition: all 0.3s ease;
+        }
+        .testimonial-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px -8px rgba(107, 74, 42, 0.22);
+        }
+
+        /* Reduce motion */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-parchment-50 text-ink-900 font-sans antialiased transition-colors duration-300 min-h-screen selection:bg-accent-gold/20">
+
+    <!-- Reading progress bar -->
+    <div class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-parchment-200/50 dark:bg-ink-800">
+        <div id="reading-progress" class="top-progress h-full"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-parchment-300/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
+            <!-- Brand -->
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center shadow-md text-white font-poetic text-xl pb-0.5">
+                    प्र
+                </div>
+                <div class="leading-tight">
+                    <span class="font-serif text-xl font-bold tracking-wide text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                        PRASANG
+                        <span class="text-[9px] tracking-wider font-sans bg-accent-gold/15 text-accent-gold px-1.5 py-0.5 rounded-full uppercase font-semibold border border-accent-gold/20">AI</span>
+                    </span>
+                    <p class="text-[9px] text-parchment-600 dark:text-parchment-400 uppercase tracking-[0.2em] hidden sm:block">Literature Discovery</p>
+                </div>
+            </a>
+
+            <!-- Breadcrumb -->
+            <nav class="hidden lg:flex items-center gap-2 text-[11px] text-parchment-500 dark:text-parchment-400 font-medium">
+                <a href="#" class="hover:text-accent-gold transition">Home</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <span class="text-ink-900 dark:text-parchment-200 font-semibold">Premium Plans</span>
+            </nav>
+
+            <!-- Theme + CTA -->
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center p-0.5 bg-parchment-200/70 dark:bg-ink-800 rounded-lg border border-parchment-300 dark:border-parchment-700">
+                    <button onclick="setTheme('light')" id="btn-light" class="px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-800 shadow-sm text-[11px] font-medium transition" title="Light">
+                        <i class="fa-regular fa-sun text-amber-500 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('sepia')" id="btn-sepia" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-700 hover:text-parchment-900 text-[11px] font-medium transition" title="Sepia">
+                        <i class="fa-regular fa-file-lines text-amber-700 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-500 hover:text-parchment-200 text-[11px] font-medium transition" title="Dark">
+                        <i class="fa-regular fa-moon text-indigo-400 text-[11px]"></i>
+                    </button>
+                </div>
+                <button onclick="scrollToPlans()" class="hidden sm:inline-flex items-center px-4 py-2 text-[12px] font-semibold rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white transition shadow-sm">
+                    <i class="fa-solid fa-crown text-[10px] mr-1.5"></i> Choose Plan
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="relative pt-16 pb-12 overflow-hidden">
+        <div class="absolute inset-0 -z-10">
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-accent-gold/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-[420px] h-[420px] bg-accent-wine/5 rounded-full blur-3xl"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-sage/3 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent-gold/10 border border-accent-gold/20 text-accent-gold text-[10px] font-bold uppercase tracking-[0.15em] mb-5">
+                <i class="fa-solid fa-crown text-[9px]"></i> Unlock the Full Archive
+            </div>
+            <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink-900 dark:text-parchment-100 tracking-tight leading-tight mb-4">
+                Choose Your <span class="gradient-text">Prasang</span> Plan
+            </h1>
+            <p class="text-[14px] sm:text-base text-parchment-600 dark:text-parchment-400 max-w-2xl mx-auto leading-relaxed mb-8">
+                Start free and upgrade anytime. Premium unlocks unlimited AI analysis, complete works, offline reading, and ad-free discovery — for the price of a cup of chai a month.
+            </p>
+
+            <!-- Billing toggle -->
+            <div class="flex flex-col items-center gap-3">
+                <div class="price-toggle" id="billing-toggle">
+                    <div class="price-toggle-slider" id="price-slider" style="width: calc(50% - 4px);"></div>
+                    <button onclick="setBilling('monthly')" id="btn-monthly" class="active">Monthly</button>
+                    <button onclick="setBilling('yearly')" id="btn-yearly">
+                        Yearly <span class="ml-1 text-[9px] bg-accent-gold/20 text-accent-gold px-1.5 py-0.5 rounded-full font-bold">Save 30%</span>
+                    </button>
+                </div>
+                <p class="text-[10px] text-parchment-500 flex items-center gap-1">
+                    <i class="fa-solid fa-shield-halved text-accent-gold text-[9px]"></i>
+                    Cancel anytime · No hidden fees · 7-day money-back guarantee
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PLANS GRID ===== -->
+    <section id="plans" class="pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 items-stretch">
+
+                <!-- ===== FREE PLAN ===== -->
+                <div class="plan-card bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-6 sm:p-7 flex flex-col">
+                    <div class="mb-5">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-9 h-9 rounded-lg bg-parchment-200/70 dark:bg-ink-800 flex items-center justify-center text-parchment-600 dark:text-parchment-400 text-sm">
+                                <i class="fa-solid fa-seedling"></i>
+                            </div>
+                            <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100">Reader</h3>
+                        </div>
+                        <p class="text-[11px] text-parchment-500 dark:text-parchment-400 leading-relaxed mb-4">Explore the platform and sample the archive. No card required.</p>
+                        <div class="flex items-baseline gap-1">
+                            <span class="font-serif text-4xl font-bold text-ink-900 dark:text-parchment-100">Free</span>
+                            <span class="text-[11px] text-parchment-500">forever</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 space-y-2.5 mb-6">
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Browse 2,000+ poems & poets</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Original script + Romanized views</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">5 AI verse analyses per day</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Integrated dictionary (basic)</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-parchment-200/70 dark:bg-ink-800 text-parchment-400 mt-0.5"><i class="fa-solid fa-xmark"></i></span>
+                            <span class="text-[12px] text-parchment-400 dark:text-parchment-500">Contains ads</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-parchment-200/70 dark:bg-ink-800 text-parchment-400 mt-0.5"><i class="fa-solid fa-xmark"></i></span>
+                            <span class="text-[12px] text-parchment-400 dark:text-parchment-500">No offline reading</span>
+                        </div>
+                    </div>
+
+                    <button onclick="showWordModal('Free Plan', 'Reader · Free forever', 'You are already on the Free plan. Upgrade anytime to unlock the full archive, unlimited AI, and offline reading.', 'Prasang plans')" class="w-full py-2.5 rounded-lg bg-parchment-100 dark:bg-ink-800 border border-parchment-200/70 dark:border-parchment-700/40 text-ink-900 dark:text-parchment-200 text-[12px] font-semibold hover:bg-parchment-200/70 dark:hover:bg-ink-700 transition">
+                        Current Plan
+                    </button>
+                </div>
+
+                <!-- ===== PREMIUM PLAN (FEATURED) ===== -->
+                <div class="plan-card featured bg-white dark:bg-ink-900 rounded-2xl shadow-premium border-2 border-accent-gold/50 p-6 sm:p-7 flex flex-col relative">
+                    <div class="ribbon">Most Popular</div>
+                    <div class="mb-5">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center text-white text-sm shadow-md">
+                                <i class="fa-solid fa-crown"></i>
+                            </div>
+                            <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100">Premium</h3>
+                        </div>
+                        <p class="text-[11px] text-parchment-500 dark:text-parchment-400 leading-relaxed mb-4">The complete reading experience — for the serious lover of literature.</p>
+                        <div class="flex items-baseline gap-1">
+                            <span class="font-serif text-4xl font-bold text-ink-900 dark:text-parchment-100" id="premium-price">₹199</span>
+                            <span class="text-[11px] text-parchment-500" id="premium-period">/month</span>
+                        </div>
+                        <p class="text-[10px] text-parchment-500 mt-1" id="premium-billing-note">Billed monthly · Cancel anytime</p>
+                    </div>
+
+                    <div class="flex-1 space-y-2.5 mb-6">
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Everything in Free, <strong>plus:</strong></span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300"><strong>Unlimited</strong> AI verse analyses</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Full archive: 12,000+ works</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Offline reading & downloads</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Full Lexicon + etymology</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Personal vocabulary & notes</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Ad-free experience</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Audio recitations & playlists</span>
+                        </div>
+                    </div>
+
+                    <button onclick="selectPlan('premium')" class="w-full py-3 rounded-lg bg-gradient-to-r from-accent-gold to-parchment-700 text-white text-[12px] font-bold hover:shadow-glow transition shadow-md">
+                        <i class="fa-solid fa-crown text-[10px] mr-1.5"></i> Upgrade to Premium
+                    </button>
+                    <p class="text-[9px] text-parchment-400 text-center mt-2">7-day free trial · No card charged today</p>
+                </div>
+
+                <!-- ===== SCHOLAR PLAN ===== -->
+                <div class="plan-card bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-6 sm:p-7 flex flex-col">
+                    <div class="mb-5">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-9 h-9 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100">Scholar</h3>
+                        </div>
+                        <p class="text-[11px] text-parchment-500 dark:text-parchment-400 leading-relaxed mb-4">For researchers, students, and institutions. Advanced tools for deep study.</p>
+                        <div class="flex items-baseline gap-1">
+                            <span class="font-serif text-4xl font-bold text-ink-900 dark:text-parchment-100" id="scholar-price">₹499</span>
+                            <span class="text-[11px] text-parchment-500" id="scholar-period">/month</span>
+                        </div>
+                        <p class="text-[10px] text-parchment-500 mt-1" id="scholar-billing-note">Billed monthly · For individuals</p>
+                    </div>
+
+                    <div class="flex-1 space-y-2.5 mb-6">
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Everything in Premium, <strong>plus:</strong></span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">API access (10k calls/month)</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Bulk data export (PDF, CSV, JSON)</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Advanced AI research tools</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Citation manager (APA/MLA)</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Priority support</span>
+                        </div>
+                        <div class="flex items-start gap-2.5">
+                            <span class="feature-check bg-accent-gold/10 text-accent-gold mt-0.5"><i class="fa-solid fa-check"></i></span>
+                            <span class="text-[12px] text-parchment-700 dark:text-parchment-300">Collaboration tools (5 seats)</span>
+                        </div>
+                    </div>
+
+                    <button onclick="selectPlan('scholar')" class="w-full py-2.5 rounded-lg bg-ink-900 dark:bg-accent-gold text-white text-[12px] font-bold hover:bg-ink-800 dark:hover:bg-accent-gold/90 transition shadow-md">
+                        <i class="fa-solid fa-graduation-cap text-[10px] mr-1.5"></i> Choose Scholar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Institution note -->
+            <div class="mt-6 text-center">
+                <p class="text-[11px] text-parchment-500 dark:text-parchment-400">
+                    <i class="fa-solid fa-building-columns text-accent-gold text-[10px] mr-1.5"></i>
+                    Running a university, library, or literary organization?
+                    <button onclick="showWordModal('Institutional Plans', 'Custom pricing', 'We offer tailored plans for universities, libraries, and literary organizations — including unlimited seats, SSO, and dedicated support.', 'Prasang for Institutions')" class="text-accent-gold font-semibold hover:underline">Explore institutional plans →</button>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TRUST SIGNALS ===== -->
+    <section class="py-10 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="text-center trust-badge">
+                    <div class="w-11 h-11 mx-auto rounded-full bg-accent-gold/10 text-accent-gold flex items-center justify-center text-lg mb-2">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <p class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100">48,000+</p>
+                    <p class="text-[10px] uppercase tracking-wider text-parchment-500 font-semibold">Happy Readers</p>
+                </div>
+                <div class="text-center trust-badge">
+                    <div class="w-11 h-11 mx-auto rounded-full bg-accent-wine/10 text-accent-wine flex items-center justify-center text-lg mb-2">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100">4.9 / 5</p>
+                    <p class="text-[10px] uppercase tracking-wider text-parchment-500 font-semibold">Average Rating</p>
+                </div>
+                <div class="text-center trust-badge">
+                    <div class="w-11 h-11 mx-auto rounded-full bg-accent-sage/10 text-accent-sage flex items-center justify-center text-lg mb-2">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <p class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100">100%</p>
+                    <p class="text-[10px] uppercase tracking-wider text-parchment-500 font-semibold">Secure Payments</p>
+                </div>
+                <div class="text-center trust-badge">
+                    <div class="w-11 h-11 mx-auto rounded-full bg-accent-gold/10 text-accent-gold flex items-center justify-center text-lg mb-2">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </div>
+                    <p class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100">7-Day</p>
+                    <p class="text-[10px] uppercase tracking-wider text-parchment-500 font-semibold">Money-Back Guarantee</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURE COMPARISON TABLE ===== -->
+    <section class="py-16">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Full Comparison</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Compare Plans Side-by-Side</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">Every feature, every difference — laid out clearly.</p>
+            </div>
+
+            <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full compare-table">
+                        <thead>
+                            <tr class="bg-parchment-50/60 dark:bg-ink-800/40">
+                                <th class="text-left">Feature</th>
+                                <th>Reader</th>
+                                <th class="text-accent-gold">Premium</th>
+                                <th>Scholar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Poem browsing</td>
+                                <td><span class="text-[11px] text-parchment-500">2,000+</span></td>
+                                <td><span class="text-[11px] font-bold text-accent-gold">Full archive (12k+)</span></td>
+                                <td><span class="text-[11px] font-bold text-accent-gold">Full archive (12k+)</span></td>
+                            </tr>
+                            <tr>
+                                <td>AI verse analyses</td>
+                                <td><span class="text-[11px] text-parchment-500">5 / day</span></td>
+                                <td><span class="text-[11px] font-bold text-accent-gold">Unlimited</span></td>
+                                <td><span class="text-[11px] font-bold text-accent-gold">Unlimited + research tools</span></td>
+                            </tr>
+                            <tr>
+                                <td>Original + Romanized views</td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Integrated Lexicon</td>
+                                <td><span class="text-[11px] text-parchment-500">Basic</span></td>
+                                <td><span class="text-[11px] font-bold text-accent-gold">Full + etymology</span></td>
+                                <td><span class="text-[11px] font-bold text-accent-gold">Full + etymology</span></td>
+                            </tr>
+                            <tr>
+                                <td>Offline reading</td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Ad-free experience</td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Audio recitations</td>
+                                <td><span class="text-[11px] text-parchment-500">Limited</span></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Personal vocabulary & notes</td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Data export (PDF/CSV/JSON)</td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                            </tr>
+                            <tr>
+                                <td>API access</td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><span class="text-[11px] font-bold text-accent-gold">10k calls / month</span></td>
+                            </tr>
+                            <tr>
+                                <td>Citation manager</td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Collaboration (team seats)</td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><span class="text-[11px] font-bold text-accent-gold">5 seats</span></td>
+                            </tr>
+                            <tr>
+                                <td>Priority support</td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-xmark text-parchment-300"></i></td>
+                                <td><i class="fa-solid fa-check text-accent-sage"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TESTIMONIALS ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Loved by Readers</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">What Premium Members Say</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Testimonial 1 -->
+                <div class="testimonial-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-1 mb-3">
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                    </div>
+                    <p class="text-[12px] text-parchment-700 dark:text-parchment-300 leading-relaxed mb-4 italic">
+                        "I'm a PhD student working on Bhakti poetry. The unlimited AI analysis and full lexicon have saved me hundreds of hours. The citation manager alone is worth the price."
+                    </p>
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-gold/20 to-accent-gold/5 flex items-center justify-center text-accent-gold font-serif font-bold text-xs border border-accent-gold/20">P</div>
+                        <div>
+                            <p class="text-[11px] font-bold text-ink-900 dark:text-parchment-200">Priya Nair</p>
+                            <p class="text-[9px] text-parchment-500">PhD Scholar · JNU</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="testimonial-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-1 mb-3">
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                    </div>
+                    <p class="text-[12px] text-parchment-700 dark:text-parchment-300 leading-relaxed mb-4 italic">
+                        "As a poet myself, Prasang Premium has become my daily companion. The audio recitations are beautiful, and reading Kabir with the AI breakdown has deepened my own writing."
+                    </p>
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-wine/20 to-accent-wine/5 flex items-center justify-center text-accent-wine font-serif font-bold text-xs border border-accent-wine/20">R</div>
+                        <div>
+                            <p class="text-[11px] font-bold text-ink-900 dark:text-parchment-200">Rohan Kapoor</p>
+                            <p class="text-[9px] text-parchment-500">Poet & Writer · Mumbai</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="testimonial-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                    <div class="flex items-center gap-1 mb-3">
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                        <i class="fa-solid fa-star text-accent-gold text-[10px]"></i>
+                    </div>
+                    <p class="text-[12px] text-parchment-700 dark:text-parchment-300 leading-relaxed mb-4 italic">
+                        "I teach Urdu literature at a university. The Scholar plan's export tools and 5 team seats have transformed how my students engage with Ghalib and Mir. Highly recommended."
+                    </p>
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-sage/20 to-accent-sage/5 flex items-center justify-center text-accent-sage font-serif font-bold text-xs border border-accent-sage/20">A</div>
+                        <div>
+                            <p class="text-[11px] font-bold text-ink-900 dark:text-parchment-200">Dr. Ayesha Siddiqui</p>
+                            <p class="text-[9px] text-parchment-500">Professor · Aligarh</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="py-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Questions</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Frequently Asked</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">Everything you need to know before upgrading.</p>
+            </div>
+
+            <div class="space-y-2" id="faq-container">
+                <!-- FAQ items injected by JS -->
+            </div>
+
+            <div class="text-center mt-8">
+                <p class="text-[11px] text-parchment-500">
+                    Still have questions?
+                    <button onclick="showWordModal('Contact Support', 'Support · 24-hour response', 'Email us at support@prasang.app or use the in-app chat. We respond within 24 hours on weekdays.', 'Prasang support')" class="text-accent-gold font-semibold hover:underline">Contact our team →</button>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-br from-accent-gold/95 to-accent-wine/95 rounded-2xl p-8 sm:p-10 text-white shadow-glow relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 translate-x-10 translate-y-10 opacity-10 font-poetic text-[120px] pointer-events-none select-none">
+                    काव्य
+                </div>
+                <div class="relative z-10 max-w-lg">
+                    <span class="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">Ready to Begin?</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold mt-1 mb-2">Start Your 7-Day Free Trial</h2>
+                    <p class="text-white/80 text-[13px] leading-relaxed mb-5">
+                        Experience everything Premium has to offer — unlimited AI, the full archive, offline reading, and no ads. No card charged today. Cancel anytime.
+                    </p>
+                    <div class="flex flex-wrap gap-2.5">
+                        <button onclick="selectPlan('premium')" class="px-5 py-2.5 rounded-lg bg-white text-accent-wine text-[12px] font-bold hover:bg-white/90 transition shadow-md">
+                            <i class="fa-solid fa-crown text-[10px] mr-1.5"></i> Start Free Trial
+                        </button>
+                        <button onclick="scrollToPlans()" class="px-4 py-2.5 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[12px] font-semibold transition border border-white/20">
+                            <i class="fa-solid fa-arrow-up text-[10px] mr-1.5"></i> Compare Plans Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-parchment-900 dark:bg-ink-900 text-parchment-300/60 py-10 border-t border-parchment-800/40 text-[11px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-md bg-accent-gold text-white flex items-center justify-center font-poetic text-base">प्र</div>
+                    <div>
+                        <span class="font-serif text-base font-bold tracking-wide text-parchment-100">PRASANG</span>
+                        <p class="text-[9px] text-parchment-400/70">Multilingual Literature & Poetry</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-5 font-medium text-parchment-200/70">
+                    <a href="#" class="hover:text-accent-gold transition">Rail</a>
+                    <a href="#" class="hover:text-accent-gold transition">Features</a>
+                    <a href="#" class="hover:text-accent-gold transition">Reader</a>
+                    <a href="#" class="hover:text-accent-gold transition">Eras</a>
+                    <a href="#" class="hover:text-accent-gold transition">Lexicon</a>
+                </div>
+                <p class="text-parchment-400/50">&copy; 2026 Prasang Platform.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== DICTIONARY MODAL ===== -->
+    <div id="dict-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-sm w-full shadow-2xl relative animate-fade-up overflow-hidden">
+            <div class="h-1 bg-gradient-to-r from-accent-gold to-parchment-500"></div>
+            <button onclick="closeWordModal()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-5">
+                <div class="flex items-center gap-1.5 text-accent-gold text-[9px] font-bold uppercase tracking-[0.15em] mb-2">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> Details
+                </div>
+                <h3 id="modal-word" class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-0.5">Premium</h3>
+                <p id="modal-type" class="text-[10px] text-accent-gold font-semibold mb-2">Plan · Subscription</p>
+                <p id="modal-desc" class="text-[12px] text-parchment-600 dark:text-parchment-300 leading-relaxed mb-2">
+                    Unlock the full archive, unlimited AI, and offline reading.
+                </p>
+                <div class="p-2 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 mb-3">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Note</p>
+                    <p id="modal-etymology" class="text-[10px] text-parchment-600 dark:text-parchment-400 italic">Prasang plans</p>
+                </div>
+                <button onclick="closeWordModal()" class="w-full py-1.5 bg-parchment-800 hover:bg-parchment-900 dark:bg-accent-gold dark:hover:bg-accent-gold/90 text-white rounded-lg text-[11px] font-semibold transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CHECKOUT MODAL ===== -->
+    <div id="checkout-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-md w-full shadow-2xl relative animate-fade-up overflow-hidden">
+            <div class="h-1.5 bg-gradient-to-r from-accent-gold to-accent-wine"></div>
+            <button onclick="closeCheckout()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-6">
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center text-white text-sm shadow-md">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-accent-gold">Upgrade</span>
+                </div>
+                <h3 class="font-serif text-2xl font-bold text-ink-900 dark:text-parchment-100 mb-1" id="checkout-title">Premium Plan</h3>
+                <p class="text-[12px] text-parchment-500 mb-4" id="checkout-subtitle">Start your 7-day free trial. Cancel anytime.</p>
+
+                <div class="p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 mb-4">
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="text-parchment-600 dark:text-parchment-400">Plan</span>
+                        <span class="font-semibold text-ink-900 dark:text-parchment-200" id="checkout-plan-name">Premium Monthly</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="text-parchment-600 dark:text-parchment-400">Billing</span>
+                        <span class="font-semibold text-ink-900 dark:text-parchment-200" id="checkout-billing">Monthly</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] pt-1 border-t border-parchment-200/60 dark:border-parchment-700/30 mt-1">
+                        <span class="text-parchment-600 dark:text-parchment-400">Due today</span>
+                        <span class="font-bold text-accent-gold text-sm" id="checkout-amount">₹0</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                    <input type="email" placeholder="Email address" class="w-full px-3 py-2.5 bg-parchment-100/60 dark:bg-ink-800/60 rounded-lg text-[12px] text-ink-900 dark:text-parchment-200 placeholder-parchment-500/70 focus:outline-none focus:ring-1 focus:ring-accent-gold border border-parchment-200/60 dark:border-parchment-700/30">
+                    <input type="text" placeholder="Card number" class="w-full px-3 py-2.5 bg-parchment-100/60 dark:bg-ink-800/60 rounded-lg text-[12px] text-ink-900 dark:text-parchment-200 placeholder-parchment-500/70 focus:outline-none focus:ring-1 focus:ring-accent-gold border border-parchment-200/60 dark:border-parchment-700/30">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" placeholder="MM / YY" class="w-full px-3 py-2.5 bg-parchment-100/60 dark:bg-ink-800/60 rounded-lg text-[12px] text-ink-900 dark:text-parchment-200 placeholder-parchment-500/70 focus:outline-none focus:ring-1 focus:ring-accent-gold border border-parchment-200/60 dark:border-parchment-700/30">
+                        <input type="text" placeholder="CVC" class="w-full px-3 py-2.5 bg-parchment-100/60 dark:bg-ink-800/60 rounded-lg text-[12px] text-ink-900 dark:text-parchment-200 placeholder-parchment-500/70 focus:outline-none focus:ring-1 focus:ring-accent-gold border border-parchment-200/60 dark:border-parchment-700/30">
+                    </div>
+                </div>
+
+                <button onclick="completeCheckout()" class="w-full py-3 rounded-lg bg-gradient-to-r from-accent-gold to-parchment-700 text-white text-[12px] font-bold hover:shadow-glow transition shadow-md mb-2">
+                    <i class="fa-solid fa-lock text-[10px] mr-1.5"></i> Start Free Trial
+                </button>
+                <p class="text-[9px] text-parchment-400 text-center flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-shield-halved text-accent-gold text-[8px]"></i>
+                    Secured by Stripe · No charge for 7 days
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SUCCESS TOAST ===== -->
+    <div id="success-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[110] hidden">
+        <div class="bg-ink-900 dark:bg-white text-white dark:text-ink-900 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 animate-fade-up">
+            <div class="w-6 h-6 rounded-full bg-accent-sage flex items-center justify-center">
+                <i class="fa-solid fa-check text-white text-[10px]"></i>
+            </div>
+            <div>
+                <p class="text-[12px] font-bold" id="toast-title">Welcome to Premium!</p>
+                <p class="text-[10px] opacity-70" id="toast-desc">Your 7-day free trial has started.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ========== STATE ==========
+        let billingState = 'monthly';
+        let selectedPlan = null;
+
+        const pricing = {
+            premium: { monthly: 199, yearly: 1399, monthlyLabel: '₹199', yearlyLabel: '₹1,399', monthlyPeriod: '/month', yearlyPeriod: '/year', monthlyNote: 'Billed monthly · Cancel anytime', yearlyNote: 'Billed yearly · Save 30% (₹1,399 vs ₹2,388)' },
+            scholar: { monthly: 499, yearly: 3499, monthlyLabel: '₹499', yearlyLabel: '₹3,499', monthlyPeriod: '/month', yearlyPeriod: '/year', monthlyNote: 'Billed monthly · For individuals', yearlyNote: 'Billed yearly · Save 30% (₹3,499 vs ₹5,988)' },
+        };
+
+        // ========== BILLING TOGGLE ==========
+        function setBilling(period) {
+            billingState = period;
+
+            const btnMonthly = document.getElementById('btn-monthly');
+            const btnYearly = document.getElementById('btn-yearly');
+            const slider = document.getElementById('price-slider');
+
+            if (period === 'monthly') {
+                btnMonthly.classList.add('active');
+                btnYearly.classList.remove('active');
+                slider.style.transform = 'translateX(0)';
+            } else {
+                btnYearly.classList.add('active');
+                btnMonthly.classList.remove('active');
+                slider.style.transform = 'translateX(calc(100% + 4px))';
+            }
+
+            // Update prices
+            updatePricing();
+        }
+
+        function updatePricing() {
+            const p = pricing.premium;
+            const s = pricing.scholar;
+
+            document.getElementById('premium-price').textContent = billingState === 'monthly' ? p.monthlyLabel : p.yearlyLabel;
+            document.getElementById('premium-period').textContent = billingState === 'monthly' ? p.monthlyPeriod : p.yearlyPeriod;
+            document.getElementById('premium-billing-note').textContent = billingState === 'monthly' ? p.monthlyNote : p.yearlyNote;
+
+            document.getElementById('scholar-price').textContent = billingState === 'monthly' ? s.monthlyLabel : s.yearlyLabel;
+            document.getElementById('scholar-period').textContent = billingState === 'monthly' ? s.monthlyPeriod : s.yearlyPeriod;
+            document.getElementById('scholar-billing-note').textContent = billingState === 'monthly' ? s.monthlyNote : s.yearlyNote;
+        }
+
+        // ========== SELECT PLAN ==========
+        function selectPlan(plan) {
+            selectedPlan = plan;
+            const modal = document.getElementById('checkout-modal');
+            const title = document.getElementById('checkout-title');
+            const subtitle = document.getElementById('checkout-subtitle');
+            const planName = document.getElementById('checkout-plan-name');
+            const billingEl = document.getElementById('checkout-billing');
+            const amount = document.getElementById('checkout-amount');
+
+            if (plan === 'premium') {
+                title.textContent = 'Premium Plan';
+                subtitle.textContent = 'Start your 7-day free trial. Cancel anytime.';
+                planName.textContent = `Premium ${billingState === 'monthly' ? 'Monthly' : 'Yearly'}`;
+            } else {
+                title.textContent = 'Scholar Plan';
+                subtitle.textContent = 'Advanced tools for research. 7-day free trial.';
+                planName.textContent = `Scholar ${billingState === 'monthly' ? 'Monthly' : 'Yearly'}`;
+            }
+
+            billingEl.textContent = billingState === 'monthly' ? 'Monthly' : 'Yearly';
+            amount.textContent = '₹0'; // Free trial
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        function completeCheckout() {
+            closeCheckout();
+            showToast(
+                selectedPlan === 'premium' ? 'Welcome to Premium!' : 'Welcome to Scholar!',
+                'Your 7-day free trial has started. Enjoy the full archive.'
+            );
+        }
+
+        // ========== TOAST ==========
+        function showToast(title, desc) {
+            const toast = document.getElementById('success-toast');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-desc').textContent = desc;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 5000);
+        }
+
+        // ========== SCROLL ==========
+        function scrollToPlans() {
+            document.getElementById('plans').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ========== FAQ ==========
+        const faqs = [
+            { q: 'What happens after my 7-day free trial ends?', a: 'After the trial, you\'ll be automatically charged at the rate you selected. You can cancel anytime before the trial ends to avoid being charged — no questions asked.' },
+            { q: 'Can I cancel my subscription anytime?', a: 'Yes, absolutely. You can cancel from your account settings at any time. Your access continues until the end of your billing period, and you won\'t be charged again.' },
+            { q: 'What is the difference between Premium and Scholar?', a: 'Premium is designed for individual readers — unlimited AI, offline reading, and the full archive. Scholar adds research tools: API access, bulk data export, a citation manager, and 5 collaboration seats for teams.' },
+            { q: 'Do you offer student or academic discounts?', a: 'Yes! Students and academics with a valid institutional email get 40% off Scholar. Contact us with your institutional email to apply.' },
+            { q: 'Is my payment information secure?', a: 'All payments are processed by Stripe, a PCI-compliant payment processor. We never see or store your card details on our servers.' },
+            { q: 'Can I switch plans later?', a: 'Of course. You can upgrade or downgrade at any time from your account settings. When upgrading, we\'ll prorate the difference. When downgrading, the change takes effect at your next billing cycle.' },
+            { q: 'Do you offer institutional or library plans?', a: 'Yes. We offer custom plans for universities, libraries, and literary organizations — with unlimited seats, SSO, and dedicated support. Contact our team to discuss.' },
+            { q: 'What if I\'m not satisfied?', a: 'We offer a 7-day money-back guarantee on all paid plans. If Prasang isn\'t right for you, contact us within 7 days of your first charge for a full refund.' },
+        ];
+
+        function renderFAQs() {
+            const container = document.getElementById('faq-container');
+            container.innerHTML = faqs.map((faq, idx) => `
+                <div class="faq-item bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 overflow-hidden" onclick="toggleFAQ(this)">
+                    <div class="flex items-center justify-between gap-3 p-4 cursor-pointer">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">${faq.q}</p>
+                        <i class="fa-solid fa-chevron-down faq-chevron text-parchment-400 text-[10px] transition-transform flex-shrink-0"></i>
+                    </div>
+                    <div class="faq-answer px-4">
+                        <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed pb-4">${faq.a}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleFAQ(el) {
+            el.classList.toggle('open');
+        }
+
+        // ========== THEME ==========
+        function setTheme(theme) {
+            const body = document.getElementById('app-body');
+            const btnLight = document.getElementById('btn-light');
+            const btnSepia = document.getElementById('btn-sepia');
+            const btnDark = document.getElementById('btn-dark');
+
+            body.classList.remove('dark', 'theme-sepia');
+            [btnLight, btnSepia, btnDark].forEach(btn => {
+                btn.className = 'px-2 py-1 rounded-md flex items-center gap-1 text-parchment-600 dark:text-parchment-400 hover:text-parchment-900 dark:hover:text-parchment-200 text-[11px] font-medium transition';
+            });
+
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                btnDark.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-ink-700 text-white shadow-sm text-[11px] font-medium transition';
+            } else if (theme === 'sepia') {
+                body.classList.add('theme-sepia');
+                btnSepia.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-parchment-800 text-white shadow-sm text-[11px] font-medium transition';
+            } else {
+                btnLight.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-900 shadow-sm text-[11px] font-medium transition';
+            }
+        }
+
+        // ========== DICTIONARY MODAL ==========
+        function showWordModal(word, type, desc, etymology) {
+            document.getElementById('modal-word').innerText = word;
+            document.getElementById('modal-type').innerText = type;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-etymology').innerText = etymology || '—';
+            document.getElementById('dict-modal').classList.remove('hidden');
+        }
+
+        function closeWordModal() {
+            document.getElementById('dict-modal').classList.add('hidden');
+        }
+
+        // ========== READING PROGRESS ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('reading-progress').style.width = progress + '%';
+        });
+
+        // ========== KEYBOARD ==========
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeWordModal();
+                closeCheckout();
+            }
+        });
+
+        document.getElementById('dict-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeWordModal();
+        });
+        document.getElementById('checkout-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeCheckout();
+        });
+
+        // ========== BOOT ==========
+        window.onload = function() {
+            renderFAQs();
+            setBilling('monthly');
+        };
+    </script>
+</body>
+</html>

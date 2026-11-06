@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexicon · Prasang</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Editorial Mix -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Nastaliq+Urdu&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#fdfaf5', 100: '#f9f2e9', 200: '#f1e6d6', 300: '#e5d3b8',
+                            400: '#d4b894', 500: '#c09a6b', 600: '#a87d4a', 700: '#8a6238',
+                            800: '#6b4a2a', 900: '#4c3420',
+                        },
+                        ink: { 50: '#f6f6f7', 800: '#1e1b18', 900: '#141210' },
+                        accent: { gold: '#b8860b', wine: '#8b3a3a', sage: '#5c7a6b' }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        poetic: ['"Rozha One"', 'Georgia', 'serif'],
+                        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
+                        'glow': '0 0 25px -5px rgba(184,134,11,0.35)',
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c09a6b; border-radius: 99px; }
+        .dark ::-webkit-scrollbar-thumb { background: #6b4a2a; }
+
+        /* Sepia theme */
+        .theme-sepia {
+            background-color: #f4ebd0 !important;
+            color: #433422 !important;
+        }
+        .theme-sepia .glass-panel {
+            background-color: rgba(244, 235, 208, 0.9) !important;
+            border-color: #d3c39c !important;
+        }
+        .theme-sepia .bg-card-theme { background-color: #ebdcb9 !important; border-color: #d8c69d !important; }
+        .theme-sepia .text-muted-theme { color: #70583b !important; }
+        .theme-sepia .accent-theme { color: #8c4227 !important; }
+
+        /* Glassmorphism */
+        .glass-panel {
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background-color: rgba(253, 250, 245, 0.88);
+            border: 1px solid rgba(192, 154, 107, 0.2);
+        }
+        .dark .glass-panel {
+            background-color: rgba(20, 18, 16, 0.88);
+            border-color: rgba(107, 74, 42, 0.3);
+        }
+
+        /* Alphabet nav */
+        .alpha-btn {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .alpha-btn.active {
+            background-color: #b8860b;
+            color: #fff;
+            border-color: #b8860b;
+        }
+        .alpha-btn:not(.active):hover {
+            background-color: rgba(192, 154, 107, 0.15);
+            border-color: rgba(192, 154, 107, 0.5);
+        }
+
+        /* Word entry card */
+        .word-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .word-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px -8px rgba(107, 74, 42, 0.28);
+            border-color: rgba(184, 134, 11, 0.45);
+        }
+        .dark .word-card:hover {
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.65);
+            border-color: rgba(184, 134, 11, 0.55);
+        }
+
+        /* Language filter chip */
+        .lang-chip {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .lang-chip.active {
+            background-color: #b8860b;
+            color: #fff;
+            border-color: #b8860b;
+        }
+        .lang-chip:not(.active):hover {
+            background-color: rgba(192, 154, 107, 0.15);
+            border-color: rgba(192, 154, 107, 0.5);
+        }
+
+        /* Word dictionary trigger */
+        .dict-word {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: #b8860b;
+            text-underline-offset: 5px;
+            transition: all 0.2s ease;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+        .dict-word:hover {
+            background-color: rgba(184, 134, 11, 0.18);
+            text-decoration-style: solid;
+        }
+
+        /* Ornamental divider */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #c09a6b;
+        }
+        .ornament-divider::before,
+        .ornament-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e5d3b8, transparent);
+        }
+        .dark .ornament-divider::before,
+        .dark .ornament-divider::after {
+            background: linear-gradient(90deg, transparent, #4c3420, transparent);
+        }
+
+        /* Reading progress */
+        .top-progress {
+            height: 2px;
+            background: linear-gradient(90deg, #b8860b, #d4b894);
+            width: 0%;
+            transition: width 0.15s ease-out;
+        }
+
+        /* Word detail expansion */
+        .word-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        .word-card.expanded .word-detail {
+            max-height: 600px;
+            opacity: 1;
+        }
+        .word-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Cognate line */
+        .cognate-line {
+            position: relative;
+        }
+        .cognate-line::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, #e5d3b8, transparent);
+        }
+        .dark .cognate-line::before {
+            background: linear-gradient(90deg, #4c3420, transparent);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-parchment-50 text-ink-900 font-sans antialiased transition-colors duration-300 min-h-screen selection:bg-accent-gold/20">
+
+    <!-- Reading progress bar -->
+    <div class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-parchment-200/50 dark:bg-ink-800">
+        <div id="reading-progress" class="top-progress h-full"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-parchment-300/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
+            <!-- Brand -->
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center shadow-md text-white font-poetic text-xl pb-0.5">
+                    प्र
+                </div>
+                <div class="leading-tight">
+                    <span class="font-serif text-xl font-bold tracking-wide text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                        PRASANG
+                        <span class="text-[9px] tracking-wider font-sans bg-accent-gold/15 text-accent-gold px-1.5 py-0.5 rounded-full uppercase font-semibold border border-accent-gold/20">AI</span>
+                    </span>
+                    <p class="text-[9px] text-parchment-600 dark:text-parchment-400 uppercase tracking-[0.2em] hidden sm:block">Literature Discovery</p>
+                </div>
+            </a>
+
+            <!-- Breadcrumb -->
+            <nav class="hidden lg:flex items-center gap-2 text-[11px] text-parchment-500 dark:text-parchment-400 font-medium">
+                <a href="#" class="hover:text-accent-gold transition">Home</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <span class="text-ink-900 dark:text-parchment-200 font-semibold">Lexicon</span>
+            </nav>
+
+            <!-- Theme + CTA -->
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center p-0.5 bg-parchment-200/70 dark:bg-ink-800 rounded-lg border border-parchment-300 dark:border-parchment-700">
+                    <button onclick="setTheme('light')" id="btn-light" class="px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-800 shadow-sm text-[11px] font-medium transition" title="Light">
+                        <i class="fa-regular fa-sun text-amber-500 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('sepia')" id="btn-sepia" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-700 hover:text-parchment-900 text-[11px] font-medium transition" title="Sepia">
+                        <i class="fa-regular fa-file-lines text-amber-700 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-500 hover:text-parchment-200 text-[11px] font-medium transition" title="Dark">
+                        <i class="fa-regular fa-moon text-indigo-400 text-[11px]"></i>
+                    </button>
+                </div>
+                <button class="hidden sm:inline-flex items-center px-4 py-2 text-[12px] font-semibold rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white transition shadow-sm">
+                    <i class="fa-solid fa-arrow-left text-[10px] mr-1.5"></i> Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="relative pt-12 pb-8 overflow-hidden">
+        <div class="absolute inset-0 -z-10">
+            <div class="absolute top-0 right-0 w-[460px] h-[460px] bg-accent-gold/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-[380px] h-[380px] bg-accent-wine/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
+                <div class="max-w-2xl">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-gold/10 border border-accent-gold/20 text-accent-gold text-[10px] font-bold uppercase tracking-[0.15em] mb-4">
+                        <i class="fa-solid fa-book-open text-[9px]"></i> Integrated Literary Lexicon
+                    </div>
+                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink-900 dark:text-parchment-100 tracking-tight leading-none mb-3">
+                        The <span class="text-accent-gold">Lexicon</span>
+                    </h1>
+                    <p class="text-[13px] sm:text-sm text-parchment-600 dark:text-parchment-400 max-w-xl leading-relaxed">
+                        Every classical term, metaphor, and poetic device — defined, contextualized, and traced across languages. Explore Sanskrit, Persian, Urdu, Hindi, Bengali, and more.
+                    </p>
+                </div>
+
+                <!-- Quick stats -->
+                <div class="flex items-center gap-5 sm:gap-7">
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">1,240</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Entries</p>
+                    </div>
+                    <div class="w-px h-10 bg-parchment-300 dark:bg-parchment-700"></div>
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">14</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Languages</p>
+                    </div>
+                    <div class="w-px h-10 bg-parchment-300 dark:bg-parchment-700"></div>
+                    <div class="text-center">
+                        <p class="font-serif text-3xl font-bold text-accent-gold">3.4k</p>
+                        <p class="text-[9px] uppercase tracking-wider text-parchment-500 font-semibold">Poem Links</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search bar -->
+            <div class="mt-8 max-w-3xl">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-parchment-400 text-sm"></i>
+                    <input type="text" id="lexicon-search" placeholder="Search any literary term — prem, viraha, anhad, doha, ghazal..." oninput="applyLexiconFilters()" class="w-full pl-11 pr-24 py-3.5 bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 text-[13px] text-ink-900 dark:text-parchment-200 placeholder-parchment-500/70 focus:outline-none focus:ring-2 focus:ring-accent-gold/40 shadow-soft">
+                    <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                        <button onclick="lookupRandomWord()" class="px-2.5 py-1.5 rounded-lg text-parchment-500 hover:text-accent-gold hover:bg-parchment-100 dark:hover:bg-ink-800 text-[10px] font-semibold transition flex items-center gap-1" title="Random word">
+                            <i class="fa-solid fa-shuffle text-[10px]"></i> Random
+                        </button>
+                        <button class="px-3 py-1.5 rounded-lg bg-accent-gold text-white text-[11px] font-semibold hover:bg-accent-gold/90 transition">
+                            <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular searches -->
+            <div class="mt-3 flex flex-wrap items-center gap-1.5">
+                <span class="text-[10px] font-semibold text-parchment-500 mr-1">Popular:</span>
+                <button onclick="searchFor('Prem')" class="px-2 py-0.5 rounded-md bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[10px] font-medium hover:bg-accent-gold/10 hover:text-accent-gold transition">Prem</button>
+                <button onclick="searchFor('Viraha')" class="px-2 py-0.5 rounded-md bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[10px] font-medium hover:bg-accent-gold/10 hover:text-accent-gold transition">Viraha</button>
+                <button onclick="searchFor('Anhad')" class="px-2 py-0.5 rounded-md bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[10px] font-medium hover:bg-accent-gold/10 hover:text-accent-gold transition">Anhad</button>
+                <button onclick="searchFor('Doha')" class="px-2 py-0.5 rounded-md bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[10px] font-medium hover:bg-accent-gold/10 hover:text-accent-gold transition">Doha</button>
+                <button onclick="searchFor('Ghazal')" class="px-2 py-0.5 rounded-md bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[10px] font-medium hover:bg-accent-gold/10 hover:text-accent-gold transition">Ghazal</button>
+                <button onclick="searchFor('Sahaj')" class="px-2 py-0.5 rounded-md bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[10px] font-medium hover:bg-accent-gold/10 hover:text-accent-gold transition">Sahaj</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== WORD OF THE DAY ===== -->
+    <section class="pb-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="relative rounded-2xl overflow-hidden shadow-glow border border-parchment-300/60 dark:border-parchment-700/40">
+                <div class="absolute inset-0 bg-gradient-to-br from-parchment-800 via-parchment-700 to-parchment-900 dark:from-ink-800 dark:via-ink-900 dark:to-ink-800"></div>
+                <div class="absolute inset-0 opacity-[0.06] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+                <div class="relative p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                    <!-- Word -->
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="px-2.5 py-1 rounded-full bg-accent-gold/25 text-accent-gold text-[10px] font-bold uppercase tracking-wider border border-accent-gold/30">
+                                <i class="fa-solid fa-star text-[8px] mr-1"></i> Word of the Day
+                            </span>
+                            <span class="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-parchment-200 text-[10px] font-semibold border border-white/15">
+                                Sanskrit → Hindi
+                            </span>
+                        </div>
+                        <h2 class="font-serif text-4xl sm:text-5xl font-bold text-white mb-1">
+                            अनहद <span class="text-accent-gold">Anhad</span>
+                        </h2>
+                        <p class="font-poetic text-lg text-parchment-300/90 mb-3">
+                            /ən.ˈhəd/ · Noun · Adjective
+                        </p>
+                        <p class="text-[13px] text-parchment-200/85 leading-relaxed max-w-2xl mb-4">
+                            <strong class="text-white">The Unstruck Sound.</strong> The divine sound heard in deep meditation — a sound not produced by any physical instrument, but arising from the silence within. Central to Sufi and Bhakti mysticism, the <em>anhad naad</em> is the primordial vibration of the universe.
+                        </p>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="searchFor('Anhad')" class="px-3 py-1.5 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[11px] font-semibold transition">
+                                <i class="fa-solid fa-book-open text-[9px] mr-1"></i> Full Entry
+                            </button>
+                            <button onclick="searchFor('Naad')" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-[11px] font-semibold transition border border-white/20">
+                                Related: Naad
+                            </button>
+                            <button onclick="showWordModal('Anhad — Usage', 'Example from poetry', '\"अनहद की धुनि सुनि रहा, तब ही सहज समाधि\" — Listening to the unstruck sound, one enters spontaneous meditation. (Kabir)', 'Kabirian tradition')" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-[11px] font-semibold transition border border-white/20">
+                                <i class="fa-solid fa-quote-right text-[9px] mr-1"></i> In Poetry
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Side: etymology -->
+                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/15">
+                        <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-accent-gold mb-2">Etymology</p>
+                        <p class="text-[12px] text-parchment-100 leading-relaxed mb-2">
+                            <span class="font-serif font-bold text-accent-gold">An-āhata</span> (Sanskrit)
+                        </p>
+                        <p class="text-[10px] text-parchment-300/70 leading-relaxed mb-3">
+                            <em>an</em> (not) + <em>āhata</em> (struck) = "unstruck, unbeaten." The sound that is not produced by any impact — the eternal, self-existent vibration.
+                        </p>
+                        <div class="flex items-center gap-1.5 text-[10px] text-parchment-300/60">
+                            <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                            <span>Sanskrit</span>
+                            <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                            <span>Prakrit</span>
+                            <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                            <span class="text-accent-gold font-semibold">Hindi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FILTER + ALPHABET ===== -->
+    <section class="pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-6">
+
+                <!-- ===== FILTER SIDEBAR ===== -->
+                <aside class="lg:w-[240px] flex-shrink-0">
+                    <div class="space-y-5">
+                        <!-- Language filter -->
+                        <div class="bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 p-4 shadow-soft">
+                            <div class="flex items-center justify-between mb-2.5">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wider text-parchment-700 dark:text-parchment-300">Language</h3>
+                                <button onclick="clearLangFilter()" class="text-[9px] font-semibold text-accent-gold hover:underline">Clear</button>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5" id="lang-filters">
+                                <!-- injected by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Part of speech filter -->
+                        <div class="bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 p-4 shadow-soft">
+                            <div class="flex items-center justify-between mb-2.5">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wider text-parchment-700 dark:text-parchment-300">Part of Speech</h3>
+                                <button onclick="clearPOSFilter()" class="text-[9px] font-semibold text-accent-gold hover:underline">Clear</button>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5" id="pos-filters">
+                                <!-- injected by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Type filter -->
+                        <div class="bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 p-4 shadow-soft">
+                            <div class="flex items-center justify-between mb-2.5">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wider text-parchment-700 dark:text-parchment-300">Type</h3>
+                                <button onclick="clearTypeFilter()" class="text-[9px] font-semibold text-accent-gold hover:underline">Clear</button>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5" id="type-filters">
+                                <!-- injected by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Reset all -->
+                        <button onclick="resetAllFilters()" class="w-full py-2 rounded-lg bg-parchment-200/70 dark:bg-ink-800 text-parchment-700 dark:text-parchment-300 text-[11px] font-semibold hover:bg-parchment-300/70 dark:hover:bg-ink-700 transition">
+                            <i class="fa-solid fa-rotate-left text-[10px] mr-1.5"></i> Reset All Filters
+                        </button>
+
+                        <!-- Personal vocabulary CTA -->
+                        <div class="bg-gradient-to-br from-parchment-800 to-parchment-900 dark:from-ink-800 dark:to-ink-900 rounded-xl p-4 text-white shadow-soft">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-bookmark text-accent-gold text-sm"></i>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-accent-gold">My Vocabulary</p>
+                            </div>
+                            <p class="text-[11px] text-parchment-200/75 leading-relaxed mb-3">Save words to review later. <span class="font-bold text-white">12 words</span> saved.</p>
+                            <button class="w-full py-1.5 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[10px] font-semibold transition">
+                                <i class="fa-solid fa-list-check text-[9px] mr-1"></i> Review My Words
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- ===== RESULTS PANEL ===== -->
+                <div class="flex-1 min-w-0">
+
+                    <!-- Alphabet nav -->
+                    <div class="bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 p-3 shadow-soft mb-4">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-parchment-500">Jump to Letter</p>
+                            <button onclick="clearAlphaFilter()" class="text-[9px] font-semibold text-accent-gold hover:underline">Show All</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1" id="alpha-nav">
+                            <!-- injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Toolbar -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[12px] font-medium text-parchment-600 dark:text-parchment-400">
+                                Showing <span id="result-count" class="font-bold text-ink-900 dark:text-parchment-100">10</span> entries
+                            </span>
+                            <span id="active-filter-badge" class="hidden px-2 py-0.5 rounded-full bg-accent-gold/10 text-accent-gold text-[9px] font-semibold border border-accent-gold/20"></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <select id="lexicon-sort" onchange="applyLexiconFilters()" class="appearance-none pl-3 pr-8 py-1.5 bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 rounded-lg text-[11px] font-medium text-ink-800 dark:text-parchment-300 focus:outline-none focus:ring-1 focus:ring-accent-gold cursor-pointer">
+                                    <option value="az">A → Z</option>
+                                    <option value="za">Z → A</option>
+                                    <option value="popular">Most Referenced</option>
+                                    <option value="newest">Newest Added</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-parchment-400 text-[9px] pointer-events-none"></i>
+                            </div>
+                            <div class="flex items-center p-0.5 bg-parchment-200/60 dark:bg-ink-800 rounded-lg border border-parchment-300/60 dark:border-parchment-700/40">
+                                <button onclick="setLexiconView('expanded')" id="lv-expanded" class="view-btn active px-2 py-1 rounded-md text-[11px] font-medium text-parchment-600 dark:text-parchment-400 transition" title="Expanded view">
+                                    <i class="fa-solid fa-square-list text-[10px]"></i>
+                                </button>
+                                <button onclick="setLexiconView('compact')" id="lv-compact" class="view-btn px-2 py-1 rounded-md text-[11px] font-medium text-parchment-600 dark:text-parchment-400 transition" title="Compact view">
+                                    <i class="fa-solid fa-list text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results container -->
+                    <div id="lexicon-container"></div>
+
+                    <!-- Empty state -->
+                    <div id="empty-state" class="hidden text-center py-16">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-parchment-200/60 dark:bg-ink-800 flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-book text-parchment-400 text-2xl"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-1">No entries found</h3>
+                        <p class="text-[12px] text-parchment-500 mb-4">Try adjusting your filters or search terms.</p>
+                        <button onclick="resetAllFilters()" class="px-4 py-2 rounded-lg bg-accent-gold text-white text-[11px] font-semibold hover:bg-accent-gold/90 transition">
+                            Reset All Filters
+                        </button>
+                    </div>
+
+                    <!-- Load more -->
+                    <div class="text-center mt-8" id="load-more-wrap">
+                        <button onclick="loadMoreLexicon()" class="px-6 py-2.5 rounded-lg bg-ink-900 dark:bg-accent-gold text-white text-[12px] font-semibold hover:bg-ink-800 dark:hover:bg-accent-gold/90 transition shadow-md inline-flex items-center gap-2">
+                            <i class="fa-solid fa-arrows-rotate text-[10px]"></i> Load More Entries
+                        </button>
+                        <p class="text-[10px] text-parchment-500 mt-2">Showing <span id="shown-count">10</span> of <span id="total-count">10</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CROSS-LANGUAGE COGNATES ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Cognates</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">One Word, Many Tongues</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">The same ancient root echoing across South Asian languages.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+                <!-- Cognate card -->
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-accent-gold mb-1">Sanskrit</p>
+                    <p class="font-poetic text-2xl text-parchment-900 dark:text-parchment-100 mb-1">प्रेमन्</p>
+                    <p class="text-[11px] font-semibold text-parchment-700 dark:text-parchment-300">Preman</p>
+                    <p class="text-[10px] text-parchment-500 mt-1">Love, affection</p>
+                </div>
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-accent-wine mb-1">Hindi</p>
+                    <p class="font-poetic text-2xl text-parchment-900 dark:text-parchment-100 mb-1">प्रेम</p>
+                    <p class="text-[11px] font-semibold text-parchment-700 dark:text-parchment-300">Prem</p>
+                    <p class="text-[10px] text-parchment-500 mt-1">Love, devotion</p>
+                </div>
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-accent-sage mb-1">Bengali</p>
+                    <p class="font-poetic text-2xl text-parchment-900 dark:text-parchment-100 mb-1">প্রেম</p>
+                    <p class="text-[11px] font-semibold text-parchment-700 dark:text-parchment-300">Prem</p>
+                    <p class="text-[10px] text-parchment-500 mt-1">Love, divine love</p>
+                </div>
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-1">Punjabi</p>
+                    <p class="font-poetic text-2xl text-parchment-900 dark:text-parchment-100 mb-1">ਪਿਆਰ</p>
+                    <p class="text-[11px] font-semibold text-parchment-700 dark:text-parchment-300">Pyar</p>
+                    <p class="text-[10px] text-parchment-500 mt-1">Love, affection</p>
+                </div>
+            </div>
+
+            <p class="text-center text-[10px] text-parchment-500 mt-5 italic">
+                <i class="fa-solid fa-link text-[9px] text-accent-gold mr-1"></i> All trace back to the Sanskrit root <strong>preman</strong> — "to love, to please."
+            </p>
+        </div>
+    </section>
+
+    <!-- ===== METAPHOR & SYMBOL GLOSSARY ===== -->
+    <section class="py-14">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Symbols</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Metaphor & Symbol Glossary</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">The recurring images that carry meaning across classical poetry.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Symbol card -->
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('The Reed Pipe (Nay)', 'Symbol · Sufi', 'The reed flute torn from its reed-bed, crying in separation — Rumi\'s symbol for the soul longing to return to its divine source.', 'Sufi poetry (Rumi)')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-[11px]">
+                            <i class="fa-solid fa-music"></i>
+                        </div>
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">Sufi</p>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 mb-1">The Reed Pipe</h3>
+                    <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed">The soul's cry of separation from its source — Rumi's opening image in the Masnavi.</p>
+                </div>
+
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('The Ocean & the Drop', 'Symbol · Mystical', 'The infinite Divine as ocean, the individual soul as a drop — merging into oneness is the goal of the mystic path.', 'Sufi & Bhakti traditions')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-[11px]">
+                            <i class="fa-solid fa-water"></i>
+                        </div>
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">Mystical</p>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 mb-1">The Ocean & Drop</h3>
+                    <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed">The soul as a drop merging into the ocean of the Divine — the goal of mystical union.</p>
+                </div>
+
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('The Lamp & Moth', 'Symbol · Bhakti / Sufi', 'The moth circling the flame, burning itself in love — the soul\'s self-annihilation in the Divine.', 'Bhakti & Sufi poetry')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-[11px]">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">Bhakti</p>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 mb-1">Lamp & Moth</h3>
+                    <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed">The moth burning in the flame — the soul's self-annihilation in divine love.</p>
+                </div>
+
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('The Unstruck Sound (Anhad Naad)', 'Symbol · Mystical', 'The divine sound heard in deep meditation — the primordial vibration of the universe, not produced by any instrument.', 'Sufi & Bhakti')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-[11px]">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </div>
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">Mystical</p>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 mb-1">The Unstruck Sound</h3>
+                    <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed">The primordial divine vibration heard in meditation — <em>anhad naad</em>.</p>
+                </div>
+
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('The Body as Temple', 'Symbol · Bhakti & Sufi', 'The body itself as the true site of worship — the Divine dwells within, so external pilgrimage is unnecessary.', 'Bhakti & Sufi')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-[11px]">
+                            <i class="fa-solid fa-mosque"></i>
+                        </div>
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">Bhakti</p>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 mb-1">The Body as Temple</h3>
+                    <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed">The body as the true site of worship — the Divine dwells within.</p>
+                </div>
+
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('The Wine & Tavern', 'Symbol · Sufi / Urdu', 'Divine intoxication as wine — the tavern as the house of love, the cupbearer as the spiritual guide.', 'Sufi & Urdu ghazal')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-[11px]">
+                            <i class="fa-solid fa-wine-glass"></i>
+                        </div>
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500">Sufi</p>
+                    </div>
+                    <h3 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 mb-1">Wine & Tavern</h3>
+                    <p class="text-[10px] text-parchment-600 dark:text-parchment-400 leading-relaxed">Divine intoxication — the tavern as the house of love, wine as ecstasy.</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-6">
+                <button onclick="showWordModal('Full Symbol Glossary', 'Reference · 48 symbols', 'Explore the complete glossary of metaphors and symbols across South Asian classical poetry — from the lotus and the bee to the nightingale and the rose.', 'Prasang reference')" class="px-5 py-2.5 rounded-lg bg-ink-900 dark:bg-accent-gold text-white text-[12px] font-semibold hover:bg-ink-800 dark:hover:bg-accent-gold/90 transition shadow-md inline-flex items-center gap-2">
+                    <i class="fa-solid fa-shapes text-[10px]"></i> View All 48 Symbols
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== LITERARY DEVICES REFERENCE ===== -->
+    <section class="py-14 bg-white/50 dark:bg-ink-900/40 border-y border-parchment-200/70 dark:border-parchment-800/30">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <span class="text-accent-gold text-[10px] font-bold uppercase tracking-[0.2em]">Craft</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink-900 dark:text-parchment-100 mt-1">Literary Devices</h2>
+                <p class="text-[12px] text-parchment-600 dark:text-parchment-400 mt-2">The tools poets use to make language sing.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Device -->
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 flex items-start gap-3 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('Upama (Simile)', 'Literary device · Sanskrit poetics', 'An explicit comparison using \"like\" or \"as\" — e.g., \"the face shines like the moon.\" One of the fundamental alankaras (ornaments) of Sanskrit poetics.', 'Sanskrit: upamā')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-[11px] flex-shrink-0">
+                        <i class="fa-solid fa-equals"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Upama <span class="text-parchment-400 font-normal">· Simile</span></p>
+                        <p class="text-[10px] text-parchment-500 leading-relaxed mt-0.5">An explicit comparison — "the face shines like the moon."</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 flex items-start gap-3 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('Rupaka (Metaphor)', 'Literary device · Sanskrit poetics', 'An implied comparison without \"like\" or \"as\" — the subject IS the object. \"The world is a stage.\"', 'Sanskrit: rūpaka')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-[11px] flex-shrink-0">
+                        <i class="fa-solid fa-arrows-left-right"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Rupaka <span class="text-parchment-400 font-normal">· Metaphor</span></p>
+                        <p class="text-[10px] text-parchment-500 leading-relaxed mt-0.5">An implied comparison — "the world is a stage."</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 flex items-start gap-3 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('Utpreksha (Poetic Fancy)', 'Literary device · Sanskrit poetics', 'A bold imaginative assertion — \"the moon must have been stolen from the sky.\"', 'Sanskrit: utprekṣā')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-[11px] flex-shrink-0">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Utpreksha <span class="text-parchment-400 font-normal">· Poetic Fancy</span></p>
+                        <p class="text-[10px] text-parchment-500 leading-relaxed mt-0.5">A bold imaginative assertion — "the moon must have been stolen."</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 flex items-start gap-3 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('Anuprasa (Alliteration)', 'Literary device · Sanskrit poetics', 'Repetition of initial consonant sounds — \"the fair breeze blew, the white foam flew.\"', 'Sanskrit: anuprāsa')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-gold/10 text-accent-gold flex items-center justify-center text-[11px] flex-shrink-0">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Anuprasa <span class="text-parchment-400 font-normal">· Alliteration</span></p>
+                        <p class="text-[10px] text-parchment-500 leading-relaxed mt-0.5">Repetition of initial consonant sounds.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 flex items-start gap-3 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('Virodhabhasa (Oxymoron)', 'Literary device · Sanskrit poetics', 'A seeming contradiction — \"sweet sorrow,\" \"living death.\" A hallmark of mystic poetry.', 'Sanskrit: virodhābhāsa')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-[11px] flex-shrink-0">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Virodhabhasa <span class="text-parchment-400 font-normal">· Oxymoron</span></p>
+                        <p class="text-[10px] text-parchment-500 leading-relaxed mt-0.5">A seeming contradiction — "sweet sorrow," "living death."</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 flex items-start gap-3 hover:border-accent-gold/40 transition cursor-pointer" onclick="showWordModal('Pratipa (Retort / Irony)', 'Literary device · Sanskrit poetics', 'A sharp retort or ironic reversal — a signature device of Kabir\'s dohas, where the second line undercuts the first.', 'Sanskrit: pratīpa')">
+                    <div class="w-8 h-8 rounded-lg bg-accent-sage/10 text-accent-sage flex items-center justify-center text-[11px] flex-shrink-0">
+                        <i class="fa-solid fa-rotate"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Pratipa <span class="text-parchment-400 font-normal">· Irony / Retort</span></p>
+                        <p class="text-[10px] text-parchment-500 leading-relaxed mt-0.5">A sharp ironic reversal — a signature of Kabir's dohas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA: SUGGEST A WORD ===== -->
+    <section class="py-14">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-br from-accent-gold/95 to-accent-wine/95 rounded-2xl p-8 sm:p-10 text-white shadow-glow relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 translate-x-10 translate-y-10 opacity-10 font-poetic text-[120px] pointer-events-none select-none">
+                    शब्द
+                </div>
+                <div class="relative z-10 max-w-lg">
+                    <span class="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">Contribute</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold mt-1 mb-2">Know a Word We're Missing?</h2>
+                    <p class="text-white/80 text-[13px] leading-relaxed mb-5">
+                        Our lexicon grows with the community. Suggest a classical term, a regional word, or a metaphor — our editors and AI will verify its etymology, usage, and cross-references before adding it to the archive.
+                    </p>
+                    <div class="flex flex-wrap gap-2.5">
+                        <button onclick="showWordModal('Suggest a Word', 'Community · Contribution', 'Submit a word with its meaning, language, and a poetic example. Our editorial team reviews all submissions within 7 days.', 'Prasang community')" class="px-5 py-2.5 rounded-lg bg-white text-accent-wine text-[12px] font-bold hover:bg-white/90 transition shadow-md">
+                            <i class="fa-solid fa-plus text-[10px] mr-1.5"></i> Suggest a Word
+                        </button>
+                        <button onclick="showWordModal('Become a Contributor', 'Community · Role', 'Join our team of volunteer lexicographers. Help verify etymologies, add usage examples, and review submissions.', 'Prasang community')" class="px-4 py-2.5 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[12px] font-semibold transition border border-white/20">
+                            <i class="fa-solid fa-user-plus text-[10px] mr-1.5"></i> Become a Contributor
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-parchment-900 dark:bg-ink-900 text-parchment-300/60 py-10 border-t border-parchment-800/40 text-[11px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-md bg-accent-gold text-white flex items-center justify-center font-poetic text-base">प्र</div>
+                    <div>
+                        <span class="font-serif text-base font-bold tracking-wide text-parchment-100">PRASANG</span>
+                        <p class="text-[9px] text-parchment-400/70">Multilingual Literature & Poetry</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-5 font-medium text-parchment-200/70">
+                    <a href="#" class="hover:text-accent-gold transition">Rail</a>
+                    <a href="#" class="hover:text-accent-gold transition">Features</a>
+                    <a href="#" class="hover:text-accent-gold transition">Reader</a>
+                    <a href="#" class="hover:text-accent-gold transition">Eras</a>
+                    <a href="#" class="hover:text-accent-gold transition">Lexicon</a>
+                </div>
+                <p class="text-parchment-400/50">&copy; 2026 Prasang Platform.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== DICTIONARY MODAL ===== -->
+    <div id="dict-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-sm w-full shadow-2xl relative animate-fade-up overflow-hidden">
+            <div class="h-1 bg-gradient-to-r from-accent-gold to-parchment-500"></div>
+            <button onclick="closeWordModal()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-5">
+                <div class="flex items-center gap-1.5 text-accent-gold text-[9px] font-bold uppercase tracking-[0.15em] mb-2">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> Lexicon
+                </div>
+                <h3 id="modal-word" class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-0.5">Prem</h3>
+                <p id="modal-type" class="text-[10px] text-accent-gold font-semibold mb-2">N. Love, Compassion</p>
+                <p id="modal-desc" class="text-[12px] text-parchment-600 dark:text-parchment-300 leading-relaxed mb-2">
+                    Derived from Sanskrit 'Preman'. Refers to selfless divine love.
+                </p>
+                <div class="p-2 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 mb-3">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Etymology</p>
+                    <p id="modal-etymology" class="text-[10px] text-parchment-600 dark:text-parchment-400 italic">Sanskrit Preman → Prakrit → Sadhukkadi</p>
+                </div>
+                <button onclick="closeWordModal()" class="w-full py-1.5 bg-parchment-800 hover:bg-parchment-900 dark:bg-accent-gold dark:hover:bg-accent-gold/90 text-white rounded-lg text-[11px] font-semibold transition">
+                    Close & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ========== DATA ==========
+        const lexiconData = [
+            { word: 'Prem', script: 'प्रेम', lang: 'Hindi', pos: 'Noun', type: 'Concept', letter: 'P', meaning: 'Selfless divine love; affection beyond romantic attachment.', etymology: 'Sanskrit Preman → Prakrit → Sadhukkadi', refs: 342, color: 'gold', example: 'ढाई आखर प्रेम का, पढ़े सो पण्डित होय — Kabir' },
+            { word: 'Anhad', script: 'अनहद', lang: 'Hindi', pos: 'Noun', type: 'Mystical Term', letter: 'A', meaning: 'The Unstruck Sound; the divine sound heard in meditation, not produced by any instrument.', etymology: 'Sanskrit an-āhata (unstruck) → Prakrit → Hindi', refs: 128, color: 'wine', example: 'अनहद की धुनि सुनि रहा — Kabir tradition' },
+            { word: 'Viraha', script: 'विरह', lang: 'Hindi', pos: 'Noun', type: 'Concept', letter: 'V', meaning: 'The pain of separation from the beloved; a central metaphor for the soul\'s longing for the Divine.', etymology: 'Sanskrit vi (away) + rah (to remain)', refs: 228, color: 'wine', example: 'मैं तो प्रेम दीवानी, मेरा दरद न जाणै कोय — Mirabai' },
+            { word: 'Doha', script: 'दोहा', lang: 'Hindi', pos: 'Noun', type: 'Poetic Form', letter: 'D', meaning: 'A couplet form of 24 matras (13 + 11), used by Kabir, Tulsidas, and other Bhakti poets.', etymology: 'Sanskrit dohaka (a kind of verse)', refs: 456, color: 'gold', example: 'पोथी पढ़ि पढ़ि जग मुआ — Kabir' },
+            { word: 'Ghazal', script: 'غزل', lang: 'Urdu', pos: 'Noun', type: 'Poetic Form', letter: 'G', meaning: 'A lyric poem of 5–15 couplets, each with a refrain and rhyme, exploring love, loss, and mysticism.', etymology: 'Arabic ghazal (to talk of love)', refs: 389, color: 'wine', example: 'हज़ारों ख़्वाहिशें ऐसी — Ghalib' },
+            { word: 'Sahaj', script: 'सहज', lang: 'Hindi', pos: 'Adjective / Noun', type: 'Mystical Term', letter: 'S', meaning: 'The natural, spontaneous state of spiritual awakening — effortless and innate.', etymology: 'Sanskrit sahaja (born together, natural)', refs: 156, color: 'sage', example: 'सहज समाधि लागी — Kabir' },
+            { word: 'Bhakti', script: 'भक्ति', lang: 'Sanskrit', pos: 'Noun', type: 'Concept', letter: 'B', meaning: 'Loving devotion to the Divine; the path of love as a means of liberation.', etymology: 'Sanskrit bhaj (to share, to love)', refs: 512, color: 'gold', example: 'भक्ति भाव से भगवान मिले — Mirabai' },
+            { word: 'Naad', script: 'नाद', lang: 'Sanskrit', pos: 'Noun', type: 'Mystical Term', letter: 'N', meaning: 'Sound, especially the primordial cosmic vibration; the basis of sacred sound practices.', etymology: 'Sanskrit nāda (sound)', refs: 94, color: 'sage', example: 'नाद ब्रह्म का स्वरूप है — Upanishads' },
+            { word: 'Moksha', script: 'मोक्ष', lang: 'Sanskrit', pos: 'Noun', type: 'Concept', letter: 'M', meaning: 'Liberation from the cycle of birth and death; the ultimate spiritual goal.', etymology: 'Sanskrit muc (to release)', refs: 287, color: 'gold', example: 'मोक्ष की चाह में भटकते — Bhakti poets' },
+            { word: 'Qawwali', script: 'قوّالی', lang: 'Urdu', pos: 'Noun', type: 'Musical Form', letter: 'Q', meaning: 'A form of Sufi devotional music, often setting ghazals to rhythmic, ecstatic melodies.', etymology: 'Arabic qaul (saying, utterance)', refs: 112, color: 'wine', example: 'आज रंग है, री — Amir Khusrau' },
+            { word: 'Abhang', script: 'अभंग', lang: 'Marathi', pos: 'Noun', type: 'Poetic Form', letter: 'A', meaning: 'A devotional poem in Marathi, especially in the Varkari tradition — "unbroken" devotion.', etymology: 'Sanskrit a (not) + bhanga (broken)', refs: 203, color: 'sage', example: 'विठ्ठल विठ्ठल जय जय विठ्ठल — Tukaram' },
+            { word: 'Tala', script: 'ताल', lang: 'Sanskrit', pos: 'Noun', type: 'Musical Term', letter: 'T', meaning: 'Rhythmic cycle in Indian classical music; the metric framework of poetry and song.', etymology: 'Sanskrit tāla (palm, rhythm)', refs: 76, color: 'gold', example: 'ताल में गाया हुआ भजन — Bhakti tradition' },
+            { word: 'Sakhi', script: 'साखी', lang: 'Hindi', pos: 'Noun', type: 'Poetic Form', letter: 'S', meaning: 'A witness verse — a couplet testifying to a spiritual truth, as in Kabir\'s Bijak.', etymology: 'Sanskrit sākṣin (witness)', refs: 189, color: 'gold', example: 'साखी के दोहे — Kabir' },
+            { word: 'Nay', script: 'نی', lang: 'Persian', pos: 'Noun', type: 'Symbol', letter: 'N', meaning: 'The reed flute — a symbol of the soul\'s longing for its divine source, from Rumi\'s Masnavi.', etymology: 'Persian nay (reed, flute)', refs: 87, color: 'wine', example: 'بشنو این نی چون شکایت می‌کند — Rumi' },
+            { word: 'Ruba\'i', script: 'رباعی', lang: 'Urdu', pos: 'Noun', type: 'Poetic Form', letter: 'R', meaning: 'A quatrain with rhyme scheme AABA — a compact form often used for philosophical reflection.', etymology: 'Arabic rubā\'ī (fourfold)', refs: 64, color: 'sage', example: 'रुबाई का चार पंक्तियों का ढाँचा — Classical Urdu' },
+            { word: 'Alankara', script: 'अलंकार', lang: 'Sanskrit', pos: 'Noun', type: 'Literary Term', letter: 'A', meaning: 'A poetic ornament or figure of speech; one of the core categories of Sanskrit poetics.', etymology: 'Sanskrit alam (ornament) + kāra (making)', refs: 143, color: 'gold', example: 'उपमा अलंकार — Sanskrit poetics' },
+            { word: 'Chhand', script: 'छन्द', lang: 'Hindi', pos: 'Noun', type: 'Prosody', letter: 'C', meaning: 'Meter or poetic measure; the rhythmic structure of a verse.', etymology: 'Sanskrit chandas (meter)', refs: 98, color: 'sage', example: 'दोहे का छन्द — Classical Hindi' },
+            { word: 'Rasa', script: 'रस', lang: 'Sanskrit', pos: 'Noun', type: 'Concept', letter: 'R', meaning: 'Aesthetic flavor or sentiment; the emotional essence a poem evokes (e.g., shringara, karuna).', etymology: 'Sanskrit ras (to taste, to relish)', refs: 234, color: 'gold', example: 'नव रस — The nine rasas of poetics' },
+            { word: 'Wasl', script: 'وصل', lang: 'Urdu', pos: 'Noun', type: 'Concept', letter: 'W', meaning: 'Union with the beloved; the longed-for meeting after separation.', etymology: 'Arabic wasl (joining, connection)', refs: 76, color: 'wine', example: 'वस्ल की शब — Mir Taqi Mir' },
+            { word: 'Hijr', script: 'ہجر', lang: 'Urdu', pos: 'Noun', type: 'Concept', letter: 'H', meaning: 'Separation from the beloved; the counterpart to wasl (union).', etymology: 'Arabic hajr (parting)', refs: 82, color: 'wine', example: 'हिज्र की रात — Faiz' },
+            { word: 'Shabda', script: 'शब्द', lang: 'Sanskrit', pos: 'Noun', type: 'Concept', letter: 'S', meaning: 'Word, sound, or utterance; in philosophy, the eternal sound that underlies all reality.', etymology: 'Sanskrit śabda (sound)', refs: 118, color: 'sage', example: 'शब्द ब्रह्म — Vedantic philosophy' },
+        ];
+
+        const languages = ['All', 'Hindi', 'Sanskrit', 'Urdu', 'Persian', 'Bengali', 'Marathi', 'Punjabi'];
+        const posList = ['All', 'Noun', 'Adjective', 'Verb', 'Adverb'];
+        const typeList = ['All', 'Concept', 'Poetic Form', 'Mystical Term', 'Symbol', 'Literary Term', 'Musical Term'];
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+        // ========== STATE ==========
+        let state = {
+            search: '',
+            lang: [],
+            pos: [],
+            type: [],
+            letter: 'All',
+            sort: 'az',
+            view: 'expanded',
+            visible: 10,
+        };
+
+        // ========== RENDER FILTERS ==========
+        function renderFilters() {
+            // Language
+            const langContainer = document.getElementById('lang-filters');
+            langContainer.innerHTML = languages.map(l => `
+                <button onclick="toggleFilter('lang', '${l}')" class="lang-chip ${state.lang.includes(l) ? 'active' : ''} px-2 py-1 rounded-md text-[10px] font-medium border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300" data-value="${l}">
+                    ${l}
+                </button>
+            `).join('');
+
+            // POS
+            const posContainer = document.getElementById('pos-filters');
+            posContainer.innerHTML = posList.map(p => `
+                <button onclick="toggleFilter('pos', '${p}')" class="lang-chip ${state.pos.includes(p) ? 'active' : ''} px-2 py-1 rounded-md text-[10px] font-medium border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300" data-value="${p}">
+                    ${p}
+                </button>
+            `).join('');
+
+            // Type
+            const typeContainer = document.getElementById('type-filters');
+            typeContainer.innerHTML = typeList.map(t => `
+                <button onclick="toggleFilter('type', '${t}')" class="lang-chip ${state.type.includes(t) ? 'active' : ''} px-2 py-1 rounded-md text-[10px] font-medium border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300" data-value="${t}">
+                    ${t}
+                </button>
+            `).join('');
+
+            // Alphabet
+            const alphaContainer = document.getElementById('alpha-nav');
+            alphaContainer.innerHTML = alphabet.map(a => `
+                <button onclick="filterByLetter('${a}')" class="alpha-btn ${state.letter === a ? 'active' : ''} w-7 h-7 rounded-md text-[10px] font-semibold border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-700 dark:text-parchment-300" data-value="${a}">
+                    ${a}
+                </button>
+            `).join('');
+        }
+
+        // ========== TOGGLE FILTER ==========
+        function toggleFilter(type, value) {
+            if (value === 'All') {
+                state[type] = [];
+            } else {
+                const arr = state[type];
+                const idx = arr.indexOf(value);
+                if (idx > -1) arr.splice(idx, 1);
+                else arr.push(value);
+            }
+            renderFilters();
+            applyLexiconFilters();
+        }
+
+        function clearLangFilter() { state.lang = []; renderFilters(); applyLexiconFilters(); }
+        function clearPOSFilter() { state.pos = []; renderFilters(); applyLexiconFilters(); }
+        function clearTypeFilter() { state.type = []; renderFilters(); applyLexiconFilters(); }
+        function clearAlphaFilter() { state.letter = 'All'; renderFilters(); applyLexiconFilters(); }
+
+        function resetAllFilters() {
+            state = { search: '', lang: [], pos: [], type: [], letter: 'All', sort: 'az', view: state.view, visible: 10 };
+            document.getElementById('lexicon-search').value = '';
+            renderFilters();
+            applyLexiconFilters();
+        }
+
+        function filterByLetter(letter) {
+            state.letter = state.letter === letter ? 'All' : letter;
+            renderFilters();
+            applyLexiconFilters();
+        }
+
+        function searchFor(term) {
+            document.getElementById('lexicon-search').value = term;
+            state.search = term.toLowerCase();
+            applyLexiconFilters();
+        }
+
+        function lookupRandomWord() {
+            const random = lexiconData[Math.floor(Math.random() * lexiconData.length)];
+            searchFor(random.word);
+        }
+
+        // ========== APPLY FILTERS ==========
+        function applyLexiconFilters() {
+            state.search = document.getElementById('lexicon-search').value.toLowerCase();
+            state.sort = document.getElementById('lexicon-sort').value;
+            state.visible = 10;
+
+            let filtered = lexiconData.filter(w => {
+                const matchSearch = !state.search || w.word.toLowerCase().includes(state.search) || w.meaning.toLowerCase().includes(state.search) || w.script.includes(state.search) || w.lang.toLowerCase().includes(state.search);
+                const matchLang = state.lang.length === 0 || state.lang.includes(w.lang);
+                const matchPos = state.pos.length === 0 || state.pos.includes(w.pos.split(' ')[0]);
+                const matchType = state.type.length === 0 || state.type.includes(w.type);
+                const matchLetter = state.letter === 'All' || w.letter === state.letter;
+                return matchSearch && matchLang && matchPos && matchType && matchLetter;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                switch (state.sort) {
+                    case 'az': return a.word.localeCompare(b.word);
+                    case 'za': return b.word.localeCompare(a.word);
+                    case 'popular': return b.refs - a.refs;
+                    case 'newest': return 0;
+                    default: return a.word.localeCompare(b.word);
+                }
+            });
+
+            document.getElementById('result-count').textContent = filtered.length;
+            document.getElementById('total-count').textContent = filtered.length;
+            document.getElementById('shown-count').textContent = Math.min(state.visible, filtered.length);
+
+            // Active filter badge
+            const totalActive = state.lang.length + state.pos.length + state.type.length + (state.search ? 1 : 0) + (state.letter !== 'All' ? 1 : 0);
+            const badge = document.getElementById('active-filter-badge');
+            if (totalActive > 0) {
+                badge.classList.remove('hidden');
+                badge.textContent = `${totalActive} filter${totalActive > 1 ? 's' : ''}`;
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            renderLexiconResults(filtered);
+
+            // Load more
+            const loadMoreWrap = document.getElementById('load-more-wrap');
+            if (filtered.length <= state.visible) {
+                loadMoreWrap.style.display = 'none';
+            } else {
+                loadMoreWrap.style.display = 'block';
+            }
+        }
+
+        // ========== RENDER RESULTS ==========
+        function renderLexiconResults(filtered) {
+            const container = document.getElementById('lexicon-container');
+            const emptyState = document.getElementById('empty-state');
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            const shown = filtered.slice(0, state.visible);
+
+            if (state.view === 'expanded') {
+                container.innerHTML = `<div class="space-y-2.5">${shown.map(w => wordExpandedHTML(w)).join('')}</div>`;
+            } else {
+                container.innerHTML = `<div class="space-y-1.5">${shown.map(w => wordCompactHTML(w)).join('')}</div>`;
+            }
+        }
+
+        // ========== WORD EXPANDED ==========
+        function wordExpandedHTML(w) {
+            const colorMap = {
+                gold: { bg: 'from-accent-gold/20 to-accent-gold/5', text: 'text-accent-gold', border: 'border-accent-gold/20' },
+                wine: { bg: 'from-accent-wine/20 to-accent-wine/5', text: 'text-accent-wine', border: 'border-accent-wine/20' },
+                sage: { bg: 'from-accent-sage/20 to-accent-sage/5', text: 'text-accent-sage', border: 'border-accent-sage/20' },
+            };
+            const c = colorMap[w.color] || colorMap.gold;
+
+            return `
+                <div class="word-card bg-white dark:bg-ink-900 rounded-xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-4 group" onclick="toggleWordCard(this)">
+                    <div class="flex items-start gap-3">
+                        <div class="w-11 h-11 rounded-lg bg-gradient-to-br ${c.bg} flex items-center justify-center ${c.text} font-poetic text-xl border ${c.border} flex-shrink-0">
+                            ${w.script.charAt(0)}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100">${w.word}</h3>
+                                        <span class="font-poetic text-sm text-parchment-500">${w.script}</span>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                        <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-semibold">${w.pos}</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-accent-gold/10 text-accent-gold text-[9px] font-semibold border border-accent-gold/20">${w.lang}</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-medium">${w.type}</span>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-down expand-icon text-parchment-400 text-[10px] mt-1 transition-transform"></i>
+                            </div>
+                            <p class="text-[12px] text-parchment-700 dark:text-parchment-300 leading-relaxed mt-2">${w.meaning}</p>
+                        </div>
+                    </div>
+
+                    <!-- Expandable detail -->
+                    <div class="word-detail">
+                        <div class="mt-3 pt-3 border-t border-parchment-200/60 dark:border-parchment-700/30 space-y-2">
+                            <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Etymology</p>
+                                <p class="text-[10px] text-parchment-600 dark:text-parchment-400 italic">${w.etymology}</p>
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">In Poetry</p>
+                                <p class="font-poetic text-[11px] text-parchment-700 dark:text-parchment-300 leading-relaxed">${w.example}</p>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] text-parchment-500"><i class="fa-solid fa-link text-[8px] mr-1"></i>${w.refs} poem references</span>
+                                <div class="flex items-center gap-1">
+                                    <button onclick="event.stopPropagation(); showWordModal('${w.word}', '${w.pos} · ${w.lang}', '${w.meaning.replace(/'/g, "\\'")}', '${w.etymology}')" class="px-2 py-1 rounded-md bg-accent-gold/10 text-accent-gold text-[9px] font-semibold border border-accent-gold/20 hover:bg-accent-gold/20 transition">
+                                        <i class="fa-solid fa-book-open text-[8px] mr-1"></i>Full Entry
+                                    </button>
+                                    <button onclick="event.stopPropagation(); showWordModal('Saved to Vocabulary', '${w.word}', 'This word has been added to your personal vocabulary list for review.', 'Prasang vocabulary')" class="px-2 py-1 rounded-md bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400 text-[9px] font-semibold hover:bg-accent-gold/10 hover:text-accent-gold transition">
+                                        <i class="fa-regular fa-bookmark text-[8px] mr-1"></i>Save
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== WORD COMPACT ==========
+        function wordCompactHTML(w) {
+            const colorMap = {
+                gold: 'text-accent-gold',
+                wine: 'text-accent-wine',
+                sage: 'text-accent-sage',
+            };
+            return `
+                <div class="bg-white dark:bg-ink-900 rounded-lg shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-2.5 hover:border-accent-gold/40 transition cursor-pointer group" onclick="showWordModal('${w.word}', '${w.pos} · ${w.lang}', '${w.meaning.replace(/'/g, "\\'")}', '${w.etymology}')">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-md bg-gradient-to-br from-parchment-100 to-parchment-200 dark:from-ink-800 dark:to-ink-700 flex items-center justify-center ${colorMap[w.color]} font-poetic text-sm flex-shrink-0">
+                            ${w.script.charAt(0)}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-[12px] font-bold text-ink-900 dark:text-parchment-200 group-hover:text-accent-gold transition">${w.word}</p>
+                                <span class="text-[10px] text-parchment-400">·</span>
+                                <span class="text-[9px] text-parchment-500">${w.pos}</span>
+                                <span class="text-[9px] text-parchment-500">·</span>
+                                <span class="text-[9px] text-parchment-500">${w.lang}</span>
+                            </div>
+                            <p class="text-[10px] text-parchment-500 dark:text-parchment-400 truncate">${w.meaning}</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-right text-[9px] text-parchment-400 group-hover:text-accent-gold transition"></i>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== TOGGLE WORD CARD ==========
+        function toggleWordCard(card) {
+            card.classList.toggle('expanded');
+        }
+
+        // ========== VIEW TOGGLE ==========
+        function setLexiconView(view) {
+            state.view = view;
+            ['expanded', 'compact'].forEach(v => {
+                const btn = document.getElementById(`lv-${v}`);
+                if (v === view) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            applyLexiconFilters();
+        }
+
+        // ========== LOAD MORE ==========
+        function loadMoreLexicon() {
+            state.visible += 10;
+            applyLexiconFilters();
+        }
+
+        // ========== THEME ==========
+        function setTheme(theme) {
+            const body = document.getElementById('app-body');
+            const btnLight = document.getElementById('btn-light');
+            const btnSepia = document.getElementById('btn-sepia');
+            const btnDark = document.getElementById('btn-dark');
+
+            body.classList.remove('dark', 'theme-sepia');
+            [btnLight, btnSepia, btnDark].forEach(btn => {
+                btn.className = 'px-2 py-1 rounded-md flex items-center gap-1 text-parchment-600 dark:text-parchment-400 hover:text-parchment-900 dark:hover:text-parchment-200 text-[11px] font-medium transition';
+            });
+
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                btnDark.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-ink-700 text-white shadow-sm text-[11px] font-medium transition';
+            } else if (theme === 'sepia') {
+                body.classList.add('theme-sepia');
+                btnSepia.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-parchment-800 text-white shadow-sm text-[11px] font-medium transition';
+            } else {
+                btnLight.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-900 shadow-sm text-[11px] font-medium transition';
+            }
+        }
+
+        // ========== DICTIONARY MODAL ==========
+        function showWordModal(word, type, desc, etymology) {
+            document.getElementById('modal-word').innerText = word;
+            document.getElementById('modal-type').innerText = type;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-etymology').innerText = etymology || '—';
+            document.getElementById('dict-modal').classList.remove('hidden');
+        }
+
+        function closeWordModal() {
+            document.getElementById('dict-modal').classList.add('hidden');
+        }
+
+        // ========== READING PROGRESS ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('reading-progress').style.width = progress + '%';
+        });
+
+        // ========== KEYBOARD ==========
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeWordModal();
+            if (e.key === '/' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                document.getElementById('lexicon-search').focus();
+            }
+        });
+
+        document.getElementById('dict-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeWordModal();
+        });
+
+        // ========== BOOT ==========
+        window.onload = function() {
+            renderFilters();
+            applyLexiconFilters();
+        };
+    </script>
+</body>
+</html>

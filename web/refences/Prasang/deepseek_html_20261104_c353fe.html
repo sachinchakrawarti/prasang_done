@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakhi #4 — Dhai Akhar Prem Ka · Poem | Prasang</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Editorial Mix -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Nastaliq+Urdu&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#fdfaf5', 100: '#f9f2e9', 200: '#f1e6d6', 300: '#e5d3b8',
+                            400: '#d4b894', 500: '#c09a6b', 600: '#a87d4a', 700: '#8a6238',
+                            800: '#6b4a2a', 900: '#4c3420',
+                        },
+                        ink: { 50: '#f6f6f7', 800: '#1e1b18', 900: '#141210' },
+                        accent: { gold: '#b8860b', wine: '#8b3a3a', sage: '#5c7a6b' }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        poetic: ['"Rozha One"', 'Georgia', 'serif'],
+                        urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
+                        'glow': '0 0 25px -5px rgba(184,134,11,0.35)',
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c09a6b; border-radius: 99px; }
+        .dark ::-webkit-scrollbar-thumb { background: #6b4a2a; }
+
+        /* Sepia theme */
+        .theme-sepia {
+            background-color: #f4ebd0 !important;
+            color: #433422 !important;
+        }
+        .theme-sepia .glass-panel {
+            background-color: rgba(244, 235, 208, 0.9) !important;
+            border-color: #d3c39c !important;
+        }
+        .theme-sepia .bg-card-theme { background-color: #ebdcb9 !important; border-color: #d8c69d !important; }
+        .theme-sepia .text-muted-theme { color: #70583b !important; }
+        .theme-sepia .verse-block { background-color: #f9f2e9 !important; }
+
+        /* Glassmorphism */
+        .glass-panel {
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background-color: rgba(253, 250, 245, 0.88);
+            border: 1px solid rgba(192, 154, 107, 0.2);
+        }
+        .dark .glass-panel {
+            background-color: rgba(20, 18, 16, 0.88);
+            border-color: rgba(107, 74, 42, 0.3);
+        }
+
+        /* Dictionary word */
+        .dict-word {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: #b8860b;
+            text-underline-offset: 5px;
+            transition: all 0.2s ease;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+        .dict-word:hover {
+            background-color: rgba(184, 134, 11, 0.18);
+            text-decoration-style: solid;
+        }
+
+        /* Verse block styling */
+        .verse-block {
+            background: linear-gradient(135deg, rgba(249, 242, 233, 0.6), rgba(241, 230, 214, 0.3));
+            border-left: 3px solid #b8860b;
+        }
+        .dark .verse-block {
+            background: linear-gradient(135deg, rgba(30, 27, 24, 0.6), rgba(20, 18, 16, 0.3));
+        }
+
+        /* Script tab active */
+        .script-tab.active {
+            background-color: #fff;
+            color: #4c3420;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            font-weight: 600;
+        }
+        .dark .script-tab.active {
+            background-color: #1e1b18;
+            color: #e5d3b8;
+        }
+
+        /* Font size slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            background: #e5d3b8;
+            border-radius: 99px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #b8860b;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .dark input[type="range"] { background: #4c3420; }
+
+        /* Audio progress */
+        .audio-progress {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            background: linear-gradient(90deg, #b8860b 0%, #b8860b 35%, #e5d3b8 35%, #e5d3b8 100%);
+            border-radius: 99px;
+            outline: none;
+        }
+        .audio-progress::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border: 2px solid #b8860b;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Reading progress bar */
+        #reading-progress {
+            transition: width 0.1s linear;
+        }
+
+        /* Focus mode */
+        .focus-mode .focus-hide { display: none !important; }
+        .focus-mode { background: #fdfaf5; }
+        .dark .focus-mode { background: #141210; }
+
+        /* Fade transition */
+        .fade-view {
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        /* Progress bar top */
+        .top-progress {
+            height: 2px;
+            background: linear-gradient(90deg, #b8860b, #d4b894);
+            width: 0%;
+            transition: width 0.15s ease-out;
+        }
+
+        /* Poem lines */
+        .poem-line {
+            display: block;
+            padding: 2px 0;
+            transition: background 0.2s;
+            border-radius: 4px;
+        }
+        .poem-line:hover {
+            background: rgba(184, 134, 11, 0.05);
+        }
+
+        /* Affiliate disclosure banner */
+        .affiliate-disclosure {
+            background: linear-gradient(90deg, rgba(184, 134, 11, 0.06), rgba(139, 58, 58, 0.03));
+            border-left: 3px solid #b8860b;
+        }
+
+        /* Book cover 3D effect */
+        .book-cover {
+            box-shadow: 3px 3px 0 rgba(107, 74, 42, 0.15), 6px 6px 12px rgba(0, 0, 0, 0.08);
+        }
+        .dark .book-cover {
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3), 6px 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Reduce motion */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body id="app-body" class="bg-parchment-50 text-ink-900 font-sans antialiased transition-colors duration-300 min-h-screen selection:bg-accent-gold/20">
+
+    <!-- Reading progress bar (top) -->
+    <div class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-parchment-200/50 dark:bg-ink-800">
+        <div id="reading-progress" class="top-progress h-full"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-parchment-300/60 shadow-sm focus-hide">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-gold to-parchment-600 flex items-center justify-center shadow-md text-white font-poetic text-xl pb-0.5">
+                    प्र
+                </div>
+                <div class="leading-tight">
+                    <span class="font-serif text-xl font-bold tracking-wide text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                        PRASANG
+                        <span class="text-[9px] tracking-wider font-sans bg-accent-gold/15 text-accent-gold px-1.5 py-0.5 rounded-full uppercase font-semibold border border-accent-gold/20">AI</span>
+                    </span>
+                    <p class="text-[9px] text-parchment-600 dark:text-parchment-400 uppercase tracking-[0.2em] hidden sm:block">Literature Discovery</p>
+                </div>
+            </a>
+
+            <nav class="hidden lg:flex items-center gap-2 text-[11px] text-parchment-500 dark:text-parchment-400 font-medium">
+                <a href="index.html" class="hover:text-accent-gold transition">Home</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <a href="poets.html" class="hover:text-accent-gold transition">Poets</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <a href="poet-kabir.html" class="hover:text-accent-gold transition">Kabir Das</a>
+                <i class="fa-solid fa-chevron-right text-[7px]"></i>
+                <span class="text-ink-900 dark:text-parchment-200 font-semibold">Sakhi #4</span>
+            </nav>
+
+            <div class="flex items-center gap-2.5">
+                <button onclick="toggleFocusMode()" id="focus-btn" class="hidden sm:flex px-3 py-1.5 rounded-lg bg-white dark:bg-ink-800 border border-parchment-300/70 dark:border-parchment-700 text-[11px] font-medium text-ink-800 dark:text-parchment-300 items-center gap-1.5 hover:bg-parchment-100 dark:hover:bg-ink-700 transition" title="Focus Mode">
+                    <i class="fa-solid fa-expand text-accent-gold text-[10px]"></i> <span>Focus</span>
+                </button>
+                <div class="flex items-center p-0.5 bg-parchment-200/70 dark:bg-ink-800 rounded-lg border border-parchment-300 dark:border-parchment-700">
+                    <button onclick="setTheme('light')" id="btn-light" class="px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-800 shadow-sm text-[11px] font-medium transition" title="Light">
+                        <i class="fa-regular fa-sun text-amber-500 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('sepia')" id="btn-sepia" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-700 hover:text-parchment-900 text-[11px] font-medium transition" title="Sepia">
+                        <i class="fa-regular fa-file-lines text-amber-700 text-[11px]"></i>
+                    </button>
+                    <button onclick="setTheme('dark')" id="btn-dark" class="px-2 py-1 rounded-md flex items-center gap-1 text-parchment-500 hover:text-parchment-200 text-[11px] font-medium transition" title="Dark">
+                        <i class="fa-regular fa-moon text-indigo-400 text-[11px]"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== AFFILIATE DISCLOSURE (LEGAL) ===== -->
+    <div class="affiliate-disclosure focus-hide">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-3">
+            <p class="text-[9px] text-parchment-500 dark:text-parchment-400 italic leading-relaxed">
+                <i class="fa-solid fa-circle-info text-accent-gold text-[8px] mr-1"></i>
+                <strong>Affiliate disclosure:</strong> This page contains affiliate links. If you buy through them, we may earn a small commission at no extra cost to you. This helps keep Prasang free.
+            </p>
+            <button onclick="this.parentElement.parentElement.style.display='none'" class="text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 flex-shrink-0" title="Dismiss">
+                <i class="fa-solid fa-xmark text-[10px]"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== POEM HEADER ===== -->
+    <section class="relative pt-8 pb-6 overflow-hidden focus-hide">
+        <div class="absolute inset-0 -z-10">
+            <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-accent-gold/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-[320px] h-[320px] bg-accent-wine/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="px-2.5 py-1 rounded-full bg-accent-gold/10 text-accent-gold text-[10px] font-bold uppercase tracking-[0.12em] border border-accent-gold/20">
+                    <i class="fa-solid fa-star text-[8px] mr-1"></i> Doha
+                </span>
+                <span class="px-2.5 py-1 rounded-full bg-parchment-200/70 dark:bg-ink-800 text-parchment-700 dark:text-parchment-300 text-[10px] font-semibold border border-parchment-300/60 dark:border-parchment-700/40">
+                    Bijak · Sakhi 4
+                </span>
+                <span class="px-2.5 py-1 rounded-full bg-accent-sage/10 text-accent-sage text-[10px] font-semibold border border-accent-sage/20">
+                    <i class="fa-solid fa-check-circle text-[8px] mr-1"></i> Verified
+                </span>
+                <span class="px-2.5 py-1 rounded-full bg-accent-wine/10 text-accent-wine text-[10px] font-semibold border border-accent-wine/20">
+                    Bhakti · 15th c.
+                </span>
+            </div>
+
+            <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-ink-900 dark:text-parchment-100 tracking-tight leading-tight mb-2">
+                Sakhi #4 — Dhai Akhar Prem Ka
+            </h1>
+            <p class="font-poetic text-xl text-parchment-600 dark:text-parchment-400 mb-4">
+                ढाई आखर प्रेम का
+            </p>
+
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-parchment-600 dark:text-parchment-400">
+                <a href="poet-kabir.html" class="flex items-center gap-2 hover:text-accent-gold transition group">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-gold/20 to-accent-gold/5 flex items-center justify-center text-accent-gold font-poetic text-sm border border-accent-gold/20">क</div>
+                    <div>
+                        <p class="font-semibold text-ink-900 dark:text-parchment-200 group-hover:text-accent-gold transition">Kabir Das</p>
+                        <p class="text-[10px]">1440 – 1518 CE</p>
+                    </div>
+                </a>
+                <span class="w-px h-6 bg-parchment-300 dark:bg-parchment-700"></span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-book-open text-[10px] text-accent-gold"></i> Bijak Collection</span>
+                <span class="w-px h-6 bg-parchment-300 dark:bg-parchment-700"></span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-language text-[10px] text-accent-gold"></i> Sadhukkadi Hindi</span>
+                <span class="w-px h-6 bg-parchment-300 dark:bg-parchment-700"></span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-music text-[10px] text-accent-gold"></i> Doha · 13:11 Matras</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <section class="pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+
+                <!-- ===== LEFT: POEM ===== -->
+                <div class="lg:col-span-8 min-w-0">
+
+                    <!-- Reading toolbar -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 p-2.5 bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 shadow-soft focus-hide">
+                        <div class="flex items-center gap-1 bg-parchment-200/60 dark:bg-ink-800 p-1 rounded-lg text-[10px] font-semibold">
+                            <button onclick="setView('original')" id="tab-original" class="script-tab active px-2.5 py-1 rounded-md">Original</button>
+                            <button onclick="setView('roman')" id="tab-roman" class="script-tab px-2.5 py-1 rounded-md text-parchment-600 dark:text-parchment-400">Romanized</button>
+                            <button onclick="setView('translation')" id="tab-translation" class="script-tab px-2.5 py-1 rounded-md text-parchment-600 dark:text-parchment-400">Translation</button>
+                            <button onclick="setView('wordbyword')" id="tab-wordbyword" class="script-tab px-2.5 py-1 rounded-md text-parchment-600 dark:text-parchment-400">
+                                <i class="fa-solid fa-sparkles text-accent-gold text-[8px] mr-0.5"></i>Word
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-1.5">
+                            <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-parchment-100/60 dark:bg-ink-800/60 border border-parchment-200/60 dark:border-parchment-700/40">
+                                <span class="text-[9px] font-semibold text-parchment-500">Aa</span>
+                                <input type="range" min="14" max="32" value="24" id="font-size" oninput="changeFontSize(this.value)" class="w-16">
+                            </div>
+                            <button onclick="toggleNotes()" class="px-2 py-1.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/60 border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-600 dark:text-parchment-400 hover:text-accent-gold transition" title="Notes">
+                                <i class="fa-regular fa-note-sticky text-[11px]"></i>
+                            </button>
+                            <button onclick="toggleBookmark()" id="bookmark-btn" class="px-2 py-1.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/60 border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-600 dark:text-parchment-400 hover:text-accent-gold transition" title="Bookmark">
+                                <i class="fa-regular fa-bookmark text-[11px]"></i>
+                            </button>
+                            <button onclick="sharePoem()" class="px-2 py-1.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/60 border border-parchment-200/60 dark:border-parchment-700/40 text-parchment-600 dark:text-parchment-400 hover:text-accent-gold transition" title="Share">
+                                <i class="fa-solid fa-share-nodes text-[11px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- POEM CONTENT AREA -->
+                    <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 overflow-hidden">
+
+                        <!-- Audio player bar -->
+                        <div class="px-4 sm:px-6 py-3 border-b border-parchment-200/60 dark:border-parchment-700/30 bg-parchment-50/60 dark:bg-ink-800/30 flex items-center gap-3">
+                            <button onclick="toggleAudio()" id="play-btn" class="w-9 h-9 rounded-full bg-accent-gold text-white flex items-center justify-center hover:bg-accent-gold/90 transition shadow-md flex-shrink-0">
+                                <i id="play-icon" class="fa-solid fa-play text-[11px] ml-0.5"></i>
+                            </button>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between text-[10px] text-parchment-500 dark:text-parchment-400 mb-1">
+                                    <span id="audio-title" class="font-semibold">Kabir · Studio Recitation</span>
+                                    <span id="audio-time" class="font-mono">0:00 / 1:24</span>
+                                </div>
+                                <input type="range" class="audio-progress w-full" value="35" id="audio-seek" oninput="seekAudio(this.value)">
+                            </div>
+                            <div class="hidden sm:flex items-center gap-1.5">
+                                <button class="w-7 h-7 rounded-md hover:bg-parchment-200/60 dark:hover:bg-ink-700 text-parchment-500 flex items-center justify-center transition" title="Ambient sound" onclick="toggleAmbient()">
+                                    <i class="fa-solid fa-music text-[10px]"></i>
+                                </button>
+                                <button class="w-7 h-7 rounded-md hover:bg-parchment-200/60 dark:hover:bg-ink-700 text-parchment-500 flex items-center justify-center transition" title="Speed" onclick="cycleSpeed()">
+                                    <span id="speed-label" class="text-[9px] font-bold">1×</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 🔴 OUTBOUND AFFILIATE #1: AUDIO UPSELL (Premium + Audio Affiliate) -->
+                        <div class="px-4 sm:px-6 pt-3 focus-hide">
+                            <div class="p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-sm flex-shrink-0">
+                                    <i class="fa-solid fa-headphones"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[11px] font-semibold text-ink-900 dark:text-parchment-200">Want to hear this in Kabir's voice?</p>
+                                    <p class="text-[10px] text-parchment-500">Premium includes 240+ studio recitations.</p>
+                                </div>
+                                <a href="premium.html?utm_source=poem_detail&utm_medium=audio_upsell&utm_campaign=premium_audio" class="px-2.5 py-1.5 rounded-md bg-accent-gold text-white text-[10px] font-semibold hover:bg-accent-gold/90 transition whitespace-nowrap">
+                                    Listen
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- POEM VIEWS -->
+                        <div class="p-5 sm:p-8">
+
+                            <!-- Original script view -->
+                            <div id="view-original" class="fade-view">
+                                <div class="verse-block rounded-xl p-5 sm:p-6 mb-4">
+                                    <div id="poem-original" class="font-poetic text-parchment-900 dark:text-parchment-100 leading-[1.7] tracking-wide transition-all" style="font-size: 24px;">
+                                        <span class="poem-line">पोथी पढ़ि पढ़ि जग मुआ, पण्डित भया न कोय।</span>
+                                        <span class="poem-line">ढाई आखर <span class="dict-word" onclick="showWordModal('प्रेम (Prem)', 'N. Love, Compassion, Devotion', 'Derived from Sanskrit \'Preman\'. Refers to selfless divine love that transcends intellectual arrogance and ritual learning.', 'Sanskrit (Preman) → Prakrit → Sadhukkadi')">प्रेम</span> का, पढ़े सो पण्डित होय॥</span>
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-parchment-400 dark:text-parchment-500 italic flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle-info text-[9px]"></i>
+                                    Click highlighted words for dictionary · Hover a line to highlight
+                                </p>
+                            </div>
+
+                            <!-- Romanized view -->
+                            <div id="view-roman" class="fade-view hidden">
+                                <div class="verse-block rounded-xl p-5 sm:p-6 mb-4">
+                                    <div id="poem-roman" class="font-serif italic text-parchment-800 dark:text-parchment-200 leading-[1.7] transition-all" style="font-size: 20px;">
+                                        <span class="poem-line">Pothī paḍhi paḍhi jaga muā, paṇḍita bhayā na koya |</span>
+                                        <span class="poem-line">Ḍhāī ākhara <span class="dict-word" onclick="showWordModal('Prem', 'N. Unconditional Divine Love', 'Pronounced: Pre-ma. Sacred affection and emotional wisdom.', 'Sanskrit Preman')">prema</span> kā, paḍhe so paṇḍita hoya ||</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2 text-[10px]">
+                                    <span class="px-2 py-1 rounded bg-accent-gold/10 text-accent-gold font-semibold border border-accent-gold/20">IAST Standard</span>
+                                    <span class="px-2 py-1 rounded bg-parchment-200/70 dark:bg-ink-800 text-parchment-600 dark:text-parchment-400">Sadhukkadi Dialect</span>
+                                </div>
+                            </div>
+
+                            <!-- Translation view -->
+                            <div id="view-translation" class="fade-view hidden">
+                                <div class="verse-block rounded-xl p-5 sm:p-6 mb-4">
+                                    <p class="font-serif italic text-parchment-800 dark:text-parchment-200 leading-relaxed transition-all" style="font-size: 18px;">
+                                        "Reading books over and over, the whole world died, yet none became truly wise.<br>
+                                        One who reads just two and a half letters of <span class="dict-word" onclick="showWordModal('Love', 'N. Divine Affection', 'In Kabir\'s usage, prem refers to selfless, all-consuming divine love — not romantic attachment.', 'English translation of prem')">Love</span> becomes the true scholar."
+                                    </p>
+                                </div>
+                                <div class="p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                    <p class="text-[10px] font-bold uppercase tracking-wider text-accent-gold mb-1">Translator's Note</p>
+                                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed">
+                                        "Two and a half letters" refers to the Hindi word <em>प्रेम</em> (prem) — often said to be composed of 2.5 aksharas in the poetic tradition. Kabir contrasts intellectual book-learning with the simple, transformative power of love.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Word-by-word view -->
+                            <div id="view-wordbyword" class="fade-view hidden">
+                                <div class="space-y-2">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <div class="p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                            <p class="font-poetic text-lg text-parchment-900 dark:text-parchment-100">पोथी</p>
+                                            <p class="text-[10px] font-semibold text-accent-gold">Pothī</p>
+                                            <p class="text-[10px] text-parchment-500">Books / manuscripts</p>
+                                        </div>
+                                        <div class="p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                            <p class="font-poetic text-lg text-parchment-900 dark:text-parchment-100">पढ़ि पढ़ि</p>
+                                            <p class="text-[10px] font-semibold text-accent-gold">Paḍhi paḍhi</p>
+                                            <p class="text-[10px] text-parchment-500">Reading repeatedly</p>
+                                        </div>
+                                        <div class="p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                            <p class="font-poetic text-lg text-parchment-900 dark:text-parchment-100">जग</p>
+                                            <p class="text-[10px] font-semibold text-accent-gold">Jag</p>
+                                            <p class="text-[10px] text-parchment-500">The world</p>
+                                        </div>
+                                        <div class="p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                            <p class="font-poetic text-lg text-parchment-900 dark:text-parchment-100">मुआ</p>
+                                            <p class="text-[10px] font-semibold text-accent-gold">Muā</p>
+                                            <p class="text-[10px] text-parchment-500">Died / perished</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-[10px] text-parchment-400 dark:text-parchment-500 italic text-center pt-1">
+                                        <i class="fa-solid fa-sparkles text-[9px] text-accent-gold"></i> Word-by-word breakdown powered by Prasang AI
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Explanation panel (collapsible) -->
+                        <div class="border-t border-parchment-200/60 dark:border-parchment-700/30">
+                            <button onclick="toggleAIPanel()" class="w-full px-5 sm:px-6 py-3 flex items-center justify-between hover:bg-parchment-50 dark:hover:bg-ink-800/50 transition">
+                                <span class="flex items-center gap-2 text-[12px] font-semibold text-ink-900 dark:text-parchment-100">
+                                    <span class="w-6 h-6 rounded-md bg-accent-gold/10 text-accent-gold flex items-center justify-center">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                                    </span>
+                                    AI Literary Analysis
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-accent-gold/10 text-accent-gold font-bold">NEW</span>
+                                </span>
+                                <i id="ai-chevron" class="fa-solid fa-chevron-down text-parchment-400 text-[10px] transition-transform"></i>
+                            </button>
+                            <div id="ai-panel" class="hidden px-5 sm:px-6 pb-5">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="p-3.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                        <p class="text-[9px] font-bold uppercase tracking-wider text-accent-gold mb-1.5 flex items-center gap-1">
+                                            <i class="fa-solid fa-lightbulb text-[8px]"></i> Metaphor Decoded
+                                        </p>
+                                        <p class="text-[11px] text-parchment-700 dark:text-parchment-300 leading-relaxed">
+                                            "Two and a half letters of love" (<em>ḍhāī ākhara prem kā</em>) is a playful reference to the word <em>prem</em> — Kabir suggests that infinite wisdom can be compressed into a single, simple syllable of devotion.
+                                        </p>
+                                    </div>
+                                    <div class="p-3.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                        <p class="text-[9px] font-bold uppercase tracking-wider text-accent-wine mb-1.5 flex items-center gap-1">
+                                            <i class="fa-solid fa-landmark text-[8px]"></i> Historical Context
+                                        </p>
+                                        <p class="text-[11px] text-parchment-700 dark:text-parchment-300 leading-relaxed">
+                                            Composed during the Bhakti movement, when vernacular poets challenged the Sanskrit monopoly of religious knowledge. Kabir critiques both Brahminical book-learning and Islamic ritualism.
+                                        </p>
+                                    </div>
+                                    <div class="p-3.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                        <p class="text-[9px] font-bold uppercase tracking-wider text-accent-sage mb-1.5 flex items-center gap-1">
+                                            <i class="fa-solid fa-quote-right text-[8px]"></i> Poetic Device
+                                        </p>
+                                        <p class="text-[11px] text-parchment-700 dark:text-parchment-300 leading-relaxed">
+                                            <strong>Antithesis</strong> — the first line presents the futility of endless scholarship (<em>paḍhi paḍhi</em>), while the second line offers the antidote: a single act of love.
+                                        </p>
+                                    </div>
+                                    <div class="p-3.5 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30">
+                                        <p class="text-[9px] font-bold uppercase tracking-wider text-accent-gold mb-1.5 flex items-center gap-1">
+                                            <i class="fa-solid fa-link text-[8px]"></i> Similar Poems
+                                        </p>
+                                        <p class="text-[11px] text-parchment-700 dark:text-parchment-300 leading-relaxed">
+                                            Compare with Rumi's "reed pipe" metaphor — both poets contrast scholarly pride with the raw longing of the soul.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <button onclick="showWordModal('Dhai Akhar', 'Phrase · Literary Device', 'Literally \"two and a half letters.\" A Kabirian metaphor for the compact, transformative nature of divine love — suggesting that infinite wisdom resides in the simplest syllable.', 'Sadhukkadi folk expression')" class="px-2.5 py-1 rounded-md bg-accent-gold/10 text-accent-gold text-[10px] font-semibold border border-accent-gold/20 hover:bg-accent-gold/20 transition">
+                                        <i class="fa-solid fa-book-open text-[8px] mr-1"></i>Dhai Akhar
+                                    </button>
+                                    <button onclick="showWordModal('Sadhukkadi', 'N. · Language register', 'A vernacular dialect blending Hindi, Punjabi, and Urdu — used by Nirguna Bhakti poets like Kabir to reach ordinary people beyond Sanskrit elites.', 'Sadhuk + Kadi (Hindi)')" class="px-2.5 py-1 rounded-md bg-accent-wine/10 text-accent-wine text-[10px] font-semibold border border-accent-wine/20 hover:bg-accent-wine/20 transition">
+                                        <i class="fa-solid fa-book-open text-[8px] mr-1"></i>Sadhukkadi
+                                    </button>
+                                    <button onclick="showWordModal('Nirguna Bhakti', 'N. · Devotional movement', 'A Bhakti path worshipping a formless, attribute-less Divine (nirguna) — as opposed to saguna worship of deities with form. Kabir was a key Nirguna poet.', 'Sanskrit: nir (without) + guna (attributes)')" class="px-2.5 py-1 rounded-md bg-accent-sage/10 text-accent-sage text-[10px] font-semibold border border-accent-sage/20 hover:bg-accent-sage/20 transition">
+                                        <i class="fa-solid fa-book-open text-[8px] mr-1"></i>Nirguna Bhakti
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Poetry structure / meter panel -->
+                    <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 focus-hide">
+                        <div class="p-3 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 shadow-soft">
+                            <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Form</p>
+                            <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">Doha</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 shadow-soft">
+                            <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Meter</p>
+                            <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">13:11 Matras</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 shadow-soft">
+                            <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Rhyme</p>
+                            <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">AABB / AA</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 shadow-soft">
+                            <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Lines</p>
+                            <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200">2 (Couplet)</p>
+                        </div>
+                    </div>
+
+                    <!-- TAGS -->
+                    <div class="mt-4 flex flex-wrap items-center gap-1.5 focus-hide">
+                        <span class="text-[10px] font-semibold text-parchment-500 mr-1">Themes:</span>
+                        <a href="themes.html?theme=divine-love" class="px-2 py-1 rounded-md bg-accent-gold/10 text-accent-gold text-[10px] font-semibold border border-accent-gold/20 hover:bg-accent-gold/20 transition">Divine Love</a>
+                        <a href="themes.html?theme=anti-intellectualism" class="px-2 py-1 rounded-md bg-accent-wine/10 text-accent-wine text-[10px] font-semibold border border-accent-wine/20 hover:bg-accent-wine/20 transition">Anti-Intellectualism</a>
+                        <a href="themes.html?theme=humility" class="px-2 py-1 rounded-md bg-accent-sage/10 text-accent-sage text-[10px] font-semibold border border-accent-sage/20 hover:bg-accent-sage/20 transition">Humility</a>
+                        <a href="themes.html?theme=spiritual-wisdom" class="px-2 py-1 rounded-md bg-parchment-300/40 text-parchment-700 dark:text-parchment-300 text-[10px] font-semibold border border-parchment-300/60 dark:border-parchment-700/40 hover:bg-parchment-300/60 transition">Spiritual Wisdom</a>
+                    </div>
+
+                    <!-- ============================================ -->
+                    <!-- 🔴 OUTBOUND AFFILIATE #2: BOOK CARD          -->
+                    <!-- ============================================ -->
+                    <div class="mt-6 focus-hide">
+                        <div class="my-2 p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 shadow-soft">
+                            <div class="flex items-center justify-between mb-3">
+                                <p class="text-[9px] font-bold uppercase tracking-wider text-accent-gold">
+                                    <i class="fa-solid fa-book-open text-[8px] mr-1"></i> Recommended Reading
+                                </p>
+                                <span class="text-[8px] text-parchment-400 bg-parchment-100 dark:bg-ink-800 px-1.5 py-0.5 rounded">Affiliate link</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-14 h-20 rounded-md bg-gradient-to-br from-accent-gold/30 via-accent-wine/20 to-parchment-600/30 flex items-center justify-center flex-shrink-0 border border-parchment-300/60 dark:border-parchment-700/40 book-cover">
+                                    <i class="fa-solid fa-book text-accent-gold text-xl"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-serif text-sm font-bold text-ink-900 dark:text-parchment-100 mb-0.5">
+                                        The Bijak of Kabir
+                                    </h4>
+                                    <p class="text-[10px] text-parchment-500 mb-1">Translated by Linda Hess &amp; Shukdev Singh</p>
+                                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mb-2">
+                                        The definitive English translation of Kabir's complete Bijak — with scholarly notes, commentary, and the original text.
+                                    </p>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <a href="https://www.amazon.in/dp/0195156702?tag=YOUR_AMAZON_AFFILIATE_TAG" 
+                                           target="_blank" rel="noopener sponsored"
+                                           class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-accent-gold hover:bg-accent-gold/90 text-white text-[10px] font-semibold transition">
+                                            <i class="fa-brands fa-amazon text-[10px]"></i> Buy on Amazon
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
+                                        </a>
+                                        <a href="https://bookshop.org/a/YOUR_BOOKSHOP_ID/9780195156706" 
+                                           target="_blank" rel="noopener sponsored"
+                                           class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-parchment-800 hover:bg-parchment-900 text-white text-[10px] font-semibold transition">
+                                            <i class="fa-solid fa-store text-[9px]"></i> Bookshop.org
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
+                                        </a>
+                                        <span class="text-[8px] text-parchment-400 italic">We may earn a commission</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============================================ -->
+                    <!-- 🟡 INBOUND AFFILIATE #1: SHARE-TO-EARN       -->
+                    <!-- ============================================ -->
+                    <div class="mt-4 focus-hide">
+                        <div class="p-5 rounded-xl bg-gradient-to-br from-accent-gold/10 via-accent-wine/5 to-transparent border border-accent-gold/20">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                <div class="w-11 h-11 rounded-lg bg-accent-gold/20 text-accent-gold flex items-center justify-center text-lg flex-shrink-0">
+                                    <i class="fa-solid fa-handshake"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-0.5">
+                                        Love this poem? Share it and earn.
+                                    </h3>
+                                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400">
+                                        Join the Prasang Affiliate Program — earn up to <strong class="text-accent-gold">40% recurring commission</strong> for every reader you refer.
+                                    </p>
+                                </div>
+                                <a href="affiliate.html?utm_source=poem_detail&utm_medium=share_banner&utm_campaign=affiliate_signup" 
+                                   class="px-4 py-2 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[11px] font-semibold transition whitespace-nowrap flex items-center gap-1.5">
+                                    <i class="fa-solid fa-rocket text-[10px]"></i> Become an Affiliate
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============================================ -->
+                    <!-- 🔴 OUTBOUND AFFILIATE #3: ART PRINT CARD     -->
+                    <!-- ============================================ -->
+                    <div class="mt-4 focus-hide">
+                        <div class="p-3 rounded-lg bg-white dark:bg-ink-900 border border-parchment-200/60 dark:border-parchment-700/40 shadow-soft flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-accent-wine/10 text-accent-wine flex items-center justify-center text-sm flex-shrink-0">
+                                <i class="fa-solid fa-image"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[11px] font-semibold text-ink-900 dark:text-parchment-200">Get this doha as a framed art print</p>
+                                <p class="text-[10px] text-parchment-500">Hand-lettered Devanagari calligraphy · Ships worldwide</p>
+                            </div>
+                            <a href="https://www.etsy.com/listing/YOUR_ETSY_AFFILIATE_LINK?ref=affiliate" 
+                               target="_blank" rel="noopener sponsored"
+                               class="px-2.5 py-1.5 rounded-md bg-ink-900 dark:bg-accent-gold text-white text-[10px] font-semibold hover:opacity-90 transition whitespace-nowrap flex items-center gap-1">
+                                Shop Print <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
+                            </a>
+                        </div>
+                        <p class="text-[8px] text-parchment-400 mt-1 ml-1 italic">Affiliate link · We may earn a commission</p>
+                    </div>
+
+                    <!-- ============================================ -->
+                    <!-- 🟢 PREMIUM UPGRADE: BELOW POEM BANNER        -->
+                    <!-- ============================================ -->
+                    <div class="mt-4 focus-hide">
+                        <div class="p-5 rounded-xl bg-gradient-to-br from-accent-gold/10 to-accent-wine/5 border border-accent-gold/20">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                <div class="w-11 h-11 rounded-lg bg-accent-gold/20 text-accent-gold flex items-center justify-center text-lg flex-shrink-0">
+                                    <i class="fa-solid fa-crown"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-0.5">
+                                        Want the full analysis of this poem?
+                                    </h3>
+                                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400">
+                                        Premium unlocks unlimited AI breakdowns, audio recitations, and the complete archive of 12,000+ works.
+                                    </p>
+                                </div>
+                                <a href="premium.html?utm_source=poem_detail&utm_medium=below_poem&utm_campaign=premium_upsell" 
+                                   class="px-4 py-2 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[11px] font-semibold transition whitespace-nowrap flex items-center gap-1.5">
+                                    Try Premium Free <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== COMMENTS / INTERPRETATIONS ===== -->
+                    <div class="mt-8 focus-hide">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 flex items-center gap-2">
+                                <i class="fa-regular fa-comments text-accent-gold text-sm"></i>
+                                Interpretations
+                                <span class="text-[10px] font-sans font-bold text-parchment-500 bg-parchment-200/70 dark:bg-ink-800 px-2 py-0.5 rounded-full">24</span>
+                            </h3>
+                            <button onclick="toggleCommentBox()" class="px-3 py-1.5 rounded-lg bg-accent-gold text-white text-[11px] font-semibold hover:bg-accent-gold/90 transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-plus text-[9px]"></i> Add Yours
+                            </button>
+                        </div>
+
+                        <div id="comment-box" class="hidden mb-4 p-4 bg-white dark:bg-ink-900 rounded-xl border border-parchment-200/70 dark:border-parchment-700/40 shadow-soft">
+                            <textarea id="comment-input" placeholder="Share your interpretation of this doha..." rows="3" class="w-full p-3 rounded-lg bg-parchment-100/60 dark:bg-ink-800/60 border border-parchment-200/60 dark:border-parchment-700/40 text-[12px] text-ink-900 dark:text-parchment-200 placeholder-parchment-500/70 focus:outline-none focus:ring-1 focus:ring-accent-gold resize-none"></textarea>
+                            <div class="flex items-center justify-between mt-2">
+                                <p class="text-[10px] text-parchment-400">Be respectful. Annotations are public.</p>
+                                <div class="flex gap-1.5">
+                                    <button onclick="toggleCommentBox()" class="px-3 py-1.5 rounded-lg text-[11px] font-medium text-parchment-600 dark:text-parchment-400 hover:bg-parchment-100 dark:hover:bg-ink-800 transition">Cancel</button>
+                                    <button onclick="postComment()" class="px-3 py-1.5 rounded-lg bg-accent-gold text-white text-[11px] font-semibold hover:bg-accent-gold/90 transition">Post</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="comments-list" class="space-y-3">
+                            <!-- injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== RIGHT SIDEBAR ===== -->
+                <aside class="lg:col-span-4 space-y-5 focus-hide">
+
+                    <!-- Poet card -->
+                    <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                        <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-accent-gold mb-2.5">About the Poet</p>
+                        <a href="poet-kabir.html" class="flex items-center gap-3 group">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-accent-gold/20 to-accent-gold/5 flex items-center justify-center text-accent-gold font-poetic text-2xl border border-accent-gold/20 flex-shrink-0">क</div>
+                            <div class="min-w-0">
+                                <h4 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 group-hover:text-accent-gold transition">Kabir Das</h4>
+                                <p class="text-[10px] text-parchment-500">1440 – 1518 CE</p>
+                                <p class="text-[10px] text-parchment-500">Bhakti · Sadhukkadi</p>
+                            </div>
+                        </a>
+                        <p class="text-[11px] text-parchment-600 dark:text-parchment-400 leading-relaxed mt-3">
+                            A mystic weaver-poet who challenged ritual, caste, and religious orthodoxy. His dohas remain among the most quoted verses in South Asian literature.
+                        </p>
+                        <a href="poet-kabir.html" class="mt-3 w-full py-2 rounded-lg bg-parchment-100 dark:bg-ink-800 border border-parchment-200/60 dark:border-parchment-700/40 text-[11px] font-semibold text-ink-900 dark:text-parchment-200 hover:bg-parchment-200/60 dark:hover:bg-ink-700 transition flex items-center justify-center gap-1.5">
+                            View Full Profile <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </a>
+                    </div>
+
+                    <!-- 🟡 INBOUND AFFILIATE #2: SIDEBAR SIGNUP -->
+                    <div class="bg-gradient-to-br from-parchment-800 to-parchment-900 dark:from-ink-800 dark:to-ink-900 rounded-2xl p-5 text-white shadow-soft">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fa-solid fa-coins text-accent-gold text-sm"></i>
+                            <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-accent-gold">Earn With Us</p>
+                        </div>
+                        <h4 class="font-serif text-base font-bold mb-1">Run a poetry blog or newsletter?</h4>
+                        <p class="text-[11px] text-parchment-200/75 leading-relaxed mb-3">
+                            Earn up to 40% recurring commission for every reader you send to Prasang.
+                        </p>
+                        <a href="affiliate.html?utm_source=poem_detail&utm_medium=sidebar&utm_campaign=affiliate_signup" 
+                           class="block w-full py-2 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[11px] font-semibold transition text-center">
+                            <i class="fa-solid fa-handshake text-[9px] mr-1.5"></i> Join Affiliate Program
+                        </a>
+                    </div>
+
+                    <!-- Era context card -->
+                    <div class="bg-gradient-to-br from-parchment-800 to-parchment-900 dark:from-ink-800 dark:to-ink-900 rounded-2xl p-5 text-white shadow-soft">
+                        <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-accent-gold mb-2">Era Context</p>
+                        <h4 class="font-serif text-lg font-bold mb-1">The Bhakti Movement</h4>
+                        <p class="text-[11px] text-parchment-200/75 leading-relaxed mb-3">
+                            A 15th-century devotional revolution that democratized spirituality — shifting from Sanskrit scripture to vernacular song.
+                        </p>
+                        <button onclick="showWordModal('Bhakti Movement', 'N. · Historical era', 'A devotional movement (c. 7th–17th century) emphasizing personal love for the Divine over ritual and caste, expressed in regional languages across India.', 'Sanskrit: bhaj (to share, to love)')" class="w-full py-2 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[11px] font-semibold transition">
+                            <i class="fa-solid fa-book-open text-[9px] mr-1.5"></i> Explore the Era
+                        </button>
+                    </div>
+
+                    <!-- Dictionary quick card -->
+                    <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-accent-gold">Lexicon</p>
+                            <i class="fa-solid fa-book text-accent-gold text-[11px]"></i>
+                        </div>
+                        <div class="relative mb-3">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-parchment-400 text-[10px]"></i>
+                            <input type="text" id="side-dict-input" value="अनहद" placeholder="Look up a word..." class="w-full pl-7 pr-2 py-1.5 bg-parchment-100/60 dark:bg-ink-800/60 rounded-lg text-[11px] text-ink-900 dark:text-parchment-200 focus:outline-none focus:ring-1 focus:ring-accent-gold">
+                        </div>
+                        <div class="space-y-1.5">
+                            <button onclick="showWordModal('प्रेम (Prem)', 'N. Love, Devotion', 'Selfless divine love — the central theme of this doha.', 'Sanskrit Preman')" class="w-full text-left p-2 rounded-lg hover:bg-parchment-100 dark:hover:bg-ink-800 transition flex items-center justify-between group">
+                                <span class="text-[11px] font-semibold text-ink-900 dark:text-parchment-200">प्रेम <span class="text-parchment-400 font-normal">· Prem</span></span>
+                                <i class="fa-solid fa-arrow-right text-[9px] text-parchment-400 group-hover:text-accent-gold transition"></i>
+                            </button>
+                            <button onclick="showWordModal('अनहद (Anhad)', 'N. Unstruck Sound', 'The divine sound heard in deep meditation — a key Sufi and Bhakti concept.', 'Sanskrit: an-āhata (unstruck)')" class="w-full text-left p-2 rounded-lg hover:bg-parchment-100 dark:hover:bg-ink-800 transition flex items-center justify-between group">
+                                <span class="text-[11px] font-semibold text-ink-900 dark:text-parchment-200">अनहद <span class="text-parchment-400 font-normal">· Anhad</span></span>
+                                <i class="fa-solid fa-arrow-right text-[9px] text-parchment-400 group-hover:text-accent-gold transition"></i>
+                            </button>
+                            <button onclick="showWordModal('साखी (Sakhi)', 'N. Witness Verse', 'A form of Kabir\'s poetry — a couplet that "witnesses" or testifies to a spiritual truth.', 'Sanskrit: sākṣin (witness)')" class="w-full text-left p-2 rounded-lg hover:bg-parchment-100 dark:hover:bg-ink-800 transition flex items-center justify-between group">
+                                <span class="text-[11px] font-semibold text-ink-900 dark:text-parchment-200">साखी <span class="text-parchment-400 font-normal">· Sakhi</span></span>
+                                <i class="fa-solid fa-arrow-right text-[9px] text-parchment-400 group-hover:text-accent-gold transition"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Related poems -->
+                    <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5">
+                        <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-accent-gold mb-3">Related Poems</p>
+                        <div class="space-y-1.5">
+                            <a href="poem-detail.html" class="block p-2 rounded-lg hover:bg-parchment-100 dark:hover:bg-ink-800 transition group">
+                                <p class="text-[11px] font-semibold text-ink-900 dark:text-parchment-200 group-hover:text-accent-gold transition">Sakhi #12 — Kaal Kare So Aaj Kar</p>
+                                <p class="text-[10px] text-parchment-500">Kabir · Time & Impermanence</p>
+                            </a>
+                            <a href="poem-detail.html" class="block p-2 rounded-lg hover:bg-parchment-100 dark:hover:bg-ink-800 transition group">
+                                <p class="text-[11px] font-semibold text-ink-900 dark:text-parchment-200 group-hover:text-accent-gold transition">Sakhi #28 — Bura Jo Dekhan Main Chala</p>
+                                <p class="text-[10px] text-parchment-500">Kabir · Self-Reflection</p>
+                            </a>
+                            <a href="poem-detail.html" class="block p-2 rounded-lg hover:bg-parchment-100 dark:hover:bg-ink-800 transition group">
+                                <p class="text-[11px] font-semibold text-ink-900 dark:text-parchment-200 group-hover:text-accent-gold transition">Ghazal — Hazaron Khwahishen Aisi</p>
+                                <p class="text-[10px] text-parchment-500">Ghalib · Desire</p>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 🟢 PREMIUM SIDEBAR CARD -->
+                    <div class="bg-gradient-to-br from-parchment-800 to-parchment-900 dark:from-ink-800 dark:to-ink-900 rounded-2xl p-5 text-white shadow-soft">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fa-solid fa-lock-open text-accent-gold text-sm"></i>
+                            <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-accent-gold">Premium</p>
+                        </div>
+                        <h4 class="font-serif text-base font-bold mb-1">Read 218 More Dohas by Kabir</h4>
+                        <p class="text-[11px] text-parchment-200/75 leading-relaxed mb-3">
+                            You've read 1 of 218 works in this collection. Unlock the complete corpus with Premium.
+                        </p>
+                        <a href="premium.html?utm_source=poem_detail&utm_medium=sidebar&utm_campaign=premium_archive" class="block w-full py-2 rounded-lg bg-accent-gold hover:bg-accent-gold/90 text-white text-[11px] font-semibold transition text-center">
+                            <i class="fa-solid fa-crown text-[9px] mr-1.5"></i> Unlock Full Archive
+                        </a>
+                    </div>
+
+                    <!-- Reading list CTA -->
+                    <div class="bg-gradient-to-br from-accent-gold/95 to-accent-wine/95 rounded-2xl p-5 text-white shadow-glow">
+                        <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-white/80 mb-2">Learning Path</p>
+                        <h4 class="font-serif text-base font-bold mb-1">Intro to Bhakti Poetry</h4>
+                        <p class="text-[11px] text-white/80 leading-relaxed mb-3">A 7-day journey through Kabir, Mirabai, Tulsidas, and the devotional revolution.</p>
+                        <button class="w-full py-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-[11px] font-semibold transition border border-white/20">
+                            Start Learning <i class="fa-solid fa-arrow-right text-[9px] ml-1"></i>
+                        </button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PREV / NEXT ===== -->
+    <section class="pb-12 focus-hide">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <a href="poem-detail.html" class="p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 hover:border-accent-gold/40 transition group">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-left text-[8px]"></i> Previous Poem
+                    </p>
+                    <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200 group-hover:text-accent-gold transition">Sakhi #3 — Jab Main Bhoopa Baniya</p>
+                    <p class="text-[10px] text-parchment-500">Kabir Das</p>
+                </a>
+                <a href="poem-detail.html" class="p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 hover:border-accent-gold/40 transition group text-right">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-1 flex items-center justify-end gap-1">
+                        Next Poem <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                    </p>
+                    <p class="text-[12px] font-semibold text-ink-900 dark:text-parchment-200 group-hover:text-accent-gold transition">Sakhi #5 — Guru Gobind Dono</p>
+                    <p class="text-[10px] text-parchment-500">Kabir Das</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- 🟡 INBOUND AFFILIATE #3: FOOTER BANNER       -->
+    <!-- ============================================ -->
+    <section class="py-8 focus-hide">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-ink-900 rounded-2xl shadow-soft border border-parchment-200/70 dark:border-parchment-700/40 p-5 flex flex-col sm:flex-row items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-accent-gold/10 text-accent-gold flex items-center justify-center text-xl flex-shrink-0">
+                    <i class="fa-solid fa-handshake"></i>
+                </div>
+                <div class="flex-1 text-center sm:text-left">
+                    <h3 class="font-serif text-base font-bold text-ink-900 dark:text-parchment-100 mb-0.5">
+                        Love this poem? Share it and earn.
+                    </h3>
+                    <p class="text-[11px] text-parchment-600 dark:text-parchment-400">
+                        Join our affiliate program — earn up to 40% recurring commission for every reader you refer.
+                    </p>
+                </div>
+                <a href="affiliate.html?utm_source=poem_detail&utm_medium=footer_banner&utm_campaign=affiliate_signup" class="px-4 py-2 rounded-lg bg-ink-900 dark:bg-accent-gold text-white text-[11px] font-semibold hover:bg-ink-800 dark:hover:bg-accent-gold/90 transition whitespace-nowrap flex items-center gap-1.5">
+                    Earn With Us <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-parchment-900 dark:bg-ink-900 text-parchment-300/60 py-10 border-t border-parchment-800/40 text-[11px] focus-hide">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-md bg-accent-gold text-white flex items-center justify-center font-poetic text-base">प्र</div>
+                    <div>
+                        <span class="font-serif text-base font-bold tracking-wide text-parchment-100">PRASANG</span>
+                        <p class="text-[9px] text-parchment-400/70">Multilingual Literature & Poetry</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-5 font-medium text-parchment-200/70">
+                    <a href="index.html" class="hover:text-accent-gold transition">Rail</a>
+                    <a href="features.html" class="hover:text-accent-gold transition">Features</a>
+                    <a href="poem-detail.html" class="hover:text-accent-gold transition">Reader</a>
+                    <a href="eras.html" class="hover:text-accent-gold transition">Eras</a>
+                    <a href="lexicon.html" class="hover:text-accent-gold transition">Lexicon</a>
+                    <a href="affiliate.html" class="hover:text-accent-gold transition">Affiliate</a>
+                </div>
+                <p class="text-parchment-400/50">&copy; 2026 Prasang Platform.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== DICTIONARY MODAL ===== -->
+    <div id="dict-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-sm w-full shadow-2xl relative animate-fade-up overflow-hidden">
+            <div class="h-1 bg-gradient-to-r from-accent-gold to-parchment-500"></div>
+            <button onclick="closeWordModal()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-5">
+                <div class="flex items-center gap-1.5 text-accent-gold text-[9px] font-bold uppercase tracking-[0.15em] mb-2">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> Lexicon
+                </div>
+                <h3 id="modal-word" class="font-serif text-xl font-bold text-ink-900 dark:text-parchment-100 mb-0.5">Prem</h3>
+                <p id="modal-type" class="text-[10px] text-accent-gold font-semibold mb-2">N. Love, Compassion</p>
+                <p id="modal-desc" class="text-[12px] text-parchment-600 dark:text-parchment-300 leading-relaxed mb-2">
+                    Derived from Sanskrit 'Preman'. Refers to selfless divine love.
+                </p>
+                <div class="p-2 rounded-lg bg-parchment-100/60 dark:bg-ink-800/40 border border-parchment-200/60 dark:border-parchment-700/30 mb-3">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-parchment-500 mb-0.5">Etymology</p>
+                    <p id="modal-etymology" class="text-[10px] text-parchment-600 dark:text-parchment-400 italic">Sanskrit Preman → Prakrit → Sadhukkadi</p>
+                </div>
+                <button onclick="closeWordModal()" class="w-full py-1.5 bg-parchment-800 hover:bg-parchment-900 dark:bg-accent-gold dark:hover:bg-accent-gold/90 text-white rounded-lg text-[11px] font-semibold transition">
+                    Close & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SHARE MODAL ===== -->
+    <div id="share-modal" class="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-ink-900 border border-parchment-300/60 dark:border-parchment-700/50 rounded-2xl max-w-sm w-full shadow-2xl relative animate-fade-up">
+            <button onclick="closeShareModal()" class="absolute top-4 right-4 text-parchment-400 hover:text-parchment-600 dark:hover:text-parchment-200 transition">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div class="p-5">
+                <h3 class="font-serif text-lg font-bold text-ink-900 dark:text-parchment-100 mb-3">Share this Poem</h3>
+                <div class="grid grid-cols-4 gap-2 mb-4">
+                    <a href="https://twitter.com/intent/tweet?text=Reading%20Kabir%27s%20Sakhi%20%234%20on%20Prasang&url=https://prasang.app/poem/sakhi-4" target="_blank" rel="noopener" class="p-3 rounded-lg bg-parchment-100 dark:bg-ink-800 hover:bg-accent-gold/10 transition flex flex-col items-center gap-1.5">
+                        <i class="fa-brands fa-twitter text-accent-gold text-base"></i>
+                        <span class="text-[9px] font-medium text-parchment-600 dark:text-parchment-400">Twitter</span>
+                    </a>
+                    <a href="https://wa.me/?text=Reading%20Kabir%27s%20Sakhi%20%234%20on%20Prasang%20https://prasang.app/poem/sakhi-4" target="_blank" rel="noopener" class="p-3 rounded-lg bg-parchment-100 dark:bg-ink-800 hover:bg-accent-gold/10 transition flex flex-col items-center gap-1.5">
+                        <i class="fa-brands fa-whatsapp text-accent-sage text-base"></i>
+                        <span class="text-[9px] font-medium text-parchment-600 dark:text-parchment-400">WhatsApp</span>
+                    </a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://prasang.app/poem/sakhi-4" target="_blank" rel="noopener" class="p-3 rounded-lg bg-parchment-100 dark:bg-ink-800 hover:bg-accent-gold/10 transition flex flex-col items-center gap-1.5">
+                        <i class="fa-brands fa-facebook text-blue-500 text-base"></i>
+                        <span class="text-[9px] font-medium text-parchment-600 dark:text-parchment-400">Facebook</span>
+                    </a>
+                    <a href="mailto:?subject=Reading%20Kabir's%20Sakhi%20%234&body=Check%20out%20this%20poem%20on%20Prasang%3A%20https://prasang.app/poem/sakhi-4" class="p-3 rounded-lg bg-parchment-100 dark:bg-ink-800 hover:bg-accent-gold/10 transition flex flex-col items-center gap-1.5">
+                        <i class="fa-solid fa-envelope text-accent-wine text-base"></i>
+                        <span class="text-[9px] font-medium text-parchment-600 dark:text-parchment-400">Email</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <input type="text" value="prasang.app/poem/sakhi-4" readonly class="flex-1 px-3 py-2 bg-parchment-100/60 dark:bg-ink-800/60 rounded-lg text-[11px] text-ink-900 dark:text-parchment-200 border border-parchment-200/60 dark:border-parchment-700/40">
+                    <button onclick="copyLink()" class="px-3 py-2 bg-accent-gold text-white rounded-lg text-[11px] font-semibold hover:bg-accent-gold/90 transition">Copy</button>
+                </div>
+                <div class="mt-3 p-2.5 rounded-lg bg-accent-gold/5 border border-accent-gold/20">
+                    <p class="text-[9px] text-parchment-500 leading-relaxed">
+                        <i class="fa-solid fa-handshake text-accent-gold text-[8px] mr-1"></i>
+                        <strong>Earn from sharing:</strong> <a href="affiliate.html" class="text-accent-gold font-semibold hover:underline">Join our affiliate program</a> and earn 40% for every reader you refer.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ========== THEME ==========
+        function setTheme(theme) {
+            const body = document.getElementById('app-body');
+            const btnLight = document.getElementById('btn-light');
+            const btnSepia = document.getElementById('btn-sepia');
+            const btnDark = document.getElementById('btn-dark');
+
+            body.classList.remove('dark', 'theme-sepia');
+            [btnLight, btnSepia, btnDark].forEach(btn => {
+                btn.className = 'px-2 py-1 rounded-md flex items-center gap-1 text-parchment-600 dark:text-parchment-400 hover:text-parchment-900 dark:hover:text-parchment-200 text-[11px] font-medium transition';
+            });
+
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                btnDark.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-ink-700 text-white shadow-sm text-[11px] font-medium transition';
+            } else if (theme === 'sepia') {
+                body.classList.add('theme-sepia');
+                btnSepia.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-parchment-800 text-white shadow-sm text-[11px] font-medium transition';
+            } else {
+                btnLight.className = 'px-2 py-1 rounded-md flex items-center gap-1 bg-white text-parchment-900 shadow-sm text-[11px] font-medium transition';
+            }
+        }
+
+        // ========== SCRIPT VIEW TOGGLE ==========
+        function setView(view) {
+            const views = ['original', 'roman', 'translation', 'wordbyword'];
+            const tabs = { original: 'tab-original', roman: 'tab-roman', translation: 'tab-translation', wordbyword: 'tab-wordbyword' };
+
+            views.forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                const tab = document.getElementById(tabs[v]);
+                tab.className = 'script-tab px-2.5 py-1 rounded-md text-parchment-600 dark:text-parchment-400 text-[10px] font-semibold';
+            });
+
+            document.getElementById(`view-${view}`).classList.remove('hidden');
+            const activeTab = document.getElementById(tabs[view]);
+            activeTab.className = 'script-tab active px-2.5 py-1 rounded-md text-[10px] font-semibold';
+        }
+
+        // ========== FONT SIZE ==========
+        function changeFontSize(size) {
+            document.getElementById('poem-original').style.fontSize = size + 'px';
+            document.getElementById('poem-roman').style.fontSize = (size * 0.83) + 'px';
+        }
+
+        // ========== AI PANEL ==========
+        function toggleAIPanel() {
+            const panel = document.getElementById('ai-panel');
+            const chevron = document.getElementById('ai-chevron');
+            panel.classList.toggle('hidden');
+            chevron.style.transform = panel.classList.contains('hidden') ? '' : 'rotate(180deg)';
+        }
+
+        // ========== NOTES ==========
+        function toggleNotes() {
+            showWordModal('My Notes', 'Personal annotation', 'Your notes are saved privately to your account. Click any line while reading to add a note in the full app.', 'Prasang account feature');
+        }
+
+        // ========== BOOKMARK ==========
+        let bookmarked = false;
+        function toggleBookmark() {
+            bookmarked = !bookmarked;
+            const btn = document.getElementById('bookmark-btn');
+            const icon = btn.querySelector('i');
+            if (bookmarked) {
+                icon.className = 'fa-solid fa-bookmark text-[11px] text-accent-gold';
+                btn.classList.add('border-accent-gold/40');
+            } else {
+                icon.className = 'fa-regular fa-bookmark text-[11px]';
+                btn.classList.remove('border-accent-gold/40');
+            }
+        }
+
+        // ========== SHARE ==========
+        function sharePoem() {
+            document.getElementById('share-modal').classList.remove('hidden');
+        }
+        function closeShareModal() {
+            document.getElementById('share-modal').classList.add('hidden');
+        }
+        function copyLink() {
+            navigator.clipboard.writeText('https://prasang.app/poem/sakhi-4');
+            const btn = event.target;
+            const original = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = original, 1500);
+        }
+
+        // ========== AUDIO ==========
+        let isPlaying = false;
+        let audioTime = 35;
+        const totalTime = 84;
+        let speedIndex = 0;
+        const speeds = ['1×', '1.25×', '1.5×', '0.75×'];
+        let ambientOn = false;
+
+        function toggleAudio() {
+            isPlaying = !isPlaying;
+            const icon = document.getElementById('play-icon');
+            if (isPlaying) {
+                icon.className = 'fa-solid fa-pause text-[11px]';
+                startAudioTimer();
+            } else {
+                icon.className = 'fa-solid fa-play text-[11px] ml-0.5';
+                clearInterval(audioInterval);
+            }
+        }
+
+        let audioInterval = null;
+        function startAudioTimer() {
+            clearInterval(audioInterval);
+            audioInterval = setInterval(() => {
+                if (audioTime < totalTime) {
+                    audioTime++;
+                    updateAudioDisplay();
+                } else {
+                    isPlaying = false;
+                    document.getElementById('play-icon').className = 'fa-solid fa-play text-[11px] ml-0.5';
+                    audioTime = 0;
+                    clearInterval(audioInterval);
+                    updateAudioDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateAudioDisplay() {
+            const mins = Math.floor(audioTime / 60);
+            const secs = Math.floor(audioTime % 60);
+            const tmins = Math.floor(totalTime / 60);
+            const tsecs = totalTime % 60;
+            document.getElementById('audio-time').textContent = `${mins}:${secs.toString().padStart(2, '0')} / ${tmins}:${tsecs.toString().padStart(2, '0')}`;
+            document.getElementById('audio-seek').value = (audioTime / totalTime) * 100;
+            document.getElementById('audio-seek').style.background = `linear-gradient(90deg, #b8860b 0%, #b8860b ${(audioTime/totalTime)*100}%, #e5d3b8 ${(audioTime/totalTime)*100}%, #e5d3b8 100%)`;
+        }
+
+        function seekAudio(value) {
+            audioTime = (value / 100) * totalTime;
+            updateAudioDisplay();
+        }
+
+        function cycleSpeed() {
+            speedIndex = (speedIndex + 1) % speeds.length;
+            document.getElementById('speed-label').textContent = speeds[speedIndex];
+        }
+
+        function toggleAmbient() {
+            ambientOn = !ambientOn;
+            showWordModal(
+                ambientOn ? 'Ambient Sound: On' : 'Ambient Sound: Off',
+                ambientOn ? 'Sitar & Harmonium' : 'Silent mode',
+                ambientOn ? 'Soft background raga playing beneath the recitation — ideal for contemplative reading.' : 'Background ambience muted. Only the recitation will play.',
+                'Prasang Audio'
+            );
+        }
+
+        // ========== DICTIONARY ==========
+        function showWordModal(word, type, desc, etymology) {
+            document.getElementById('modal-word').innerText = word;
+            document.getElementById('modal-type').innerText = type;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-etymology').innerText = etymology || '—';
+            document.getElementById('dict-modal').classList.remove('hidden');
+        }
+
+        function closeWordModal() {
+            document.getElementById('dict-modal').classList.add('hidden');
+        }
+
+        // ========== FOCUS MODE ==========
+        function toggleFocusMode() {
+            document.getElementById('app-body').classList.toggle('focus-mode');
+            const btn = document.getElementById('focus-btn');
+            const isFocus = document.getElementById('app-body').classList.contains('focus-mode');
+            btn.innerHTML = isFocus
+                ? '<i class="fa-solid fa-compress text-accent-gold text-[10px]"></i> <span>Exit</span>'
+                : '<i class="fa-solid fa-expand text-accent-gold text-[10px]"></i> <span>Focus</span>';
+        }
+
+        // ========== READING PROGRESS ==========
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            document.getElementById('reading-progress').style.width = progress + '%';
+        });
+
+        // ========== COMMENTS ==========
+        const comments = [
+            {
+                author: 'Ananya Sharma',
+                initials: 'A',
+                color: 'gold',
+                time: '2 hours ago',
+                text: 'The genius of this doha is in its paradox — the more you read, the further you get from the truth. Kabir is saying that love is not a text to be mastered but a state to be felt.',
+                likes: 42,
+                replies: 3
+            },
+            {
+                author: 'Ravi Iyer',
+                initials: 'R',
+                color: 'wine',
+                time: '5 hours ago',
+                text: 'As someone from Varanasi, this doha is part of daily life. My grandmother would recite it every morning while lighting the diya. Reading it here with the AI analysis brings back memories.',
+                likes: 67,
+                replies: 1
+            },
+            {
+                author: 'Sara Khan',
+                initials: 'S',
+                color: 'sage',
+                time: '1 day ago',
+                text: 'Interesting to compare this with Rumi\'s reed pipe — both Kabir and Rumi critique scholarly pride. Two mystics, two languages, one truth.',
+                likes: 29,
+                replies: 5
+            }
+        ];
+
+        const colorMap = {
+            gold: 'from-accent-gold/20 to-accent-gold/5 text-accent-gold border-accent-gold/20',
+            wine: 'from-accent-wine/20 to-accent-wine/5 text-accent-wine border-accent-wine/20',
+            sage: 'from-accent-sage/20 to-accent-sage/5 text-accent-sage border-accent-sage/20'
+        };
+
+        function renderComments() {
+            const container = document.getElementById('comments-list');
+            container.innerHTML = comments.map(c => `
+                <div class="p-4 rounded-xl bg-white dark:bg-ink-900 border border-parchment-200/70 dark:border-parchment-700/40 shadow-soft">
+                    <div class="flex items-start gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br ${colorMap[c.color]} flex items-center justify-center font-serif font-bold text-sm border flex-shrink-0">${c.initials}</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <p class="text-[11px] font-bold text-ink-900 dark:text-parchment-200">${c.author}</p>
+                                <span class="text-[9px] text-parchment-400">·</span>
+                                <p class="text-[9px] text-parchment-500">${c.time}</p>
+                            </div>
+                            <p class="text-[12px] text-parchment-700 dark:text-parchment-300 leading-relaxed">${c.text}</p>
+                            <div class="flex items-center gap-3 mt-2">
+                                <button onclick="likeComment(this)" class="flex items-center gap-1 text-[10px] text-parchment-500 hover:text-accent-gold transition">
+                                    <i class="fa-regular fa-heart text-[10px]"></i> <span>${c.likes}</span>
+                                </button>
+                                <button class="flex items-center gap-1 text-[10px] text-parchment-500 hover:text-accent-gold transition">
+                                    <i class="fa-regular fa-comment text-[10px]"></i> <span>${c.replies} replies</span>
+                                </button>
+                                <button class="flex items-center gap-1 text-[10px] text-parchment-500 hover:text-accent-gold transition">
+                                    <i class="fa-solid fa-share text-[9px]"></i> Share
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function likeComment(btn) {
+            const icon = btn.querySelector('i');
+            const count = btn.querySelector('span');
+            if (icon.classList.contains('fa-regular')) {
+                icon.className = 'fa-solid fa-heart text-[10px] text-accent-wine';
+                count.textContent = parseInt(count.textContent) + 1;
+            } else {
+                icon.className = 'fa-regular fa-heart text-[10px]';
+                count.textContent = parseInt(count.textContent) - 1;
+            }
+        }
+
+        function toggleCommentBox() {
+            document.getElementById('comment-box').classList.toggle('hidden');
+        }
+
+        function postComment() {
+            const input = document.getElementById('comment-input');
+            if (input.value.trim()) {
+                comments.unshift({
+                    author: 'You',
+                    initials: 'Y',
+                    color: 'gold',
+                    time: 'Just now',
+                    text: input.value.trim(),
+                    likes: 0,
+                    replies: 0
+                });
+                input.value = '';
+                toggleCommentBox();
+                renderComments();
+            }
+        }
+
+        // ========== KEYBOARD ==========
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeWordModal();
+                closeShareModal();
+            }
+            if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+                e.preventDefault();
+                toggleAudio();
+            }
+        });
+
+        document.getElementById('dict-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeWordModal();
+        });
+        document.getElementById('share-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeShareModal();
+        });
+
+        // ========== BOOT ==========
+        window.onload = function() {
+            renderComments();
+            updateAudioDisplay();
+        };
+    </script>
+</body>
+</html>
